@@ -604,8 +604,8 @@
     { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
     { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
     { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
-    { id: "card_wood", name: "水天靈根·學習", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
-    { id: "card_water", name: "親傳基本功", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 吸血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
+    { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
+    { id: "card_water", name: "水天靈根·學習", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 活血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
   ];
 
   var MAPS_DATABASE = [
@@ -980,7 +980,7 @@
       if (equippedCards.includes("card_wood")) {
         const woodRegen = Math.floor(stats.finalMaxHp * 0.06);
         setPlayer((p) => __spreadProps(__spreadValues({}, p), { hp: Math.min(stats.finalMaxHp, p.hp + woodRegen) }));
-        addLog(`【水天靈根·學習】觸發，回復 ${woodRegen} 點生命值！`, "heal");
+        addLog(`【木天靈根·羈絆】觸發，回復 ${woodRegen} 點生命值！`, "heal");
       }
     };
 
