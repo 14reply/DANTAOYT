@@ -5,6 +5,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>道家重地 - 紅塵內功</title>
         <style>
+            /* 柔和半透明金黃光圈跟隨滑鼠樣式 */
+            #mouse-cursor-glow {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 200px;
+                height: 200px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 45%, rgba(245, 158, 11, 0) 70%);
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+                z-index: 9999;
+                transition: transform 0.06s ease-out;
+                mix-blend-mode: screen;
+            }
+
             .error-boundary {
                 border: 2px dashed rgba(255, 0, 0, 0.3);
                 position: relative;
@@ -242,6 +258,9 @@
         </script>
     </head>
     <body class="bg-slate-950 text-slate-100">
+        <!-- 柔和半透明金黃光圈 -->
+        <div id="mouse-cursor-glow"></div>
+
         <div id="root"></div>
         <script>
             var App = (() => {
@@ -1989,6 +2008,15 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
+    // 滑鼠跟隨金黃光圈控制
+    const glow = document.getElementById('mouse-cursor-glow');
+    document.addEventListener('mousemove', function(e) {
+        if (glow) {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+        }
+    });
+
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(React.createElement(App.default, null));
 });
