@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>道家重地 - 紅塵內功 (WebSocket 優化版)</title>
+        <title>道家重地 - 紅塵內功</title>
         <style>
             .error-boundary {
                 border: 2px dashed rgba(255, 0, 0, 0.3);
@@ -21,6 +21,15 @@
                 border-radius: 0 0 0 4px;
                 pointer-events: none;
             }
+            .loading-spinner {
+                @apply flex items-center justify-center min-h-[200px] bg-gradient-to-br from-white/5 to-white/10 rounded-xl backdrop-blur-sm;
+            }
+            .loading-spinner::after {
+                content: '';
+                @apply w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-lg;
+            }
+
+            /* Custom Keyframe Animations */
             @keyframes shine {
                 0% { transform: translateX(-100%); }
                 100% { transform: translateX(200%); }
@@ -29,12 +38,136 @@
                 0%, 100% { opacity: 0.2; transform: translateY(2px); }
                 50% { opacity: 1; transform: translateY(0); }
             }
+
             body {
+                @apply bg-background text-foreground;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             }
+
+            input, textarea, select {
+                @apply bg-background text-foreground border-input placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring;
+            }
+
+            input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:not(:placeholder-shown) {
+                @apply bg-background;
+            }
+
+            .dark input, .dark textarea, .dark select {
+                @apply bg-background/95;
+            }
+
+            input, textarea, select {
+                @apply bg-background/95;
+            }
+
+            input:disabled, textarea:disabled, select:disabled {
+                @apply opacity-50 cursor-not-allowed;
+            }
+
+            button {
+                @apply bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+            }
+
+            button.secondary {
+                @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+            }
+
+            .card {
+                @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
+            }
+
+            .popover {
+                @apply bg-popover text-popover-foreground border border-border shadow-md rounded-md;
+            }
+
+            a {
+                @apply text-primary hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-ring;
+            }
+
+            .text-muted {
+                @apply text-muted-foreground;
+            }
+
+            .bg-accent {
+                @apply bg-accent text-accent-foreground;
+            }
+
+            .destructive {
+                @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+            }
+
+            pre, code {
+                @apply bg-muted text-muted-foreground rounded px-[0.3em] py-[0.2em];
+            }
+
+            table {
+                @apply border-collapse w-full;
+            }
+
+            th, td {
+                @apply border border-border p-2 text-left;
+            }
+
+            th {
+                @apply bg-muted font-semibold;
+            }
+
+            .badge {
+                @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary-foreground;
+            }
+
+            :focus-visible {
+                @apply outline-none ring-2 ring-ring ring-offset-2;
+            }
+
             ::selection {
-                background: #d97706;
-                color: white;
+                @apply bg-amber-600 text-white;
+            }
+        </style>
+
+        <style>
+            :root {
+                --background: 0 0% 100%;
+                --foreground: 222.2 84% 4.9%;
+                --card: 0 0% 100%;
+                --card-foreground: 222.2 84% 4.9%;
+                --popover: 0 0% 100%;
+                --popover-foreground: 222.2 84% 4.9%;
+                --primary: 222.2 47.4% 11.2%;
+                --primary-foreground: 210 40% 98%;
+                --secondary: 210 40% 96.1%;
+                --secondary-foreground: 222.2 47.4% 11.2%;
+                --muted: 210 40% 96.1%;
+                --muted-foreground: 215.4 16.3% 46.9%;
+                --accent: 210 40% 96.1%;
+                --accent-foreground: 222.2 47.4% 11.2%;
+                --destructive: 0 84.2% 60.2%;
+                --destructive-foreground: 210 40% 98%;
+                --border: 214.3 31.8% 91.4%;
+                --input: 214.3 31.8% 91.4%;
+                --ring: 222.2 84% 4.9%;
+                --radius: 0.5rem;
+            }
+            .dark {
+                --background: 222.2 84% 4.9%;
+                --foreground: 210 40% 98%;
+                --card: 222.2 84% 4.9%;
+                --card-foreground: 210 40% 98%;
+                --popover: 222.2 84% 4.9%;
+                --popover-foreground: 210 40% 98%;
+                --primary: 210 40% 98%;
+                --primary-foreground: 222.2 47.4% 11.2%;
+                --secondary: 217.2 32.6% 17.5%;
+                --secondary-foreground: 210 40% 98%;
+                --muted: 217.2 32.6% 17.5%;
+                --muted-foreground: 215 20.2% 65.1%;
+                --accent: 217.2 32.6% 17.5%;
+                --accent-foreground: 210 40% 98%;
+                --destructive: 0 62.8% 30.6%;
+                --destructive-foreground: 210 40% 98%;
+                --border: 217.2 32.6% 17.5%;
+                --input: 217.2 32.6% 17.5%;
+                --ring: 212.7 26.8% 83.9%;
             }
         </style>
         <script src="https://cdn.tailwindcss.com"></script>
@@ -42,6 +175,13 @@
             tailwind.config = {
                 darkMode: ["class"],
                 theme: {
+                    container: {
+                        center: true,
+                        padding: "2rem",
+                        screens: {
+                            "2xl": "1400px",
+                        },
+                    },
                     extend: {
                         colors: {
                             border: "hsl(var(--border))",
@@ -49,20 +189,49 @@
                             ring: "hsl(var(--ring))",
                             background: "hsl(var(--background))",
                             foreground: "hsl(var(--foreground))",
-                            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
-                            secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
-                            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
-                            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
-                            accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
-                            popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
-                            card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+                            primary: {
+                                DEFAULT: "hsl(var(--primary))",
+                                foreground: "hsl(var(--primary-foreground))",
+                            },
+                            secondary: {
+                                DEFAULT: "hsl(var(--secondary))",
+                                foreground: "hsl(var(--secondary-foreground))",
+                            },
+                            destructive: {
+                                DEFAULT: "hsl(var(--destructive))",
+                                foreground: "hsl(var(--destructive-foreground))",
+                            },
+                            muted: {
+                                DEFAULT: "hsl(var(--muted))",
+                                foreground: "hsl(var(--muted-foreground))",
+                            },
+                            accent: {
+                                DEFAULT: "hsl(var(--accent))",
+                                foreground: "hsl(var(--accent-foreground))",
+                            },
+                            popover: {
+                                DEFAULT: "hsl(var(--popover))",
+                                foreground: "hsl(var(--popover-foreground))",
+                            },
+                            card: {
+                                DEFAULT: "hsl(var(--card))",
+                                foreground: "hsl(var(--card-foreground))",
+                            },
+                        },
+                        borderRadius: {
+                            lg: "var(--radius)",
+                            md: "calc(var(--radius) - 2px)",
+                            sm: "calc(var(--radius) - 4px)",
                         },
                     },
                 },
             }
         </script>
+
+        <!-- Load React -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+
         <script>
             if (!window.React || !window.ReactDOM) {
                throw new Error('React or ReactDOM not loaded');
@@ -76,583 +245,1753 @@
         <div id="root"></div>
         <script>
             var App = (() => {
-              var __create = Object.create;
-              var __defProp = Object.defineProperty;
-              var __defProps = Object.defineProperties;
-              var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-              var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-              var __getOwnPropNames = Object.getOwnPropertyNames;
-              var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-              var __getProtoOf = Object.getPrototypeOf;
-              var __hasOwnProp = Object.prototype.hasOwnProperty;
-              var __propIsEnum = Object.prototype.propertyIsEnumerable;
-              var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-              var __spreadValues = (a, b) => {
-                for (var prop in b || (b = {}))
-                  if (__hasOwnProp.call(b, prop))
-                    __defNormalProp(a, prop, b[prop]);
-                if (__getOwnPropSymbols)
-                  for (var prop of __getOwnPropSymbols(b)) {
-                    if (__propIsEnum.call(b, prop))
-                      __defNormalProp(a, prop, b[prop]);
-                  }
-                return a;
-              };
-              var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-              var __objRest = (source, exclude) => {
-                var target = {};
-                for (var prop in source)
-                  if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-                    target[prop] = source[prop];
-                if (source != null && __getOwnPropSymbols)
-                  for (var prop of __getOwnPropSymbols(source)) {
-                    if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-                      target[prop] = source[prop];
-                  }
-                return target;
-              };
-              var __commonJS = (cb, mod) => function __require() {
-                return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-              };
-              var __export = (target, all) => {
-                for (var name in all)
-                  __defProp(target, name, { get: all[name], enumerable: true });
-              };
-              var __copyProps = (to, from, except, desc) => {
-                if (from && typeof from === "object" || typeof from === "function") {
-                  for (let key of __getOwnPropNames(from))
-                    if (!__hasOwnProp.call(to, key) && key !== except)
-                      __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-                }
-                return to;
-              };
-              var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-                isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-                mod
-              ));
-              var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-              var __async = (__this, __arguments, generator) => {
-                return new Promise((resolve, reject) => {
-                  var fulfilled = (value) => {
-                    try { step(generator.next(value)); } catch (e) { reject(e); }
-                  };
-                  var rejected = (value) => {
-                    try { step(generator.throw(value)); } catch (e) { reject(e); }
-                  };
-                  var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-                  step((generator = generator.apply(__this, __arguments)).next());
-                });
-              };
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+  var __objRest = (source, exclude) => {
+    var target = {};
+    for (var prop in source)
+      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+        target[prop] = source[prop];
+    if (source != null && __getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(source)) {
+        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+          target[prop] = source[prop];
+      }
+    return target;
+  };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+  var __async = (__this, __arguments, generator) => {
+    return new Promise((resolve, reject) => {
+      var fulfilled = (value) => {
+        try {
+          step(generator.next(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var rejected = (value) => {
+        try {
+          step(generator.throw(value));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+      step((generator = generator.apply(__this, __arguments)).next());
+    });
+  };
 
-              var require_react = __commonJS({
-                "react-globals:react"(exports, module) {
-                  module.exports = window.React;
-                }
-              });
+  // react-globals:react
+  var require_react = __commonJS({
+    "react-globals:react"(exports, module) {
+      module.exports = window.React;
+    }
+  });
 
-              var stdin_exports = {};
-              __export(stdin_exports, { default: () => App });
-              var import_react3 = __toESM(require_react());
-              var import_react2 = __toESM(require_react());
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    default: () => App
+  });
+  var import_react3 = __toESM(require_react());
+  var import_react2 = __toESM(require_react());
 
-              var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-              var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
-              var toPascalCase = (string) => {
-                const camelCase = toCamelCase(string);
-                return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
-              };
-              var mergeClasses = (...classes) => classes.filter((className, index, array) => Boolean(className) && className.trim() !== "" && array.indexOf(className) === index).join(" ").trim();
-              var hasA11yProp = (props) => {
-                for (const prop in props) {
-                  if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
-                }
-              };
+  var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  var toCamelCase = (string) => string.replace(
+    /^([A-Z])|[\s-_]+(\w)/g,
+    (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase()
+  );
+  var toPascalCase = (string) => {
+    const camelCase = toCamelCase(string);
+    return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+  };
+  var mergeClasses = (...classes) => classes.filter((className, index, array) => {
+    return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
+  }).join(" ").trim();
+  var hasA11yProp = (props) => {
+    for (const prop in props) {
+      if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
+        return true;
+      }
+    }
+  };
 
-              var import_react = __toESM(require_react());
-              var defaultAttributes = {
-                xmlns: "http://www.w3.org/2000/svg", width: 24, height: 24, viewBox: "0 0 24 24",
-                fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"
-              };
+  var import_react = __toESM(require_react());
 
-              var Icon = (0, import_react.forwardRef)((_a, ref) => {
-                var _b = _a, { color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode } = _b, rest = __objRest(_b, ["color", "size", "strokeWidth", "absoluteStrokeWidth", "className", "children", "iconNode"]);
-                return (0, import_react.createElement)("svg", __spreadValues(__spreadValues(__spreadProps(__spreadValues({ ref }, defaultAttributes), {
-                  width: size, height: size, stroke: color,
-                  strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-                  className: mergeClasses("lucide", className)
-                }), !children && !hasA11yProp(rest) && { "aria-hidden": "true" }), rest), [
-                  ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
-                  ...Array.isArray(children) ? children : [children]
-                ]);
-              });
+  var defaultAttributes = {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: 24,
+    height: 24,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  };
 
-              var createLucideIcon = (iconName, iconNode) => {
-                const Component = (0, import_react2.forwardRef)((_a, ref) => {
-                  var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
-                  return (0, import_react2.createElement)(Icon, __spreadValues({ ref, iconNode, className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className) }, props));
-                });
-                Component.displayName = toPascalCase(iconName);
-                return Component;
-              };
+  var Icon = (0, import_react.forwardRef)(
+    (_a, ref) => {
+      var _b = _a, {
+        color = "currentColor",
+        size = 24,
+        strokeWidth = 2,
+        absoluteStrokeWidth,
+        className = "",
+        children,
+        iconNode
+      } = _b, rest = __objRest(_b, [
+        "color",
+        "size",
+        "strokeWidth",
+        "absoluteStrokeWidth",
+        "className",
+        "children",
+        "iconNode"
+      ]);
+      return (0, import_react.createElement)(
+        "svg",
+        __spreadValues(__spreadValues(__spreadProps(__spreadValues({
+          ref
+        }, defaultAttributes), {
+          width: size,
+          height: size,
+          stroke: color,
+          strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+          className: mergeClasses("lucide", className)
+        }), !children && !hasA11yProp(rest) && { "aria-hidden": "true" }), rest),
+        [
+          ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
+          ...Array.isArray(children) ? children : [children]
+        ]
+      );
+    }
+  );
 
-              // 圖標定義
-              var Check = createLucideIcon("check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
-              var ChevronRight = createLucideIcon("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
-              var ChevronDown = createLucideIcon("chevron-down", [["path", { d: "m6 9 6 6 6-6", key: "19w885" }]]);
-              var ChevronUp = createLucideIcon("chevron-up", [["path", { d: "m18 15-6-6-6 6", key: "153z95" }]]);
-              var Flame = createLucideIcon("flame", [["path", { d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z", key: "96xj49" }]]);
-              var LogOut = createLucideIcon("log-out", [["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }], ["path", { d: "M21 12H9", key: "dn1m92" }], ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]]);
-              var MapIcon = createLucideIcon("map", [["path", { d: "M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z", key: "169xi5" }], ["path", { d: "M15 5.764v15", key: "1pn4in" }], ["path", { d: "M9 3.236v15", key: "1uimfh" }]]);
-              var Mountain = createLucideIcon("mountain", [["path", { d: "m8 3 4 8 5-5 5 15H2L8 3z", key: "1b9pfs" }]]);
-              var Package = createLucideIcon("package", [["path", { d: "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z", key: "1a0edw" }], ["path", { d: "M12 22V12", key: "d0xqtd" }], ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }], ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]]);
-              var PenLine = createLucideIcon("pen-line", [["path", { d: "M12 20h9", key: "t2du7b" }], ["path", { d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z", key: "1ykcvy" }]]);
-              var RefreshCw = createLucideIcon("refresh-cw", [["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }], ["path", { d: "M21 3v5h-5", key: "1q7to0" }], ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }], ["path", { d: "M8 16H3v5", key: "1cv678" }]]);
-              var Scroll = createLucideIcon("scroll", [["path", { d: "M19 17V5a2 2 0 0 0-2-2H4", key: "zz82l3" }], ["path", { d: "M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3", key: "1ph1d7" }]]);
-              var Shield = createLucideIcon("shield", [["path", { d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z", key: "oel41y" }]]);
-              var Shuffle = createLucideIcon("shuffle", [["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }], ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }], ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }], ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }], ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]]);
-              var Sparkles = createLucideIcon("sparkles", [["path", { d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z", key: "4pj2yx" }], ["path", { d: "M20 3v4", key: "1olli1" }], ["path", { d: "M22 5h-4", key: "1gvqau" }], ["path", { d: "M4 17v2", key: "vumght" }], ["path", { d: "M5 18H3", key: "zchphs" }]]);
-              var Sun = createLucideIcon("sun", [["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }], ["path", { d: "M12 2v2", key: "tus03m" }], ["path", { d: "M12 20v2", key: "1lh1kg" }], ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }], ["path", { d: "m17.66 17.66 1.41 1.41", key: "ptbguv" }], ["path", { d: "M2 12h2", key: "1t8f8n" }], ["path", { d: "M20 12h2", key: "1q8mjw" }], ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }], ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]]);
-              var Sword = createLucideIcon("sword", [["polyline", { points: "14.5 17.5 3 6 3 3 6 3 17.5 14.5", key: "1hfsw2" }], ["line", { x1: "13", x2: "19", y1: "19", y2: "13", key: "1vrmhu" }], ["line", { x1: "16", x2: "20", y1: "16", y2: "20", key: "1bron3" }], ["line", { x1: "19", x2: "21", y1: "21", y2: "19", key: "13pww6" }]]);
-              var Trash2 = createLucideIcon("trash-2", [["path", { d: "M3 6h18", key: "d0wm0j" }], ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }], ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }], ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }], ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]]);
-              var UserCheck = createLucideIcon("user-check", [["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }], ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
-              var UserPlus = createLucideIcon("user-plus", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }], ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }], ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]]);
-              var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
-              var Droplets = createLucideIcon("droplets", [["path", { d: "M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.09 3 12.25c0 2.22 1.8 4.05 4 4.05z", key: "1k5878" }], ["path", { d: "M17.5 21c2.5 0 4.5-2.01 4.5-4.5 0-1.28-.63-2.5-1.89-3.52s-2.53-2.55-2.86-4.15c-.32 1.6-1.26 3.13-2.52 4.15S13 15.22 13 16.5c0 2.49 2 4.5 4.5 4.5z", key: "1vh5y5" }]]);
-              var X = createLucideIcon("x", [["path", { d: "M18 6 6 18", key: "1bl5f8" }], ["path", { d: "m6 6 12 12", key: "d8bk6v" }]]);
-              var Zap = createLucideIcon("zap", [["path", { d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z", key: "1xq2db" }]]);
-              var Search = createLucideIcon("search", [["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }], ["path", { d: "m21 21-4.3-4.3", key: "1qie3h" }]]);
-              var HelpCircle = createLucideIcon("help-circle", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u7bbk" }], ["line", { x1: "12", x2: "12.01", y1: "17", y2: "17", key: "1p73jh" }]]);
-              var Wifi = createLucideIcon("wifi", [["path", { d: "M12 20h.01", key: "1m8t8p" }], ["path", { d: "M2 8.82a15 15 0 0 1 20 0", key: "1k7j93" }], ["path", { d: "M5 12.859a10 10 0 0 1 14 0", key: "1h3q2u" }], ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1p026g" }]]);
-              var WifiOff = createLucideIcon("wifi-off", [["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "1v81qc" }], ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1p026g" }], ["path", { d: "M5 12.859a10 10 0 0 1 5.17-2.65", key: "1m8t8q" }], ["path", { d: "M19 12.859a10 10 0 0 1-2.17 1.35", key: "1m8t8r" }], ["path", { d: "M12 20h.01", key: "1m8t8p" }]] );
+  var createLucideIcon = (iconName, iconNode) => {
+    const Component = (0, import_react2.forwardRef)(
+      (_a, ref) => {
+        var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
+        return (0, import_react2.createElement)(Icon, __spreadValues({
+          ref,
+          iconNode,
+          className: mergeClasses(
+            `lucide-${toKebabCase(toPascalCase(iconName))}`,
+            `lucide-${iconName}`,
+            className
+          )
+        }, props));
+      }
+    );
+    Component.displayName = toPascalCase(iconName);
+    return Component;
+  };
 
-              var DB_NAME = "WuxiaDB";
-              var DB_VERSION = 1;
-              var STORE_SAVES = "saves";
-              var STORE_META = "meta";
-              var KEY_ACTIVE_ID = "active_id";
+  var Check = createLucideIcon("check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+  var ChevronRight = createLucideIcon("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
+  var ChevronDown = createLucideIcon("chevron-down", [["path", { d: "m6 9 6 6 6-6", key: "19w885" }]]);
+  var ChevronUp = createLucideIcon("chevron-up", [["path", { d: "m18 15-6-6-6 6", key: "153z95" }]]);
+  var Flame = createLucideIcon("flame", [["path", { d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z", key: "96xj49" }]]);
+  var LogOut = createLucideIcon("log-out", [["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }], ["path", { d: "M21 12H9", key: "dn1m92" }], ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]]);
+  var MapIcon = createLucideIcon("map", [["path", { d: "M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z", key: "169xi5" }], ["path", { d: "M15 5.764v15", key: "1pn4in" }], ["path", { d: "M9 3.236v15", key: "1uimfh" }]]);
+  var Mountain = createLucideIcon("mountain", [["path", { d: "m8 3 4 8 5-5 5 15H2L8 3z", key: "1b9pfs" }]]);
+  var Package = createLucideIcon("package", [["path", { d: "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z", key: "1a0edw" }], ["path", { d: "M12 22V12", key: "d0xqtd" }], ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }], ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]]);
+  var PenLine = createLucideIcon("pen-line", [["path", { d: "M12 20h9", key: "t2du7b" }], ["path", { d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z", key: "1ykcvy" }]]);
+  var RefreshCw = createLucideIcon("refresh-cw", [["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }], ["path", { d: "M21 3v5h-5", key: "1q7to0" }], ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }], ["path", { d: "M8 16H3v5", key: "1cv678" }]]);
+  var Scroll = createLucideIcon("scroll", [["path", { d: "M19 17V5a2 2 0 0 0-2-2H4", key: "zz82l3" }], ["path", { d: "M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3", key: "1ph1d7" }]]);
+  var Shield = createLucideIcon("shield", [["path", { d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z", key: "oel41y" }]]);
+  var Shuffle = createLucideIcon("shuffle", [["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }], ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }], ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }], ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }], ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]]);
+  var Sparkles = createLucideIcon("sparkles", [["path", { d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z", key: "4pj2yx" }], ["path", { d: "M20 3v4", key: "1olli1" }], ["path", { d: "M22 5h-4", key: "1gvqau" }], ["path", { d: "M4 17v2", key: "vumght" }], ["path", { d: "M5 18H3", key: "zchphs" }]]);
+  var Sun = createLucideIcon("sun", [["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }], ["path", { d: "M12 2v2", key: "tus03m" }], ["path", { d: "M12 20v2", key: "1lh1kg" }], ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }], ["path", { d: "m17.66 17.66 1.41 1.41", key: "ptbguv" }], ["path", { d: "M2 12h2", key: "1t8f8n" }], ["path", { d: "M20 12h2", key: "1q8mjw" }], ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }], ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]]);
+  var Sword = createLucideIcon("sword", [["polyline", { points: "14.5 17.5 3 6 3 3 6 3 17.5 14.5", key: "1hfsw2" }], ["line", { x1: "13", x2: "19", y1: "19", y2: "13", key: "1vrmhu" }], ["line", { x1: "16", x2: "20", y1: "16", y2: "20", key: "1bron3" }], ["line", { x1: "19", x2: "21", y1: "21", y2: "19", key: "13pww6" }]]);
+  var Trash2 = createLucideIcon("trash-2", [["path", { d: "M3 6h18", key: "d0wm0j" }], ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }], ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }], ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }], ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]]);
+  var UserCheck = createLucideIcon("user-check", [["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }], ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
+  var UserPlus = createLucideIcon("user-plus", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }], ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }], ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]]);
+  var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
+  var Droplets = createLucideIcon("droplets", [["path", { d: "M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.09 3 12.25c0 2.22 1.8 4.05 4 4.05z", key: "1k5878" }], ["path", { d: "M17.5 21c2.5 0 4.5-2.01 4.5-4.5 0-1.28-.63-2.5-1.89-3.52s-2.53-2.55-2.86-4.15c-.32 1.6-1.26 3.13-2.52 4.15S13 15.22 13 16.5c0 2.49 2 4.5 4.5 4.5z", key: "1vh5y5" }]]);
+  var X = createLucideIcon("x", [["path", { d: "M18 6 6 18", key: "1bl5f8" }], ["path", { d: "m6 6 12 12", key: "d8bk6v" }]]);
+  var Zap = createLucideIcon("zap", [["path", { d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z", key: "1xq2db" }]]);
+  var Search = createLucideIcon("search", [["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }], ["path", { d: "m21 21-4.3-4.3", key: "1qie3h" }]]);
+  var HelpCircle = createLucideIcon("help-circle", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u7bbk" }], ["line", { x1: "12", x2: "12.01", y1: "17", y2: "17", key: "1p73jh" }]]);
+  var MessageSquare = createLucideIcon("message-square", [["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1rcbt9" }]]);
 
-              var initDB = () => {
-                return new Promise((resolve, reject) => {
-                  const request = indexedDB.open(DB_NAME, DB_VERSION);
-                  request.onupgradeneeded = (e) => {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains(STORE_SAVES)) db.createObjectStore(STORE_SAVES, { keyPath: "id" });
-                    if (!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META, { keyPath: "key" });
-                  };
-                  request.onsuccess = () => resolve(request.result);
-                  request.onerror = () => reject(request.error);
-                });
-              };
+  var DB_NAME = "WuxiaDB";
+  var DB_VERSION = 1;
+  var STORE_SAVES = "saves";
+  var STORE_META = "meta";
+  var KEY_ACTIVE_ID = "active_id";
 
-              var SaveManager = {
-                hasSaveData() {
-                  return __async(this, null, function* () {
-                    try {
-                      const db = yield initDB();
-                      const tx = db.transaction([STORE_SAVES], "readonly");
-                      const store = tx.objectStore(STORE_SAVES);
-                      const count = yield new Promise((res, rej) => {
-                        const req = store.count();
-                        req.onsuccess = () => res(req.result);
-                        req.onerror = () => rej(req.error);
-                      });
-                      return count > 0;
-                    } catch (err) { return false; }
-                  });
+  var initDB = () => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_SAVES)) {
+          db.createObjectStore(STORE_SAVES, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains(STORE_META)) {
+          db.createObjectStore(STORE_META, { keyPath: "key" });
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  };
+
+  var SaveManager = {
+    hasSaveData() {
+      return __async(this, null, function* () {
+        try {
+          const db = yield initDB();
+          const tx = db.transaction([STORE_SAVES], "readonly");
+          const store = tx.objectStore(STORE_SAVES);
+          const count = yield new Promise((res, rej) => {
+            const req = store.count();
+            req.onsuccess = () => res(req.result);
+            req.onerror = () => rej(req.error);
+          });
+          return count > 0;
+        } catch (err) {
+          console.error("SaveManager: 檢查存檔失敗", err);
+          return false;
+        }
+      });
+    },
+    loadSaves() {
+      return __async(this, null, function* () {
+        try {
+          const db = yield initDB();
+          const tx = db.transaction([STORE_SAVES, STORE_META], "readonly");
+          const savesStore = tx.objectStore(STORE_SAVES);
+          const metaStore = tx.objectStore(STORE_META);
+          const accounts = yield new Promise((res, rej) => {
+            const req = savesStore.getAll();
+            req.onsuccess = () => res(req.result);
+            req.onerror = () => rej(req.error);
+          });
+          const meta = yield new Promise((res, rej) => {
+            const req = metaStore.get(KEY_ACTIVE_ID);
+            req.onsuccess = () => res(req.result);
+            req.onerror = () => rej(req.error);
+          });
+          return { accounts, activeId: meta == null ? void 0 : meta.value };
+        } catch (err) {
+          console.error("SaveManager: 讀取失敗", err);
+          return null;
+        }
+      });
+    },
+    saveSaves(accounts, activeId) {
+      return __async(this, null, function* () {
+        try {
+          const db = yield initDB();
+          const tx = db.transaction([STORE_SAVES, STORE_META], "readwrite");
+          const savesStore = tx.objectStore(STORE_SAVES);
+          const metaStore = tx.objectStore(STORE_META);
+          savesStore.clear();
+          accounts.forEach((acc) => savesStore.put(acc));
+          metaStore.put({ key: KEY_ACTIVE_ID, value: activeId });
+          return true;
+        } catch (err) {
+          console.error("SaveManager: 儲存失敗", err);
+          return false;
+        }
+      });
+    }
+  };
+
+  var encodeSaveString = (dataObj) => {
+    try {
+      const jsonStr = JSON.stringify(dataObj);
+      const utf8Bytes = new TextEncoder().encode(jsonStr);
+      let binary = "";
+      utf8Bytes.forEach((b) => binary += String.fromCharCode(b));
+      return btoa(binary);
+    } catch (e) {
+      console.error("編碼失敗:", e);
+      return "";
+    }
+  };
+
+  var decodeSaveString = (encodedStr) => {
+    try {
+      const binary = atob(encodedStr.trim());
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      const jsonStr = new TextDecoder().decode(bytes);
+      return JSON.parse(jsonStr);
+    } catch (e) {
+      console.error("解碼失敗:", e);
+      return null;
+    }
+  };
+
+  var ICON_MAP = {
+    Flame,
+    Mountain,
+    Sun,
+    Sparkles,
+    Droplets
+  };
+
+  var RARITY_MAP = {
+    common: { name: "魔改假貨", color: "text-gray-300", bg: "bg-gray-800/60", border: "border-gray-600", val: 1 },
+    uncommon: { name: "二手貨", color: "text-green-400", bg: "bg-green-950/40", border: "border-green-600", val: 2 },
+    rare: { name: "路邊攤", color: "text-blue-400", bg: "bg-blue-950/40", border: "border-blue-600", val: 3 },
+    epic: { name: "福利品", color: "text-purple-400", bg: "bg-purple-950/40", border: "border-purple-600", val: 4 },
+    legendary: { name: "全新", color: "text-amber-400", bg: "bg-amber-950/40", border: "border-amber-500", val: 5 }
+  };
+
+  var SLOT_MAP = {
+    weapon: "手持",
+    helmet: "頭部",
+    armor: "全身",
+    boots: "鞋子",
+    ring: "飾品",
+    relic: "秘寶"
+  };
+
+  var SKILLS_DATABASE = [
+    { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
+    { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
+    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
+    { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
+    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
+    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
+    { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
+    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
+    { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
+    { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
+    { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
+    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
+  ];
+
+  var CARDS_DATABASE = [
+    { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
+    { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
+    { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
+    { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
+    { id: "card_water", name: "水天靈根·學習", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 活血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
+  ];
+
+  var MAPS_DATABASE = [
+    { id: "map_1", name: "新手村明堂", reqLevel: 1, desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】\n\n⮳聚靈: 極端環境下產生的妖物，會寄生在動物身上。\n⮳通智: 低級妖物模仿人類情緒，讓宿主更加情緒化。", bg: "from-emerald-950/80 to-slate-900", monsters: [
+      { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
+      { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
+      { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
+    ] },
+    { id: "map_2", name: "紅塵地界", reqLevel: 5, desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】\n\n⮳鍛造:通過練習高效模仿行為動作，使宿主疲於奔命。\n⮳煉骨:透過藥物強化自己或用奇巧工具改造外形和面貌。", bg: "from-red-950/80 to-slate-900", monsters: [
+      { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
+      { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
+      { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
+    ] },
+    { id: "map_3", name: "五蘊仙田", reqLevel: 12, desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田，\n考驗辨識真假以增進大道修為。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n\n⮳妖丹:受外物(藥物、工具)汙染後的丹田識海，凝聚成妖丹。\n⮳化形:妖丹氣味外放化成獸類氣團形狀。", bg: "from-cyan-950/80 to-slate-900", monsters: [
+      { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
+      { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
+      { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
+    ] },
+    { id: "map_4", name: "三清洞府", reqLevel: 20, desc: "道門重地，藏有至高神功的修魔傀儡，\n爭搶攻擊修為弱的對手。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。", bg: "from-amber-950/80 to-slate-900", monsters: [
+      { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000 },
+      { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000 },
+      { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true }
+    ] },
+    { id: "map_5", name: "輪迴境考", reqLevel: 30, desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n\n⮳淬體:運用人類練體修士的功法開通經脈。\n⮳練虛:運用人類法修修士的功法提高境界。", bg: "from-purple-950/80 to-indigo-950", monsters: [
+      { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
+      { name: "冷空間的撕裂之氣", hp: 90000, atk: 2400, def: 1100, exp: 50000, coins: 65000 },
+      { name: "前排境界的心魔", hp: 150000, atk: 3500, def: 1600, exp: 100000, coins: 120000, isBoss: true }
+    ] }
+  ];
+
+  var TITLE_LIST = ["凡人一枚", "無瘋不起浪", "九天尊者", "求勝率大師", "太極宗師", "逍遙散人", "損壽魔尊"];
+  var RANDOM_NAMES = ["雪別亭", "百無禁忌", "衝衝衝", "頭香", "山人自有妙計", "單身最好", "吹雪", "不想瑟瑟", "包租大大", "非誠勿擾"];
+
+  var WUXIA_SKILL_TEXTS = [
+    "《輪拳》",
+    "《降龍十八掌》",
+    "《十靜法》",
+    "《ABC體操》",
+    "《太極吐納》",
+    "《親傳基本功》",
+    "《望氣法》",
+    "《易筋睡功》",
+    "《九星風水》",
+    "《純陽劍訣》",
+    "《抱元守一》",
+    "《太上神功》"
+  ];
+
+  var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
+    id: "acc_" + Date.now(),
+    createdAt: Date.now(),
+    player: {
+      name,
+      title,
+      level: 1,
+      exp: 0,
+      maxExp: 100,
+      hp: 200,
+      maxHp: 200,
+      mp: 100,
+      maxMp: 100,
+      baseAtk: 25,
+      baseDef: 8,
+      critChance: 0.05,
+      critDmg: 1.5,
+      dodgeChance: 0.05,
+      coins: 200,
+      enhanceStones: 5
+    },
+    equipment: {
+      weapon: { id: "eq_w1", name: "魔幻夢境地圖", slot: "weapon", rarity: "common", atk: 10, def: 0, enhance: 0 },
+      helmet: null,
+      armor: { id: "eq_a1", name: "粗布麻衣", slot: "armor", rarity: "common", atk: 0, def: 5, enhance: 0 },
+      boots: null,
+      ring: null,
+      relic: null
+    },
+    inventory: [
+      { id: "pot_1", name: "緗蛋吐司", type: "potion", hpRestore: 250, count: 3, desc: "回復 250 點生命值" },
+      { id: "pot_2", name: "真緗咖啡", type: "potion", mpRestore: 120, count: 2, desc: "回復 120 點內力值" }
+    ],
+    skills: SKILLS_DATABASE.map((s) => __spreadProps(__spreadValues({}, s), { learned: s.id === "sk_1" })),
+    equippedCards: []
+  });
+
+  function App() {
+    const e = import_react3.default.createElement;
+    const [accounts, setAccounts] = (0, import_react3.useState)([]);
+    const [currentAccountId, setCurrentAccountId] = (0, import_react3.useState)("");
+    const [dbLoaded, setDbLoaded] = (0, import_react3.useState)(false);
+    const [isGameStarted, setIsGameStarted] = (0, import_react3.useState)(false);
+    const [activeTab, setActiveTab] = (0, import_react3.useState)("explore");
+    const [currentMapIndex, setCurrentMapIndex] = (0, import_react3.useState)(0);
+    const [isMapListOpen, setIsMapListOpen] = (0, import_react3.useState)(true);
+    const [inBattle, setInBattle] = (0, import_react3.useState)(false);
+    const [currentMonster, setCurrentMonster] = (0, import_react3.useState)(null);
+    const [monsterHp, setMonsterHp] = (0, import_react3.useState)(0);
+    const [battleLogs, setBattleLogs] = (0, import_react3.useState)([]);
+    const [saveNotify, setSaveNotify] = (0, import_react3.useState)(false);
+    const [showBackupModal, setShowBackupModal] = (0, import_react3.useState)(false);
+    const [showAccountModal, setShowAccountModal] = (0, import_react3.useState)(false);
+    const [showEditNameModal, setShowEditNameModal] = (0, import_react3.useState)(false);
+    const [showStatHelpModal, setShowStatHelpModal] = (0, import_react3.useState)(false);
+    const [exportedCode, setExportedCode] = (0, import_react3.useState)("");
+    const [importJsonText, setImportJsonText] = (0, import_react3.useState)("");
+    const [inputName, setInputName] = (0, import_react3.useState)("");
+    const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
+    const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
+    
+    // 篩選與搜尋狀態
+    const [inventorySearchQuery, setInventorySearchQuery] = (0, import_react3.useState)("");
+    const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
+
+    const logContainerRef = (0, import_react3.useRef)(null);
+
+    (0, import_react3.useEffect)(() => {
+      const textTimer = setInterval(() => {
+        setCurrentSkillTextIdx((prev) => (prev + 1) % WUXIA_SKILL_TEXTS.length);
+      }, 2800);
+      return () => clearInterval(textTimer);
+    }, []);
+
+    (0, import_react3.useEffect)(() => {
+      const initSaveManager = () => __async(this, null, function* () {
+        try {
+          const hasData = yield SaveManager.hasSaveData();
+          if (hasData) {
+            const data = yield SaveManager.loadSaves();
+            if (data && data.accounts && data.accounts.length > 0) {
+              const sanitizedAccounts = data.accounts.map((acc) => __spreadProps(__spreadValues({}, acc), {
+                skills: SKILLS_DATABASE.map((baseSk) => {
+                  const found = (acc.skills || []).find((s) => s.id === baseSk.id);
+                  return found ? __spreadProps(__spreadValues({}, baseSk), { learned: found.learned }) : baseSk;
+                })
+              }));
+              setAccounts(sanitizedAccounts);
+              const validId = sanitizedAccounts.some((a) => a.id === data.activeId) ? data.activeId : sanitizedAccounts[0].id;
+              setCurrentAccountId(validId);
+            }
+          } else {
+            const defaultAcc = createInitialAccount("無名凡人", "凡人一枚");
+            setAccounts([defaultAcc]);
+            setCurrentAccountId(defaultAcc.id);
+            yield SaveManager.saveSaves([defaultAcc], defaultAcc.id);
+          }
+        } catch (err) {
+          console.error("SaveManager 初始化失敗:", err);
+        } finally {
+          setDbLoaded(true);
+          setIsGameStarted(false);
+        }
+      });
+      initSaveManager();
+    }, []);
+
+    const currentAccount = accounts.find((a) => a.id === currentAccountId) || accounts[0] || createInitialAccount();
+
+    const updateCurrentAccount = (updater) => {
+      setAccounts((prev) => prev.map((acc) => {
+        if (acc.id === currentAccountId) {
+          return typeof updater === "function" ? updater(acc) : __spreadValues(__spreadValues({}, acc), updater);
+        }
+        return acc;
+      }));
+    };
+
+    const player = currentAccount.player;
+    const equipment = currentAccount.equipment;
+    const inventory = currentAccount.inventory;
+    const skills = currentAccount.skills;
+    const equippedCards = currentAccount.equippedCards;
+
+    const setPlayer = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { player: typeof val === "function" ? val(acc.player) : val }));
+    const setEquipment = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equipment: typeof val === "function" ? val(acc.equipment) : val }));
+    const setInventory = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { inventory: typeof val === "function" ? val(acc.inventory) : val }));
+    const setSkills = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { skills: typeof val === "function" ? val(acc.skills) : val }));
+    const setEquippedCards = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equippedCards: typeof val === "function" ? val(acc.equippedCards) : val }));
+
+    const addLog = (text, type = "info") => {
+      const safeText = String(text);
+      setBattleLogs((prev) => [...prev.slice(-80), { id: Date.now() + Math.random(), text: safeText, type }]);
+    };
+
+    (0, import_react3.useEffect)(() => {
+      if (logContainerRef.current) {
+        logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+      }
+    }, [battleLogs]);
+
+    const clearLogs = () => setBattleLogs([]);
+
+    const calculateStats = () => {
+      let eqAtk = 0;
+      let eqDef = 0;
+      Object.values(equipment).forEach((item) => {
+        if (item) {
+          eqAtk += (item.atk || 0) + (item.enhance || 0) * 3;
+          eqDef += (item.def || 0) + (item.enhance || 0) * 2;
+        }
+      });
+
+      let passiveAtkMul = 0;
+      let passiveDefMul = 0;
+      let passiveHpMul = 0;
+      let passiveMpBonus = 0;
+      let passiveDodge = 0;
+      let passiveCritDmg = 0;
+
+      skills.filter((s) => s.learned).forEach((s) => {
+        if (s.id === "sk_4") {
+          passiveAtkMul += 0.2;
+          passiveMpBonus += 100;
+        }
+        if (s.id === "sk_5") {
+          passiveHpMul += 0.3;
+          passiveDefMul += 0.3;
+          passiveMpBonus += 200;
+        }
+        if (s.id === "sk_6") {
+          passiveDodge += 0.15;
+        }
+        if (s.id === "sk_8") {
+          passiveHpMul += 0.25;
+          passiveDefMul += 0.15;
+        }
+        if (s.id === "sk_9") {
+          passiveAtkMul += 0.25;
+          passiveDefMul += 0.25;
+          passiveCritDmg += 0.35;
+        }
+        if (s.id === "sk_11") {
+          passiveDefMul += 0.4;
+        }
+      });
+
+      let cardAtkMul = 0;
+      let cardDefMul = 0;
+      let cardHpMul = 0;
+      let cardMpAdd = 0;
+      let cardCritBonus = 0;
+      let cardCritDmgBonus = 0;
+
+      equippedCards.forEach((cId) => {
+        const c = CARDS_DATABASE.find((x) => x.id === cId);
+        if (c && c.stats) {
+          if (c.stats.atkBonus) cardAtkMul += c.stats.atkBonus;
+          if (c.stats.defBonus) cardDefMul += c.stats.defBonus;
+          if (c.stats.hpBonus) cardHpMul += c.stats.hpBonus;
+          if (c.stats.mpMaxAdd) cardMpAdd += c.stats.mpMaxAdd;
+          if (c.stats.critBonus) cardCritBonus += c.stats.critBonus;
+          if (c.stats.critDmgBonus) cardCritDmgBonus += c.stats.critDmgBonus;
+        }
+      });
+
+      const baseAtkSum = player.baseAtk + eqAtk;
+      const finalAtk = Math.floor(baseAtkSum * (1 + passiveAtkMul + cardAtkMul));
+      const baseDefSum = player.baseDef + eqDef;
+      const finalDef = Math.floor(baseDefSum * (1 + passiveDefMul + cardDefMul));
+      const finalMaxHp = Math.floor(player.maxHp * (1 + passiveHpMul + cardHpMul));
+      const finalMaxMp = player.maxMp + passiveMpBonus + cardMpAdd;
+      const finalCrit = player.critChance + cardCritBonus;
+      const finalCritDmg = player.critDmg + passiveCritDmg + cardCritDmgBonus;
+      const finalDodge = player.dodgeChance + passiveDodge;
+
+      return { finalAtk, finalDef, finalMaxHp, finalMaxMp, finalCrit, finalCritDmg, finalDodge };
+    };
+
+    const stats = calculateStats();
+
+    const triggerSaveNotification = () => {
+      setSaveNotify(true);
+      setTimeout(() => setSaveNotify(false), 1500);
+    };
+
+    (0, import_react3.useEffect)(() => {
+      if (!dbLoaded || accounts.length === 0 || !isGameStarted) return;
+      const timer = setInterval(() => {
+        SaveManager.saveSaves(accounts, currentAccountId);
+        triggerSaveNotification();
+      }, 5000);
+
+      const handleBeforeUnload = () => {
+        SaveManager.saveSaves(accounts, currentAccountId);
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+        clearInterval(timer);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }, [accounts, currentAccountId, dbLoaded, isGameStarted]);
+
+    const handleManualSave = () => __async(this, null, function* () {
+      yield SaveManager.saveSaves(accounts, currentAccountId);
+      triggerSaveNotification();
+      addLog("已手動將最新資料儲存至 IndexedDB！", "success");
+    });
+
+    const startBattle = () => {
+      const map = MAPS_DATABASE[currentMapIndex];
+      if (player.level < map.reqLevel) {
+        addLog(`等級不足！需到達 Lv.${map.reqLevel} 方可進入此地圖。`, "danger");
+        return;
+      }
+      const randomMonster = map.monsters[Math.floor(Math.random() * map.monsters.length)];
+      setCurrentMonster(__spreadProps(__spreadValues({}, randomMonster), { maxHp: randomMonster.hp }));
+      setMonsterHp(randomMonster.hp);
+      setInBattle(true);
+      addLog(`於【${map.name}】遭遇了《${randomMonster.name}》！`, randomMonster.isBoss ? "danger" : "info");
+    };
+
+    const playerAttack = (usedSkill = null) => {
+      if (!inBattle || !currentMonster) return;
+
+      let dmgPower = 1;
+      let skillCost = 0;
+      let mpSteal = 0;
+
+      if (usedSkill) {
+        if (player.mp < usedSkill.cost) {
+          addLog("內力不足，別一直想著出大招！", "danger");
+          return;
+        }
+        skillCost = usedSkill.cost;
+        dmgPower = usedSkill.power;
+
+        if (usedSkill.id === "sk_10") {
+          mpSteal = 25;
+        }
+
+        setPlayer((p) => __spreadProps(__spreadValues({}, p), { mp: Math.min(stats.finalMaxMp, p.mp - skillCost + mpSteal) }));
+      }
+
+      const isCrit = Math.random() < stats.finalCrit;
+      let rawDmg = stats.finalAtk * dmgPower * (isCrit ? stats.finalCritDmg : 1);
+      let finalDmg = Math.max(1, Math.floor(rawDmg - currentMonster.def * 0.5));
+      const newMonsterHp = Math.max(0, monsterHp - finalDmg);
+      setMonsterHp(newMonsterHp);
+
+      if (usedSkill) {
+        addLog(`你施展【${usedSkill.name}】！造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}${mpSteal > 0 ? ` 並獲得 ${mpSteal} 點內力來活血` : ""}`, isCrit ? "crit" : "player");
+      } else {
+        addLog(`你發動恢復吸氣吐氣一次，造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}`, isCrit ? "crit" : "player");
+      }
+
+      if (equippedCards.includes("card_water")) {
+        const healAmt = Math.floor(finalDmg * 0.1);
+        if (healAmt > 0) {
+          setPlayer((p) => __spreadProps(__spreadValues({}, p), { hp: Math.min(stats.finalMaxHp, p.hp + healAmt) }));
+        }
+      }
+
+      if (newMonsterHp <= 0) {
+        battleWin();
+      } else {
+        setTimeout(() => monsterAttack(newMonsterHp), 400);
+      }
+    };
+
+    const monsterAttack = (currentMHp) => {
+      if (currentMHp <= 0) return;
+      const isDodge = Math.random() < stats.finalDodge;
+      if (isDodge) {
+        addLog(`《${currentMonster.name}》發動攻擊，你體法敏捷閃避了傷害！`, "heal");
+        return;
+      }
+
+      let rawDmg = currentMonster.atk;
+      let finalDmg = Math.max(1, Math.floor(rawDmg - stats.finalDef * 0.5));
+
+      setPlayer((p) => {
+        const newHp = Math.max(0, p.hp - finalDmg);
+        if (newHp <= 0) battleLose();
+        return __spreadProps(__spreadValues({}, p), { hp: newHp });
+      });
+
+      addLog(`《${currentMonster.name}》發動攻擊，對你造成 ${finalDmg} 點傷害！`, "enemy");
+
+      if (equippedCards.includes("card_wood")) {
+        const woodRegen = Math.floor(stats.finalMaxHp * 0.06);
+        setPlayer((p) => __spreadProps(__spreadValues({}, p), { hp: Math.min(stats.finalMaxHp, p.hp + woodRegen) }));
+        addLog(`【木天靈根·羈絆】觸發，回復 ${woodRegen} 點生命值！`, "heal");
+      }
+    };
+
+    const battleWin = () => {
+      addLog(`【成功轉化】「多一秒內化」覺察自己增加經驗《${currentMonster.name}》！`, "success");
+      const gainedExp = currentMonster.exp;
+      const gainedCoins = currentMonster.coins;
+
+      setPlayer((p) => {
+        let newExp = p.exp + gainedExp;
+        let newLevel = p.level;
+        let newMaxExp = p.maxExp;
+        let newBaseAtk = p.baseAtk;
+        let newBaseDef = p.baseDef;
+
+        while (newExp >= newMaxExp) {
+          newExp -= newMaxExp;
+          newLevel += 1;
+          newMaxExp = Math.floor(newMaxExp * 1.3);
+          newBaseAtk += 5;
+          newBaseDef += 2;
+          addLog(`✦ 恭喜升級！到達 Lv.${newLevel}，基礎四維屬性已提升！`, "legend");
+        }
+
+        return __spreadProps(__spreadValues({}, p), {
+          level: newLevel,
+          exp: newExp,
+          maxExp: newMaxExp,
+          baseAtk: newBaseAtk,
+          baseDef: newBaseDef,
+          coins: p.coins + gainedCoins
+        });
+      });
+
+      addLog(`獲得獎勵：${gainedExp} 經驗值，${gainedCoins} 靈石`, "heal");
+
+      if (Math.random() < 0.4) {
+        const dropEquip = generateRandomEquip(currentMonster.isBoss);
+        setInventory((prev) => [...prev, dropEquip]);
+        addLog(`戰利品掉落：【${dropEquip.name}】！`, "legend");
+      }
+
+      setInBattle(false);
+      setCurrentMonster(null);
+    };
+
+    const battleLose = () => {
+      addLog(`【不幸身亡】你被《${currentMonster.name}》重創倒地...`, "danger");
+      setPlayer((p) => __spreadProps(__spreadValues({}, p), { hp: Math.floor(stats.finalMaxHp * 0.3) }));
+      setInBattle(false);
+      setCurrentMonster(null);
+    };
+
+    const generateRandomEquip = (isBoss = false) => {
+      const slots = Object.keys(SLOT_MAP);
+      const slot = slots[Math.floor(Math.random() * slots.length)];
+      const rarities = ["common", "uncommon", "rare", "epic", "legendary"];
+      const rIdx = isBoss ? Math.floor(Math.random() * 3) + 2 : Math.floor(Math.random() * 3);
+      const rarity = rarities[rIdx];
+      const rarityInfo = RARITY_MAP[rarity];
+      const baseVal = rarityInfo.val * 12;
+
+      return {
+        id: "eq_" + Date.now() + Math.random(),
+        name: `${rarityInfo.name}的${SLOT_MAP[slot]}`,
+        type: "equip",
+        slot,
+        rarity,
+        atk: slot === "weapon" || slot === "ring" ? baseVal + 5 : 0,
+        def: slot === "armor" || slot === "helmet" || slot === "boots" ? baseVal + 3 : 0,
+        enhance: 0
+      };
+    };
+
+    const equipItem = (item) => {
+      const oldItem = equipment[item.slot];
+      setEquipment((prev) => __spreadProps(__spreadValues({}, prev), { [item.slot]: item }));
+      setInventory((prev) => prev.filter((i) => i.id !== item.id).concat(oldItem ? [oldItem] : []));
+      addLog(`裝備了【${item.name}】`, "info");
+    };
+
+    const unequipItem = (slot) => {
+      const item = equipment[slot];
+      if (!item) return;
+      setEquipment((prev) => __spreadProps(__spreadValues({}, prev), { [slot]: null }));
+      setInventory((prev) => [...prev, item]);
+      addLog(`卸下了【${item.name}】`, "info");
+    };
+
+    const autoEquipBest = () => {
+      let count = 0;
+      Object.keys(SLOT_MAP).forEach((slot) => {
+        const candidates = inventory.filter((i) => i.type === "equip" && i.slot === slot);
+        if (candidates.length === 0) return;
+        candidates.sort((a, b) => RARITY_MAP[b.rarity].val + b.atk + b.def - (RARITY_MAP[a.rarity].val + a.atk + a.def));
+        const best = candidates[0];
+        const current = equipment[slot];
+        if (!current || RARITY_MAP[best.rarity].val + best.atk + best.def > RARITY_MAP[current.rarity].val + current.atk + current.def) {
+          equipItem(best);
+          count++;
+        }
+      });
+      addLog(`一鍵裝備完成，共替換了 ${count} 件最高戰力裝備！`, "success");
+    };
+
+    const enhanceItem = (slot) => {
+      const item = equipment[slot];
+      if (!item) return;
+      const costStone = 1;
+      const costCoins = (item.enhance + 1) * 100;
+      if (player.enhanceStones < costStone || player.coins < costCoins) {
+        addLog(`強化資源不足！需要 ${costStone} 求進階書與 ${costCoins} 靈石。`, "danger");
+        return;
+      }
+      setPlayer((p) => __spreadProps(__spreadValues({}, p), { enhanceStones: p.enhanceStones - costStone, coins: p.coins - costCoins }));
+      setEquipment((prev) => __spreadProps(__spreadValues({}, prev), { [slot]: __spreadProps(__spreadValues({}, item), { enhance: item.enhance + 1 }) }));
+      addLog(`進階成功！【${item.name}】提升至 +${item.enhance + 1}！`, "success");
+    };
+
+    const usePotion = (item) => {
+      if (item.hpRestore) {
+        setPlayer((p) => __spreadProps(__spreadValues({}, p), { hp: Math.min(stats.finalMaxHp, p.hp + item.hpRestore) }));
+        addLog(`使用了【${item.name}】，回復 ${item.hpRestore} 生命！`, "heal");
+      }
+      if (item.mpRestore) {
+        setPlayer((p) => __spreadProps(__spreadValues({}, p), { mp: Math.min(stats.finalMaxMp, p.mp + item.mpRestore) }));
+        addLog(`使用了【${item.name}】，回復 ${item.mpRestore} 內力！`, "heal");
+      }
+      setInventory((prev) => prev.map((i) => i.id === item.id ? __spreadProps(__spreadValues({}, i), { count: i.count - 1 }) : i).filter((i) => i.count > 0));
+    };
+
+    const sellItem = (item) => {
+      const price = item.type === "equip" ? RARITY_MAP[item.rarity].val * 50 : 20;
+      setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins + price }));
+      setInventory((prev) => prev.filter((i) => i.id !== item.id));
+      addLog(`賣出了【${item.name}】，獲得 ${price} 靈石`, "info");
+    };
+
+    const restAtInn = () => {
+      if (player.coins < 30) {
+        addLog("靈石不足，無法在靜室打坐休養！", "danger");
+        return;
+      }
+      setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins - 30, hp: stats.finalMaxHp, mp: stats.finalMaxMp }));
+      addLog("於靜室休養完畢，生命與內力已全數恢復！", "heal");
+    };
+
+    const handleCreateAccount = () => {
+      if (!inputName.trim()) return;
+      const newAcc = createInitialAccount(inputName.trim(), inputTitle);
+      setAccounts((prev) => [...prev, newAcc]);
+      setCurrentAccountId(newAcc.id);
+      SaveManager.saveSaves([...accounts, newAcc], newAcc.id);
+      setInputName("");
+      setShowAccountModal(false);
+      setIsGameStarted(true);
+      addLog(`新魔幻夢境角色《${newAcc.player.name}》創立成功！`, "legend");
+    };
+
+    const deleteAccount = (id) => {
+      if (accounts.length <= 1) {
+        addLog("至少需保留一個角色帳號！", "danger");
+        return;
+      }
+      const nextAccs = accounts.filter((a) => a.id !== id);
+      setAccounts(nextAccs);
+      if (currentAccountId === id) {
+        setCurrentAccountId(nextAccs[0].id);
+      }
+      SaveManager.saveSaves(nextAccs, nextAccs[0].id);
+    };
+
+    const handleUpdateNameAndTitle = () => {
+      if (!inputName.trim()) return;
+      setPlayer((p) => __spreadProps(__spreadValues({}, p), { name: inputName.trim(), title: inputTitle }));
+      setShowEditNameModal(false);
+      addLog(`成功將名號變更為【${inputTitle} · ${inputName.trim()}】！`, "success");
+    };
+
+    const handleExportData = () => {
+      const dataStr = encodeSaveString(accounts);
+      setExportedCode(dataStr);
+    };
+
+    const handleImportData = () => {
+      if (!importJsonText.trim()) return;
+      const importedAccs = decodeSaveString(importJsonText);
+      if (importedAccs && Array.isArray(importedAccs)) {
+        setAccounts(importedAccs);
+        setCurrentAccountId(importedAccs[0].id);
+        SaveManager.saveSaves(importedAccs, importedAccs[0].id);
+        setShowBackupModal(false);
+        setImportJsonText("");
+        addLog("存檔成功匯入並同步至 IndexedDB！", "legend");
+      } else {
+        addLog("無效的存檔密鑰！請檢查文字格式是否完整。", "danger");
+      }
+    };
+
+    const getPlayDays = (acc = currentAccount) => {
+      const created = acc.createdAt || Date.now();
+      const diffMs = Date.now() - created;
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+    };
+
+    // 篩選過濾後的背包道具
+    const filteredInventory = inventory.filter((item) => {
+      const matchesSearch = item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) || 
+                            (item.desc && item.desc.toLowerCase().includes(inventorySearchQuery.toLowerCase()));
+      if (inventoryFilterType === "all") return matchesSearch;
+      if (inventoryFilterType === "equip") return matchesSearch && item.type === "equip";
+      if (inventoryFilterType === "potion") return matchesSearch && item.type === "potion";
+      return matchesSearch;
+    });
+
+    if (!dbLoaded) {
+      return e("div", { className: "min-h-screen bg-slate-950 flex flex-col items-center justify-center text-amber-200" },
+        e(RefreshCw, { className: "w-8 h-8 animate-spin mb-3 text-amber-500" }),
+        e("p", { className: "text-sm font-bold tracking-widest font-mono" }, "正在讀取 IndexedDB (WuxiaGameDB) 本機最新存檔...")
+      );
+    }
+
+    if (!isGameStarted) {
+      return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4 relative overflow-hidden selection:bg-amber-600 selection:text-white" },
+        e("div", { className: "absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900/40 via-slate-950 to-black pointer-events-none" }),
+        e("div", { className: "absolute inset-0 flex items-center justify-center pointer-events-none opacity-15 overflow-hidden" },
+          e("svg", { className: "w-[650px] h-[650px] text-amber-500 animate-[spin_45s_linear_infinite] filter drop-shadow-[0_0_60px_rgba(217,119,6,0.5)]", viewBox: "0 0 200 200", fill: "currentColor" },
+            e("path", { d: "M 100,0 A 100,100 0 0,0 100,200 A 50,50 0 0,1 100,100 A 50,50 0 0,0 100,0 Z", fill: "currentColor" }),
+            e("path", { d: "M 100,0 A 100,100 0 0,1 100,200 A 50,50 0 0,0 100,100 A 50,50 0 0,1 100,0 Z", fill: "#020617" }),
+            e("circle", { cx: "100", cy: "50", r: "12", fill: "#020617" }),
+            e("circle", { cx: "100", cy: "150", r: "12", fill: "currentColor" })
+          )
+        ),
+        e("div", { className: "relative z-20 -mb-10 flex flex-col items-center" },
+          e("div", { className: "relative overflow-hidden rounded-full p-1 bg-gradient-to-r from-amber-400 via-white to-amber-500 shadow-[0_0_35px_rgba(217,119,6,0.6)] animate-pulse" },
+            e("div", { className: "absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.8)_50%,transparent_75%)] animate-[shine_2.5s_infinite] pointer-events-none z-10" }),
+            e("div", { className: "w-24 h-24 rounded-full bg-gradient-to-br from-amber-500 via-red-600 to-amber-700 flex items-center justify-center font-bold text-5xl text-amber-100 border-4 border-amber-300/80 shadow-inner relative z-0" }, "道")
+          )
+        ),
+        e("div", { className: "max-w-md w-full bg-slate-900/90 border border-amber-900/60 rounded-3xl pt-14 pb-8 px-8 shadow-2xl backdrop-blur relative z-10 flex flex-col items-center text-center" },
+          e("h1", { className: "text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-widest mb-1 filter drop-shadow" }, "道家重地 - 紅塵內功"),
+          e("div", { className: "relative w-full py-2 my-2 flex items-center justify-center overflow-visible" },
+            e("div", { className: "absolute w-44 h-12 bg-gradient-to-r from-black via-slate-950 to-transparent rounded-full blur-md opacity-80 animate-[pulse_3.5s_ease-in-out_infinite]" }),
+            e("div", { className: "relative z-10 flex items-center gap-3 bg-slate-950/60 border border-slate-800/80 px-4 py-1.5 rounded-full shadow-inner" },
+              e("div", { className: "filter drop-shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-[pulse_3.2s_ease-in-out_infinite]" },
+                e("svg", { className: "w-8 h-8 text-slate-950 stroke-slate-800", viewBox: "0 0 100 100", fill: "none" },
+                  e("path", { d: "M15 45 L85 45 L80 82 L20 82 Z", fill: "#020617", stroke: "#334155", strokeWidth: "3", strokeLinejoin: "round" }),
+                  e("path", { d: "M15 45 C15 28 85 28 85 45 Z", fill: "#090d16", stroke: "#475569", strokeWidth: "3", strokeLinejoin: "round" }),
+                  e("path", { d: "M22 45 L78 45", stroke: "#1e293b", strokeWidth: "2.5" }),
+                  e("path", { d: "M25 45 L25 81 M75 45 L75 81", stroke: "#334155", strokeWidth: "3" }),
+                  e("rect", { x: "44", y: "42", width: "12", height: "15", rx: "2", fill: "#020617", stroke: "#f59e0b", strokeWidth: "2" }),
+                  e("circle", { cx: "50", cy: "49.5", r: "2", fill: "#f59e0b", opacity: "0.9", className: "animate-ping" })
+                )
+              ),
+              e("span", {
+                key: currentSkillTextIdx,
+                className: "font-extrabold text-base text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 font-mono tracking-wider filter drop-shadow-[0_0_10px_rgba(245,158,11,0.7)] animate-[fadeInOut_2.8s_ease-in-out_infinite] whitespace-nowrap"
+              }, WUXIA_SKILL_TEXTS[currentSkillTextIdx])
+            )
+          ),
+          e("p", { className: "text-xs text-amber-500/80 font-mono tracking-widest mb-8 uppercase" }, "天上地下 ‧ 道法自然 ‧ RPG"),
+          e("button", {
+            onClick: () => setShowAccountModal(true),
+            className: "w-full py-4 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold rounded-2xl shadow-[0_0_25px_rgba(217,119,6,0.5)] border border-amber-300 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-lg flex items-center justify-center gap-2 font-mono"
+          },
+            e("span", null, "登入道家重地"),
+            e(ChevronRight, { className: "w-5 h-5" })
+          )
+        ),
+        showAccountModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+          e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative" },
+            isGameStarted && e("button", { onClick: () => setShowAccountModal(false), className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
+              e(X, { className: "w-5 h-5" })
+            ),
+            e("h3", { className: "text-xl font-bold text-amber-300 mb-4 flex items-center gap-2" },
+              e(Users, { className: "w-5 h-5" }),
+              e("span", null, "選擇紅塵過客登場 / 創建角色")
+            ),
+            e("div", { className: "space-y-3 mb-6 max-h-60 overflow-y-auto pr-1" },
+              accounts.map((acc) => {
+                const isCur = acc.id === currentAccountId;
+                const accLearnedCount = (acc.skills || []).filter((s) => s.learned).length;
+                const accPlayDays = getPlayDays(acc);
+                return e("div", {
+                  key: acc.id,
+                  onClick: () => {
+                    setCurrentAccountId(acc.id);
+                    SaveManager.saveSaves(accounts, acc.id);
+                  },
+                  className: `p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    isCur ? "bg-amber-950/40 border-amber-500 shadow-[0_0_15px_rgba(217,119,6,0.3)]" : "bg-slate-800/40 border-slate-700 hover:border-slate-500"
+                  }`
                 },
-                loadSaves() {
-                  return __async(this, null, function* () {
-                    try {
-                      const db = yield initDB();
-                      const tx = db.transaction([STORE_SAVES, STORE_META], "readonly");
-                      const accounts = yield new Promise((res, rej) => {
-                        const req = tx.objectStore(STORE_SAVES).getAll();
-                        req.onsuccess = () => res(req.result);
-                        req.onerror = () => rej(req.error);
-                      });
-                      const meta = yield new Promise((res, rej) => {
-                        const req = tx.objectStore(STORE_META).get(KEY_ACTIVE_ID);
-                        req.onsuccess = () => res(req.result);
-                        req.onerror = () => rej(req.error);
-                      });
-                      return { accounts, activeId: meta == null ? void 0 : meta.value };
-                    } catch (err) { return null; }
-                  });
-                },
-                saveSaves(accounts, activeId) {
-                  return __async(this, null, function* () {
-                    try {
-                      const db = yield initDB();
-                      const tx = db.transaction([STORE_SAVES, STORE_META], "readwrite");
-                      const savesStore = tx.objectStore(STORE_SAVES);
-                      const metaStore = tx.objectStore(STORE_META);
-                      savesStore.clear();
-                      accounts.forEach((acc) => savesStore.put(acc));
-                      metaStore.put({ key: KEY_ACTIVE_ID, value: activeId });
-                      return true;
-                    } catch (err) { return false; }
-                  });
-                }
-              };
-
-              var encodeSaveString = (dataObj) => {
-                try {
-                  const jsonStr = JSON.stringify(dataObj);
-                  const utf8Bytes = new TextEncoder().encode(jsonStr);
-                  let binary = "";
-                  utf8Bytes.forEach((b) => binary += String.fromCharCode(b));
-                  return btoa(binary);
-                } catch (e) { return ""; }
-              };
-
-              var decodeSaveString = (encodedStr) => {
-                try {
-                  const binary = atob(encodedStr.trim());
-                  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-                  return JSON.parse(new TextDecoder().decode(bytes));
-                } catch (e) { return null; }
-              };
-
-              var ICON_MAP = { Flame, Mountain, Sun, Sparkles, Droplets };
-              var RARITY_MAP = {
-                common: { name: "魔改假貨", color: "text-gray-300", bg: "bg-gray-800/60", border: "border-gray-600", val: 1 },
-                uncommon: { name: "二手貨", color: "text-green-400", bg: "bg-green-950/40", border: "border-green-600", val: 2 },
-                rare: { name: "路邊攤", color: "text-blue-400", bg: "bg-blue-950/40", border: "border-blue-600", val: 3 },
-                epic: { name: "福利品", color: "text-purple-400", bg: "bg-purple-950/40", border: "border-purple-600", val: 4 },
-                legendary: { name: "全新", color: "text-amber-400", bg: "bg-amber-950/40", border: "border-amber-500", val: 5 }
-              };
-              var SLOT_MAP = { weapon: "手持", helmet: "頭部", armor: "全身", boots: "鞋子", ring: "飾品", relic: "秘寶" };
-
-              var SKILLS_DATABASE = [
-                { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
-                { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
-                { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
-                { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
-                { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
-                { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
-                { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
-                { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
-                { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
-                { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
-                { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
-                { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
-              ];
-
-              var CARDS_DATABASE = [
-                { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
-                { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
-                { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
-                { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
-                { id: "card_water", name: "水天靈根·學習", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 活血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
-              ];
-
-              var MAPS_DATABASE = [
-                { id: "map_1", name: "新手村明堂", reqLevel: 1, desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。", bg: "from-emerald-950/80 to-slate-900", monsters: [
-                  { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
-                  { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
-                  { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
-                ] },
-                { id: "map_2", name: "紅塵地界", reqLevel: 5, desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。", bg: "from-red-950/80 to-slate-900", monsters: [
-                  { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
-                  { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
-                  { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
-                ] },
-                { id: "map_3", name: "五蘊仙田", reqLevel: 12, desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田。", bg: "from-cyan-950/80 to-slate-900", monsters: [
-                  { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
-                  { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
-                  { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
-                ] }
-              ];
-
-              var TITLE_LIST = ["凡人一枚", "無瘋不起浪", "九天尊者", "求勝率大師", "太極宗師", "逍遙散人", "損壽魔尊"];
-              var RANDOM_NAMES = ["雪別亭", "百無禁忌", "衝衝衝", "頭香", "山人自有妙計", "單身最好", "吹雪", "不想瑟瑟", "包租大大", "非誠勿擾"];
-              var WUXIA_SKILL_TEXTS = ["《輪拳》", "《降龍十八掌》", "《十靜法》", "《ABC體操》", "《太極吐納》", "《親傳基本功》"];
-
-              var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
-                id: "acc_" + Date.now(), createdAt: Date.now(),
-                player: { name, title, level: 1, exp: 0, maxExp: 100, hp: 200, maxHp: 200, mp: 100, maxMp: 100, baseAtk: 25, baseDef: 8, critChance: 0.05, critDmg: 1.5, dodgeChance: 0.05, coins: 200, enhanceStones: 5 },
-                equipment: { weapon: { id: "eq_w1", name: "魔幻夢境地圖", slot: "weapon", rarity: "common", atk: 10, def: 0, enhance: 0 }, helmet: null, armor: { id: "eq_a1", name: "粗布麻衣", slot: "armor", rarity: "common", atk: 0, def: 5, enhance: 0 }, boots: null, ring: null, relic: null },
-                inventory: [
-                  { id: "pot_1", name: "緗蛋吐司", type: "potion", hpRestore: 250, count: 3, desc: "回復 250 點生命值" },
-                  { id: "pot_2", name: "真緗咖啡", type: "potion", mpRestore: 120, count: 2, desc: "回復 120 點內力值" }
-                ],
-                skills: SKILLS_DATABASE.map((s) => __spreadProps(__spreadValues({}, s), { learned: s.id === "sk_1" })),
-                equippedCards: []
-              });
-
-              function App() {
-                const e = import_react3.default.createElement;
-                const [accounts, setAccounts] = (0, import_react3.useState)([]);
-                const [currentAccountId, setCurrentAccountId] = (0, import_react3.useState)("");
-                const [dbLoaded, setDbLoaded] = (0, import_react3.useState)(false);
-                const [isGameStarted, setIsGameStarted] = (0, import_react3.useState)(false);
-                const [activeTab, setActiveTab] = (0, import_react3.useState)("explore");
-                const [currentMapIndex, setCurrentMapIndex] = (0, import_react3.useState)(0);
-                const [isMapListOpen, setIsMapListOpen] = (0, import_react3.useState)(true);
-                const [inBattle, setInBattle] = (0, import_react3.useState)(false);
-                const [currentMonster, setCurrentMonster] = (0, import_react3.useState)(null);
-                const [monsterHp, setMonsterHp] = (0, import_react3.useState)(0);
-                const [battleLogs, setBattleLogs] = (0, import_react3.useState)([]);
-                const [saveNotify, setSaveNotify] = (0, import_react3.useState)(false);
-                const [showBackupModal, setShowBackupModal] = (0, import_react3.useState)(false);
-                const [showAccountModal, setShowAccountModal] = (0, import_react3.useState)(false);
-                const [showEditNameModal, setShowEditNameModal] = (0, import_react3.useState)(false);
-                const [showStatHelpModal, setShowStatHelpModal] = (0, import_react3.useState)(false);
-                const [exportedCode, setExportedCode] = (0, import_react3.useState)("");
-                const [importJsonText, setImportJsonText] = (0, import_react3.useState)("");
-                const [inputName, setInputName] = (0, import_react3.useState)("");
-                const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
-                const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
-                
-                // WebSocket 狀態與位址配置
-                const [wsStatus, setWsStatus] = (0, import_react3.useState)("disconnected"); // disconnected, connecting, connected, error
-                const [wsUrl, setWsUrl] = (0, import_react3.useState)("wss://echo.websocket.org"); // 可替換為您的遊戲伺服器 WebSocket 位址
-                const wsRef = (0, import_react3.useRef)(null);
-
-                const [inventorySearchQuery, setInventorySearchQuery] = (0, import_react3.useState)("");
-                const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
-                const logContainerRef = (0, import_react3.useRef)(null);
-
-                // ==========================================
-                // WebSocket 雙向通訊機制初始化與生命週期管理
-                // ==========================================
-                const connectWebSocket = () => {
-                  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
-                  
-                  setWsStatus("connecting");
-                  addLog(`正在透過 JavaScript 建立 WebSocket 雙向連線實例 (${wsUrl})...`, "info");
-
-                  try {
-                    const socket = new WebSocket(wsUrl);
-                    wsRef.current = socket;
-
-                    // 1. 連線開啟 (Open)
-                    socket.onopen = () => {
-                      setWsStatus("connected");
-                      addLog("【WebSocket】雙向通訊管道已成功建立！", "success");
-                      // 主動向伺服器發送註冊或同步訊息 (Send)
-                      socket.send(JSON.stringify({ type: "PLAYER_LOGIN", timestamp: Date.now() }));
-                    };
-
-                    // 2. 接收伺服器主動推送訊息 (Message / Send)
-                    socket.onmessage = (event) => {
-                      try {
-                        const data = JSON.parse(event.data);
-                        addLog(`【伺服器推送】收到即時更新: ${JSON.stringify(data)}`, "success");
-                        // 處理伺服器端主動推送的遊戲狀態更新
-                        if (data.serverBuff) {
-                          addLog(`伺服器下發全服靈氣加成：${data.serverBuff}`, "legend");
-                        }
-                      } catch (err) {
-                        addLog(`【伺服器推送】原始訊息: ${event.data}`, "info");
-                      }
-                    };
-
-                    // 3. 錯誤處理 (Error)
-                    socket.onerror = (error) => {
-                      setWsStatus("error");
-                      addLog("【WebSocket】連線發生錯誤，請檢查網路或伺服器位址。", "danger");
-                    };
-
-                    // 4. 斷開連線與清理工作 (Close / Error Cleanup)
-                    socket.onclose = (event) => {
-                      setWsStatus("disconnected");
-                      addLog(`【WebSocket】與伺服器連線已中斷 (代碼: ${event.code})，正在進行清理工作。`, "danger");
-                    };
-                  } catch (e) {
-                    setWsStatus("error");
-                    addLog("【WebSocket】初始化連線失敗：" + e.message, "danger");
-                  }
-                };
-
-                const disconnectWebSocket = () => {
-                  if (wsRef.current) {
-                    wsRef.current.close(1000, "玩家主動登出斷開");
-                    wsRef.current = null;
-                  }
-                  setWsStatus("disconnected");
-                  addLog("【WebSocket】已主動斷開雙向通訊管道。", "info");
-                };
-
-                // 當遊戲啟動時自動嘗試連線 WebSocket
-                (0, import_react3.useEffect)(() => {
-                  if (isGameStarted) {
-                    connectWebSocket();
-                  }
-                  return () => {
-                    if (wsRef.current) {
-                      wsRef.current.close();
-                    }
-                  };
-                }, [isGameStarted]);
-
-                // ==========================================
-                // 資料庫與其他遊戲邏輯
-                // ==========================================
-                (0, import_react3.useEffect)(() => {
-                  const initSaveManager = () => __async(this, null, function* () {
-                    try {
-                      const hasData = yield SaveManager.hasSaveData();
-                      if (hasData) {
-                        const data = yield SaveManager.loadSaves();
-                        if (data && data.accounts && data.accounts.length > 0) {
-                          setAccounts(data.accounts);
-                          setCurrentAccountId(data.accounts.some((a) => a.id === data.activeId) ? data.activeId : data.accounts[0].id);
-                        }
-                      } else {
-                        const defaultAcc = createInitialAccount("無名凡人", "凡人一枚");
-                        setAccounts([defaultAcc]);
-                        setCurrentAccountId(defaultAcc.id);
-                        yield SaveManager.saveSaves([defaultAcc], defaultAcc.id);
-                      }
-                    } catch (err) { console.error(err); }
-                    finally { setDbLoaded(true); setIsGameStarted(false); }
-                  });
-                  initSaveManager();
-                }, []);
-
-                const currentAccount = accounts.find((a) => a.id === currentAccountId) || accounts[0] || createInitialAccount();
-                const updateCurrentAccount = (updater) => {
-                  setAccounts((prev) => prev.map((acc) => acc.id === currentAccountId ? (typeof updater === "function" ? updater(acc) : __spreadValues(__spreadValues({}, acc), updater)) : acc));
-                };
-
-                const player = currentAccount.player;
-                const equipment = currentAccount.equipment;
-                const inventory = currentAccount.inventory;
-                const skills = currentAccount.skills;
-                const equippedCards = currentAccount.equippedCards;
-
-                const setPlayer = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { player: typeof val === "function" ? val(acc.player) : val }));
-                const setEquipment = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equipment: typeof val === "function" ? val(acc.equipment) : val }));
-                const setInventory = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { inventory: typeof val === "function" ? val(acc.inventory) : val }));
-                const setSkills = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { skills: typeof val === "function" ? val(acc.skills) : val }));
-                const setEquippedCards = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equippedCards: typeof val === "function" ? val(acc.equippedCards) : val }));
-
-                const addLog = (text, type = "info") => {
-                  setBattleLogs((prev) => [...prev.slice(-80), { id: Date.now() + Math.random(), text: String(text), type }]);
-                };
-
-                (0, import_react3.useEffect)(() => {
-                  if (logContainerRef.current) logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
-                }, [battleLogs]);
-
-                const calculateStats = () => {
-                  let eqAtk = 0, eqDef = 0;
-                  Object.values(equipment).forEach((item) => {
-                    if (item) { eqAtk += (item.atk || 0) + (item.enhance || 0) * 3; eqDef += (item.def || 0) + (item.enhance || 0) * 2; }
-                  });
-                  return { finalAtk: player.baseAtk + eqAtk, finalDef: player.baseDef + eqDef, finalMaxHp: player.maxHp, finalMaxMp: player.maxMp, finalCrit: player.critChance, finalCritDmg: player.critDmg, finalDodge: player.dodgeChance };
-                };
-                const stats = calculateStats();
-
-                const startBattle = () => {
-                  const map = MAPS_DATABASE[currentMapIndex];
-                  if (player.level < map.reqLevel) { addLog(`等級不足！需到達 Lv.${map.reqLevel}。`, "danger"); return; }
-                  const randomMonster = map.monsters[Math.floor(Math.random() * map.monsters.length)];
-                  setCurrentMonster(__spreadProps(__spreadValues({}, randomMonster), { maxHp: randomMonster.hp }));
-                  setMonsterHp(randomMonster.hp);
-                  setInBattle(true);
-                  addLog(`於【${map.name}】遭遇了《${randomMonster.name}》！`, "info");
-
-                  // 透過 WebSocket 發送玩家進入戰鬥的請求 (Send)
-                  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-                    wsRef.current.send(JSON.stringify({ action: "START_BATTLE", monster: randomMonster.name }));
-                  }
-                };
-
-                const playerAttack = (usedSkill = null) => {
-                  if (!inBattle || !currentMonster) return;
-                  let dmgPower = usedSkill ? usedSkill.power : 1;
-                  let finalDmg = Math.max(1, Math.floor(stats.finalAtk * dmgPower));
-                  const newMonsterHp = Math.max(0, monsterHp - finalDmg);
-                  setMonsterHp(newMonsterHp);
-                  addLog(`你發動攻擊，造成 ${finalDmg} 點傷害！`, "player");
-
-                  if (newMonsterHp <= 0) {
-                    addLog(`擊敗《${currentMonster.name}》！`, "success");
-                    setPlayer((p) => __spreadProps(__spreadValues({}, p), { exp: p.exp + currentMonster.exp, coins: p.coins + currentMonster.coins }));
-                    setInBattle(false);
-                    setCurrentMonster(null);
-                  }
-                };
-
-                // 畫面渲染
-                if (!dbLoaded) {
-                  return e("div", { className: "min-h-screen bg-slate-950 flex items-center justify-center text-amber-200" },
-                    e(RefreshCw, { className: "w-8 h-8 animate-spin mr-2 text-amber-500" }),
-                    e("span", null, "正在載入道家重地本機資料...")
-                  );
-                }
-
-                if (!isGameStarted) {
-                  return e("div", { className: "min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center" },
-                    e("h1", { className: "text-3xl font-extrabold text-amber-400 mb-2" }, "道家重地 - 紅塵內功"),
-                    e("p", { className: "text-xs text-slate-400 mb-6" }, "已整合 WebSocket 雙向即時通訊引擎"),
-                    e("button", {
-                      onClick: () => { setIsGameStarted(true); },
-                      className: "px-6 py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl shadow-lg"
-                    }, "進入遊戲世界")
-                  );
-                }
-
-                return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans" },
-                  // 頂部導覽列與 WebSocket 狀態指示器
-                  e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between" },
-                    e("div", { className: "flex items-center gap-3" },
-                      e("span", { className: "font-bold text-amber-300" }, player.name),
-                      e("span", { className: "text-xs text-slate-400" }, `Lv.${player.level}`)
+                  e("div", null,
+                    e("div", { className: "flex items-center gap-2" },
+                      e("span", { className: "text-xs text-amber-400 border border-amber-500/40 px-1.5 py-0.5 rounded" }, acc.player.title),
+                      e("span", { className: "font-bold text-slate-100" }, acc.player.name),
+                      e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
                     ),
-                    // WebSocket 狀態小工具
-                    e("div", { className: "flex items-center gap-2 text-xs" },
-                      wsStatus === "connected" && e("span", { className: "text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-1 rounded border border-emerald-800" },
-                        e(Wifi, { className: "w-3.5 h-3.5" }), "雙向通訊正常"
+                    e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
+                      e("span", null, "靈石: " + acc.player.coins),
+                      e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
+                      e("span", null, `歷練: 第${accPlayDays}天`)
+                    )
+                  ),
+                  e("div", { className: "flex items-center gap-2" },
+                    isCur && e(UserCheck, { className: "w-5 h-5 text-amber-400" }),
+                    accounts.length > 1 && e("button", {
+                      onClick: (ev) => {
+                        ev.stopPropagation();
+                        deleteAccount(acc.id);
+                      },
+                      className: "p-1 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded"
+                    }, e(Trash2, { className: "w-4 h-4" }))
+                  )
+                );
+              })
+            ),
+            e("div", { className: "border-t border-slate-800 pt-4" },
+              e("h4", { className: "text-xs text-slate-400 mb-2" }, "創建新魔幻夢境角色帳號"),
+              e("div", { className: "flex gap-2 mb-3" },
+                e("input", {
+                  type: "text",
+                  value: inputName,
+                  onChange: (ev) => setInputName(ev.target.value),
+                  placeholder: "輸入暱稱",
+                  className: "flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
+                }),
+                e("button", {
+                  onClick: () => setInputName(RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)]),
+                  className: "px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
+                },
+                  e(Shuffle, { className: "w-3.5 h-3.5" }),
+                  e("span", null, "隨機")
+                )
+              ),
+              e("div", { className: "flex gap-2" },
+                e("button", {
+                  onClick: handleCreateAccount,
+                  className: "flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+                },
+                  e(UserPlus, { className: "w-4 h-4" }),
+                  e("span", null, "創建新角色")
+                ),
+                e("button", {
+                  onClick: () => {
+                    setShowAccountModal(false);
+                    setIsGameStarted(true);
+                  },
+                  className: "flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+                },
+                  e(UserCheck, { className: "w-4 h-4" }),
+                  e("span", null, "以當前角色登場")
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    const learnedCount = skills.filter((s) => s.learned).length;
+
+    return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-600 selection:text-white" },
+      e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-lg" },
+        e("div", { className: "flex items-center gap-3" },
+          e("div", { className: "w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-red-700 flex items-center justify-center font-bold text-amber-100 border border-amber-400 shadow" }, "道"),
+          e("div", null,
+            e("div", { className: "flex items-center gap-2" },
+              e("span", { className: "text-xs text-amber-400 font-mono border border-amber-500/40 px-1.5 py-0.5 rounded" }, player.title),
+              e("span", { className: "font-bold text-amber-100 text-base" }, player.name),
+              e("button", {
+                onClick: () => {
+                  setInputName(player.name);
+                  setInputTitle(player.title);
+                  setShowEditNameModal(true);
+                },
+                className: "text-slate-400 hover:text-amber-300 p-0.5"
+              }, e(PenLine, { className: "w-3.5 h-3.5" }))
+            ),
+            e("div", { className: "flex items-center gap-3 text-xs text-slate-400 mt-0.5 font-mono" },
+              e("span", { className: "text-amber-300 font-bold" }, "Lv." + player.level),
+              e("div", { className: "w-20 sm:w-28 bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700 relative" },
+                e("div", {
+                  className: "bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-300",
+                  style: { width: `${Math.min(100, (player.exp / player.maxExp) * 100)}%` }
+                })
+              ),
+              e("span", { className: "text-[10px] text-amber-400/90" }, `${player.exp}/${player.maxExp}`)
+            )
+          )
+        ),
+        e("div", { className: "flex items-center gap-2 sm:gap-4" },
+          /* 新增的 Discord 按鈕 */
+          e("a", {
+            href: "https://discord.com/channels/1093676338566664264/1112651180963803146",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/60 rounded-lg text-xs text-white flex items-center gap-1.5 transition-all shadow"
+          },
+            e(MessageSquare, { className: "w-3.5 h-3.5 text-white" }),
+            e("span", { className: "hidden sm:inline" }, "Discord")
+          ),
+          e("button", {
+            onClick: () => {
+              SaveManager.saveSaves(accounts, currentAccountId);
+              setInBattle(false);
+              setIsGameStarted(false);
+            },
+            className: "px-2.5 py-1 bg-red-950/60 hover:bg-red-900/80 border border-red-800/60 rounded-lg text-xs text-red-300 flex items-center gap-1.5 transition-all"
+          },
+            e(LogOut, { className: "w-3.5 h-3.5 text-red-400" }),
+            e("span", { className: "hidden sm:inline" }, "登出")
+          ),
+          e("button", {
+            onClick: () => {
+              SaveManager.saveSaves(accounts, currentAccountId);
+              setInBattle(false);
+              setShowAccountModal(true);
+            },
+            className: "px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-xs text-amber-200 flex items-center gap-1.5"
+          },
+            e(Users, { className: "w-3.5 h-3.5 text-amber-400" }),
+            e("span", { className: "hidden sm:inline" }, "切換角色")
+          ),
+          e("div", { className: "text-xs text-slate-300 bg-slate-800/80 px-2 py-1 rounded border border-slate-700 hidden sm:flex items-center gap-2" },
+            e("span", null, "武功: ", e("strong", { className: "text-amber-300" }, `${learnedCount}/${skills.length}`)),
+            e("span", { className: "text-slate-600" }, "|"),
+            e("span", null, "歷練: ", e("strong", { className: "text-amber-300" }, `第${getPlayDays()}天`))
+          ),
+          e("div", { className: "w-[110px] h-[26px] bg-slate-950/80 border border-slate-800 rounded flex items-center justify-center font-mono text-[11px] text-amber-400/90 shadow-inner" },
+            saveNotify ? e("span", { className: "animate-pulse text-amber-400 flex items-center gap-1" }, e(Sparkles, { className: "w-3 h-3" }), "✦ 已存檔 ✦") : e("span", { className: "text-slate-500 text-[10px]" }, "IDB 自動同步")
+          )
+        )
+      ),
+      e("nav", { className: "bg-slate-900/80 border-b border-slate-800 px-4 py-2 flex items-center gap-2 overflow-x-auto shadow-inner" },
+        [
+          { id: "explore", label: "三界境界", icon: MapIcon },
+          { id: "character", label: "角色裝備", icon: Shield },
+          { id: "skills", label: "武功秘籍", icon: Scroll },
+          { id: "cards", label: "五行天靈根", icon: Sparkles },
+          { id: "inventory", label: "靜室空間", icon: Package }
+        ].map((tab) => {
+          const Icon2 = tab.icon;
+          const active = activeTab === tab.id;
+          return e("button", {
+            key: tab.id,
+            onClick: () => setActiveTab(tab.id),
+            className: `px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+              active ? "bg-amber-600 text-slate-950 shadow-[0_0_15px_rgba(217,119,6,0.4)]" : "bg-slate-800/50 text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            }`
+          },
+            e(Icon2, { className: "w-4 h-4" }),
+            e("span", null, tab.label)
+          );
+        })
+      ),
+      e("div", { className: "flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4" },
+        e("div", { className: "lg:col-span-2 space-y-4" },
+          activeTab === "explore" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl" },
+            e("div", { className: "flex items-center justify-between mb-3" },
+              e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+                e(MapIcon, { className: "w-5 h-5" }),
+                e("span", null, "地圖歷練")
+              ),
+              e("button", {
+                onClick: () => setIsMapListOpen(!isMapListOpen),
+                className: "px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 border border-slate-700 rounded-lg text-xs font-mono flex items-center gap-1 transition-all"
+              },
+                e("span", null, isMapListOpen ? "收起地圖列表" : "打開地圖列表"),
+                isMapListOpen ? e(ChevronUp, { className: "w-3.5 h-3.5" }) : e(ChevronDown, { className: "w-3.5 h-3.5" })
+              )
+            ),
+            isMapListOpen && e("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 transition-all duration-300" },
+              MAPS_DATABASE.map((map, idx) => {
+                const locked = player.level < map.reqLevel;
+                const selected = currentMapIndex === idx;
+                return e("button", {
+                  key: map.id,
+                  disabled: locked,
+                  onClick: () => {
+                    setCurrentMapIndex(idx);
+                    setInBattle(false);
+                  },
+                  className: `p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
+                    selected ? "bg-gradient-to-br from-amber-950/60 to-slate-900 border-amber-500 shadow-lg" : locked ? "bg-slate-950/40 border-slate-800 opacity-60 cursor-not-allowed" : "bg-slate-900 border-slate-700 hover:border-slate-500"
+                  }`
+                },
+                  e("div", { className: "font-bold text-amber-200 text-sm" }, map.name),
+                  e("div", { className: "text-xs text-slate-400 mt-1" }, "需 Lv." + map.reqLevel),
+                  locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "尚未解鎖")
+                );
+              })
+            ),
+            e("div", { className: "flex items-center justify-center p-2" },
+              e("div", { className: `relative w-full max-w-[420px] aspect-square rounded-full border-4 border-amber-600/60 p-6 bg-gradient-to-b ${MAPS_DATABASE[currentMapIndex].bg} shadow-[0_0_50px_rgba(217,119,6,0.25)] flex flex-col items-center justify-between text-center overflow-hidden transition-all duration-500` },
+                e("div", { className: "absolute inset-0 rounded-full border border-amber-300/20 animate-pulse pointer-events-none" }),
+                e("div", { className: "absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 blur-xl pointer-events-none" }),
+                !inBattle ? e("div", { className: "flex flex-col items-center justify-center my-auto space-y-3 z-10 px-4" },
+                  e("div", { className: "w-16 h-16 rounded-full bg-amber-950/80 border-2 border-amber-500 flex items-center justify-center text-amber-300 font-bold text-2xl shadow-[0_0_20px_rgba(217,119,6,0.5)] animate-pulse" }, "陣"),
+                  e("h3", { className: "text-xl font-bold text-amber-200" }, MAPS_DATABASE[currentMapIndex].name),
+                  e("div", { className: "text-xs text-slate-300 max-w-xs whitespace-pre-line leading-relaxed" }, MAPS_DATABASE[currentMapIndex].desc),
+                  e("button", {
+                    onClick: startBattle,
+                    className: "px-6 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-full shadow-[0_0_20px_rgba(217,119,6,0.5)] border border-amber-200 transition-all transform hover:scale-105"
+                  }, "轉化對決")
+                ) : e("div", { className: "w-full h-full flex flex-col justify-between py-2 z-10" },
+                  e("div", { className: "flex flex-col items-center bg-slate-950/80 p-3 rounded-2xl border border-amber-500/40 shadow-md" },
+                    e("span", { className: "text-[11px] text-red-400 font-bold" }, currentMonster.isBoss ? "【頭目 Boss】" : "【野生怪物】"),
+                    e("span", { className: "font-bold text-slate-100 text-base" }, currentMonster.name),
+                    e("div", { className: "w-full mt-1" },
+                      e("div", { className: "flex justify-between text-[10px] text-slate-400 font-mono mb-0.5" },
+                        e("span", null, "血量 HP"),
+                        e("span", null, `${monsterHp} / ${currentMonster.maxHp}`)
                       ),
-                      wsStatus === "connecting" && e("span", { className: "text-amber-400 flex items-center gap-1 animate-pulse" },
-                        e(RefreshCw, { className: "w-3.5 h-3.5 animate-spin" }), "連線中..."
-                      ),
-                      wsStatus === "disconnected" && e("span", { className: "text-red-400 flex items-center gap-1 bg-red-950/40 px-2 py-1 rounded border border-red-800" },
-                        e(WifiOff, { className: "w-3.5 h-3.5" }), "已斷線",
-                        e("button", { onClick: connectWebSocket, className: "ml-2 underline text-amber-300 hover:text-white" }, "重新連線")
-                      ),
-                      wsStatus === "error" && e("span", { className: "text-red-400 flex items-center gap-1" },
-                        e(WifiOff, { className: "w-3.5 h-3.5" }), "連線錯誤",
-                        e("button", { onClick: connectWebSocket, className: "ml-2 underline text-amber-300" }, "重試")
+                      e("div", { className: "w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-700" },
+                        e("div", { className: "bg-gradient-to-r from-red-600 to-red-400 h-full transition-all duration-300", style: { width: `${(monsterHp / currentMonster.maxHp) * 100}%` } })
                       )
                     )
                   ),
-                  // 主要遊戲介面
-                  e("div", { className: "flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4" },
-                    e("div", { className: "lg:col-span-2 space-y-4" },
-                      e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl" },
-                        e("h2", { className: "text-lg font-bold text-amber-300 mb-3" }, "地圖歷練"),
-                        !inBattle ? e("div", { className: "text-center py-6" },
-                          e("p", { className: "text-sm text-slate-300 mb-4" }, MAPS_DATABASE[currentMapIndex].desc),
-                          e("button", { onClick: startBattle, className: "px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-full" }, "開始歷練對決")
-                        ) : e("div", { className: "text-center py-4 space-y-4" },
-                          e("div", { className: "font-bold text-red-400" }, `遭遇敵人：${currentMonster.name} (HP: ${monsterHp}/${currentMonster.maxHp})`),
-                          e("div", { className: "flex justify-center gap-2" },
-                            e("button", { onClick: () => playerAttack(), className: "px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded font-bold" }, "攻擊")
-                          )
-                        )
-                      )
-                    ),
-                    // 日誌面板
-                    e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[520px]" },
-                      e("h3", { className: "font-bold text-amber-300 mb-2 border-b border-slate-800 pb-2" }, "遊戲即時通訊日誌"),
-                      e("div", { ref: logContainerRef, className: "flex-1 bg-slate-950/80 rounded-xl p-3 overflow-y-auto space-y-1 font-mono text-xs" },
-                        battleLogs.map((log) => e("div", { key: log.id, className: log.type === "danger" ? "text-red-400" : log.type === "success" ? "text-emerald-400" : "text-slate-300" }, log.text))
+                  e("div", { className: "my-auto flex items-center justify-center" },
+                    e("div", { className: "w-20 h-20 rounded-full border-2 border-amber-400/50 flex items-center justify-center bg-slate-950/90 shadow-[0_0_25px_rgba(217,119,6,0.4)] animate-[spin_30s_linear_infinite]" },
+                      e("svg", { className: "w-12 h-12 text-amber-500", viewBox: "0 0 200 200", fill: "currentColor" },
+                        e("path", { d: "M 100,0 A 100,100 0 0,0 100,200 A 50,50 0 0,1 100,100 A 50,50 0 0,0 100,0 Z" }),
+                        e("circle", { cx: "100", cy: "50", r: "12", fill: "#020617" }),
+                        e("circle", { cx: "100", cy: "150", r: "12", fill: "currentColor" })
                       )
                     )
+                  ),
+                  e("div", { className: "space-y-1.5" },
+                    e("button", {
+                      onClick: () => playerAttack(),
+                      className: "w-full py-2 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-md border border-red-400/30"
+                    },
+                      e(Sword, { className: "w-3.5 h-3.5" }),
+                      e("span", null, "恢復◓吸氣吐氣一次")
+                    ),
+                    e("div", { className: "grid grid-cols-2 gap-1.5" },
+                      skills.filter((s) => s.learned && s.type === "active").map((sk) => e("button", {
+                        key: sk.id,
+                        onClick: () => playerAttack(sk),
+                        className: "py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px] flex items-center justify-center gap-1 shadow truncate px-1"
+                      },
+                        e(Zap, { className: "w-3 h-3 flex-shrink-0" }),
+                        e("span", { className: "truncate" }, sk.name)
+                      ))
+                    )
                   )
+                )
+              )
+            )
+          ),
+          activeTab === "character" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4" },
+            e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-3" },
+              e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+                e(Shield, { className: "w-5 h-5" }),
+                e("span", null, "角色屬性與裝備"),
+                e("button", {
+                  onClick: () => setShowStatHelpModal(true),
+                  className: "ml-2 text-slate-400 hover:text-amber-300 transition-all",
+                  title: "屬性說明"
+                }, e(HelpCircle, { className: "w-4 h-4" }))
+              ),
+              e("button", {
+                onClick: autoEquipBest,
+                className: "px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-xs shadow transition-all"
+              }, "一鍵最高戰力穿戴")
+            ),
+            e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-4" },
+              e("div", { className: "bg-slate-950/70 p-4 rounded-xl border border-slate-800 space-y-2.5" },
+                e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-1" },
+                  e("h3", { className: "font-bold text-amber-200 text-sm" }, "當前戰鬥屬性"),
+                  e("button", {
+                    onClick: () => setShowStatHelpModal(true),
+                    className: "text-[11px] text-amber-400 hover:underline flex items-center gap-1"
+                  }, "查看屬性說明")
+                ),
+                e("div", { className: "grid grid-cols-2 gap-2 text-xs font-mono" },
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "攻擊力 (ATK)"),
+                    e("span", { className: "text-amber-400 font-bold text-sm" }, stats.finalAtk)
+                  ),
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "防禦力 (DEF)"),
+                    e("span", { className: "text-blue-400 font-bold text-sm" }, stats.finalDef)
+                  ),
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "最大生命 (HP)"),
+                    e("span", { className: "text-red-400 font-bold text-sm" }, `${player.hp} / ${stats.finalMaxHp}`)
+                  ),
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "最大內力 (MP)"),
+                    e("span", { className: "text-cyan-400 font-bold text-sm" }, `${player.mp} / ${stats.finalMaxMp}`)
+                  ),
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "暴擊率"),
+                    e("span", { className: "text-yellow-400 font-bold text-sm" }, (stats.finalCrit * 100).toFixed(1) + "%")
+                  ),
+                  e("div", { className: "bg-slate-900/80 p-2 rounded border border-slate-800" },
+                    e("span", { className: "text-slate-400 block" }, "閃避率"),
+                    e("span", { className: "text-emerald-400 font-bold text-sm" }, (stats.finalDodge * 100).toFixed(1) + "%")
+                  )
+                )
+              ),
+              e("div", { className: "grid grid-cols-2 gap-2" },
+                Object.keys(SLOT_MAP).map((slot) => {
+                  const item = equipment[slot];
+                  return e("div", { key: slot, className: "bg-slate-950/70 p-2.5 rounded-xl border border-slate-800 flex flex-col justify-between" },
+                    e("div", { className: "flex items-center justify-between text-xs mb-1" },
+                      e("span", { className: "text-slate-400" }, SLOT_MAP[slot]),
+                      item && e("button", {
+                        onClick: () => enhanceItem(slot),
+                        className: "text-[10px] bg-slate-800 hover:bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded border border-slate-700"
+                      }, "進階 +" + item.enhance)
+                    ),
+                    item ? e("div", null,
+                      e("div", { className: `font-bold text-xs ${RARITY_MAP[item.rarity].color}` }, `${item.name} ${item.enhance > 0 ? "+" + item.enhance : ""}`),
+                      e("button", { onClick: () => unequipItem(slot), className: "mt-1 text-[10px] text-red-400 hover:underline" }, "卸下")
+                    ) : e("div", { className: "text-xs text-slate-600 font-italic py-1" }, "未裝備")
+                  );
+                })
+              )
+            )
+          ),
+          activeTab === "skills" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3" },
+            e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+              e(Scroll, { className: "w-5 h-5" }),
+              e("span", null, "武功修練與領悟")
+            ),
+            e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-1" },
+              skills.map((skill) => e("div", { key: skill.id, className: "bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex flex-col justify-between space-y-2" },
+                e("div", null,
+                  e("div", { className: "flex items-center justify-between mb-1" },
+                    e("span", { className: "font-bold text-amber-200 text-sm" }, skill.name),
+                    e("span", { className: "text-xs text-slate-400 border border-slate-700 px-1.5 py-0.5 rounded" }, skill.typeText)
+                  ),
+                  e("p", { className: "text-xs text-slate-400" }, skill.desc)
+                ),
+                skill.learned ? e("div", { className: "text-xs text-emerald-400 font-bold flex items-center gap-1" },
+                  e(Check, { className: "w-4 h-4" }),
+                  e("span", null, "已領悟功法")
+                ) : e("button", {
+                  onClick: () => {
+                    if (player.coins < skill.price) {
+                      addLog("靈石不足，無法購買此秘籍！", "danger");
+                      return;
+                    }
+                    setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins - skill.price }));
+                    setSkills((prev) => prev.map((s) => s.id === skill.id ? __spreadProps(__spreadValues({}, s), { learned: true }) : s));
+                    addLog(`成功修練【${skill.name}】！`, "legend");
+                  },
+                  className: "w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded transition-all"
+                }, `修練領悟 (${skill.price} 靈石)`)
+              ))
+            )
+          ),
+          activeTab === "cards" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3" },
+            e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" },
+              e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+                e(Sparkles, { className: "w-5 h-5" }),
+                e("span", null, "五行天靈根")
+              ),
+              e("button", {
+                onClick: () => {
+                  setEquippedCards([]);
+                  addLog("已全部卸下天靈根卡片！", "info");
+                },
+                disabled: equippedCards.length === 0,
+                className: "px-3 py-1 bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-800/60 rounded-lg text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              }, "全部卸下")
+            ),
+            e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3" },
+              CARDS_DATABASE.map((card) => {
+                const equipped = equippedCards.includes(card.id);
+                const IconComp = ICON_MAP[card.iconName] || Sparkles;
+                return e("div", { key: card.id, className: `p-3 rounded-xl border bg-gradient-to-r ${card.color} border-slate-700 flex flex-col justify-between` },
+                  e("div", null,
+                    e("div", { className: "flex items-center gap-2 mb-1" },
+                      e(IconComp, { className: "w-5 h-5 text-amber-200" }),
+                      e("span", { className: "font-bold text-white" }, card.name)
+                    ),
+                    e("p", { className: "text-xs text-slate-200 mb-3" }, card.effect)
+                  ),
+                  e("button", {
+                    onClick: () => {
+                      if (equipped) {
+                        setEquippedCards((prev) => prev.filter((c) => c !== card.id));
+                        addLog(`卸下了【${card.name}】`, "info");
+                      } else {
+                        if (equippedCards.length >= 2) {
+                          addLog("最多只能同時裝備 2 張靈根卡片！", "danger");
+                          return;
+                        }
+                        setEquippedCards((prev) => [...prev, card.id]);
+                        addLog(`裝備了【${card.name}】`, "legend");
+                      }
+                    },
+                    className: `w-full py-1.5 font-bold text-xs rounded transition-all ${
+                      equipped ? "bg-red-600 text-white" : "bg-slate-900/90 text-amber-300 border border-amber-500/50"
+                    }`
+                  }, equipped ? "卸下卡片" : "裝備卡片")
                 );
-              }
-              return __toCommonJS(stdin_exports);
-            })();
+              })
+            )
+          ),
+          activeTab === "inventory" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4" },
+            e("div", { className: "flex items-center justify-between flex-wrap gap-2" },
+              e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+                e(Package, { className: "w-5 h-5" }),
+                e("span", null, "靜室空間")
+              ),
+              e("button", {
+                onClick: restAtInn,
+                className: "px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs"
+              }, "靜室打坐 (30靈石全復)")
+            ),
+            e("div", { className: "flex flex-col sm:flex-row gap-2 items-center" },
+              e("div", { className: "relative flex-1 w-full" },
+                e(Search, { className: "w-4 h-4 text-slate-400 absolute left-3 top-2.5" }),
+                e("input", {
+                  type: "text",
+                  value: inventorySearchQuery,
+                  onChange: (ev) => setInventorySearchQuery(ev.target.value),
+                  placeholder: "搜尋武器、裝備或道具...",
+                  className: "w-full bg-slate-950 border border-slate-700 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-100 focus:border-amber-500"
+                })
+              ),
+              e("div", { className: "flex gap-1.5 w-full sm:w-auto" },
+                [
+                  { id: "all", label: "全部" },
+                  { id: "equip", label: "裝備" },
+                  { id: "potion", label: "丹藥" }
+                ].map((ft) => e("button", {
+                  key: ft.id,
+                  onClick: () => setInventoryFilterType(ft.id),
+                  className: `px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    inventoryFilterType === ft.id ? "bg-amber-600 text-slate-950" : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+                  }`
+                }, ft.label))
+              )
+            ),
+            e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[440px] overflow-y-auto pr-1" },
+              filteredInventory.length === 0 ? e("div", { className: "col-span-2 text-center text-slate-500 py-8 text-sm" }, "沒有找到符合條件的道具或裝備") :
+                filteredInventory.map((item) => e("div", { key: item.id, className: "bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex items-center justify-between" },
+                  e("div", null,
+                    e("div", { className: `font-bold text-sm ${item.type === 'equip' ? RARITY_MAP[item.rarity].color : 'text-slate-200'}` }, `${item.name} ${item.count > 1 ? "x" + item.count : ""}`),
+                    e("div", { className: "text-xs text-slate-400" }, item.desc || (item.atk > 0 ? `攻 +${item.atk}` : `防 +${item.def}`))
+                  ),
+                  e("div", { className: "flex gap-1.5" },
+                    item.type === "potion" && e("button", { onClick: () => usePotion(item), className: "px-2.5 py-1 bg-emerald-600 text-white text-xs font-bold rounded" }, "使用"),
+                    item.type === "equip" && e("button", { onClick: () => equipItem(item), className: "px-2.5 py-1 bg-amber-600 text-slate-950 text-xs font-bold rounded" }, "穿戴"),
+                    e("button", { onClick: () => sellItem(item), className: "px-2.5 py-1 bg-slate-800 hover:bg-red-950 text-red-300 text-xs font-bold rounded border border-slate-700" }, "出售")
+                  )
+                ))
+            )
+          )
+        ),
+        e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[520px]" },
+          e("div", { className: "flex items-center justify-between mb-3 border-b border-slate-800 pb-2" },
+            e("h3", { className: "font-bold text-amber-300 flex items-center gap-2" },
+              e(Scroll, { className: "w-4 h-4" }),
+              e("span", null, "仙風道骨")
+            ),
+            e("div", { className: "flex items-center gap-1.5" },
+              e("button", { onClick: clearLogs, className: "px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded border border-slate-700" }, "清空日誌"),
+              e("button", { onClick: handleManualSave, className: "px-2 py-1 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded shadow" }, "手動存檔"),
+              e("button", {
+                onClick: () => {
+                  handleExportData();
+                  setShowBackupModal(true);
+                },
+                className: "px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs rounded border border-slate-700"
+              }, "備份/讀取")
+            )
+          ),
+          e("div", {
+            ref: logContainerRef,
+            className: "flex-1 bg-slate-950/80 rounded-xl p-3 overflow-y-auto space-y-2 border border-slate-800/80 font-mono text-xs"
+          },
+            battleLogs.length === 0 ? e("div", { className: "text-slate-600 text-center py-10" }, "尚無境界歷練記錄...") :
+              battleLogs.map((log) => e("div", {
+                key: log.id,
+                className: `p-1.5 rounded ${
+                  log.type === "danger" ? "text-red-400 bg-red-950/30" : log.type === "success" ? "text-emerald-400 bg-emerald-950/30" : log.type === "legend" ? "text-amber-300 bg-amber-950/40 border border-amber-600/30 font-bold" : log.type === "crit" ? "text-yellow-300 font-bold" : log.type === "heal" ? "text-cyan-300" : "text-slate-300"
+                }`
+              }, log.text))
+          )
+        )
+      ),
+      showAccountModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative" },
+          isGameStarted && e("button", { onClick: () => setShowAccountModal(false), className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
+            e(X, { className: "w-5 h-5" })
+          ),
+          e("h3", { className: "text-xl font-bold text-amber-300 mb-4 flex items-center gap-2" },
+            e(Users, { className: "w-5 h-5" }),
+            e("span", null, "選擇紅塵過客登場 / 創建角色")
+          ),
+          e("div", { className: "space-y-3 mb-6 max-h-60 overflow-y-auto pr-1" },
+            accounts.map((acc) => {
+              const isCur = acc.id === currentAccountId;
+              const accLearnedCount = (acc.skills || []).filter((s) => s.learned).length;
+              const accPlayDays = getPlayDays(acc);
+              return e("div", {
+                key: acc.id,
+                onClick: () => {
+                  setCurrentAccountId(acc.id);
+                  SaveManager.saveSaves(accounts, acc.id);
+                },
+                className: `p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  isCur ? "bg-amber-950/40 border-amber-500 shadow-[0_0_15px_rgba(217,119,6,0.3)]" : "bg-slate-800/40 border-slate-700 hover:border-slate-500"
+                }`
+              },
+                e("div", null,
+                  e("div", { className: "flex items-center gap-2" },
+                    e("span", { className: "text-xs text-amber-400 border border-amber-500/40 px-1.5 py-0.5 rounded" }, acc.player.title),
+                    e("span", { className: "font-bold text-slate-100" }, acc.player.name),
+                    e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
+                  ),
+                  e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
+                    e("span", null, "靈石: " + acc.player.coins),
+                    e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
+                    e("span", null, `歷練: 第${accPlayDays}天`)
+                  )
+                ),
+                e("div", { className: "flex items-center gap-2" },
+                  isCur && e(UserCheck, { className: "w-5 h-5 text-amber-400" }),
+                  accounts.length > 1 && e("button", {
+                    onClick: (ev) => {
+                      ev.stopPropagation();
+                      deleteAccount(acc.id);
+                    },
+                    className: "p-1 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded"
+                  }, e(Trash2, { className: "w-4 h-4" }))
+                )
+              );
+            })
+          ),
+          e("div", { className: "border-t border-slate-800 pt-4" },
+            e("h4", { className: "text-xs text-slate-400 mb-2" }, "創建新魔幻夢境角色帳號"),
+            e("div", { className: "flex gap-2 mb-3" },
+              e("input", {
+                type: "text",
+                value: inputName,
+                onChange: (ev) => setInputName(ev.target.value),
+                placeholder: "輸入暱稱",
+                className: "flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
+              }),
+              e("button", {
+                onClick: () => setInputName(RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)]),
+                className: "px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
+              },
+                e(Shuffle, { className: "w-3.5 h-3.5" }),
+                e("span", null, "隨機")
+              )
+            ),
+            e("div", { className: "flex gap-2" },
+              e("button", {
+                onClick: handleCreateAccount,
+                className: "flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+              },
+                e(UserPlus, { className: "w-4 h-4" }),
+                e("span", null, "創建新角色")
+              ),
+              e("button", {
+                onClick: () => {
+                  setShowAccountModal(false);
+                  setIsGameStarted(true);
+                },
+                className: "flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+              },
+                e(UserCheck, { className: "w-4 h-4" }),
+                e("span", null, "以當前角色登場")
+              )
+            )
+          )
+        )
+      ),
+      showEditNameModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative" },
+          e("h3", { className: "text-lg font-bold text-amber-300 mb-4" }, "修改名號與稱號"),
+          e("div", { className: "space-y-3 mb-4" },
+            e("div", null,
+              e("label", { className: "text-xs text-slate-400 block mb-1" }, "魔幻夢境稱號"),
+              e("select", {
+                value: inputTitle,
+                onChange: (ev) => setInputTitle(ev.target.value),
+                className: "w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-slate-100"
+              }, TITLE_LIST.map((t) => e("option", { key: t, value: t }, t)))
+            ),
+            e("div", null,
+              e("label", { className: "text-xs text-slate-400 block mb-1" }, "紅塵留名"),
+              e("input", {
+                type: "text",
+                value: inputName,
+                onChange: (ev) => setInputName(ev.target.value),
+                className: "w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-sm text-slate-100"
+              })
+            )
+          ),
+          e("div", { className: "flex gap-2" },
+            e("button", { onClick: () => setShowEditNameModal(false), className: "flex-1 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm" }, "取消"),
+            e("button", { onClick: handleUpdateNameAndTitle, className: "flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-sm" }, "確認變更")
+          )
+        )
+      ),
+      showStatHelpModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative space-y-3" },
+          e("button", { onClick: () => setShowStatHelpModal(false), className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
+            e(X, { className: "w-5 h-5" })
+          ),
+          e("h3", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
+            e(HelpCircle, { className: "w-5 h-5 text-amber-400" }),
+            e("span", null, "戰鬥屬性詳細說明")
+          ),
+          e("div", { className: "space-y-2 text-xs text-slate-300 max-h-72 overflow-y-auto pr-1 font-mono" },
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-amber-300 block mb-0.5" }, "攻擊力 (ATK)"),
+              e("span", null, "決定對敵人造成的基礎傷害高低。數值越高，破敵越快。")
+            ),
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-blue-300 block mb-0.5" }, "防禦力 (DEF)"),
+              e("span", null, "減少遭受怪物攻擊時所受到的傷害數值。")
+            ),
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-red-300 block mb-0.5" }, "最大生命 (HP)"),
+              e("span", null, "角色的血量上限。歸零時將會戰敗倒地。")
+            ),
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-cyan-300 block mb-0.5" }, "最大內力 (MP)"),
+              e("span", null, "施展主動武功招式所需的能量消耗來源。")
+            ),
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-yellow-300 block mb-0.5" }, "暴擊率與暴擊傷害"),
+              e("span", null, "攻擊時有一定機率觸發暴擊，造成額外倍率的巨額傷害。")
+            ),
+            e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
+              e("strong", { className: "text-emerald-300 block mb-0.5" }, "閃避率"),
+              e("span", null, "戰鬥中完全免疫敵人攻擊傷害的機率。")
+            )
+          ),
+          e("button", {
+            onClick: () => setShowStatHelpModal(false),
+            className: "w-full py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-xs mt-2"
+          }, "了解")
+        )
+      ),
+      showBackupModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative space-y-4" },
+          e("button", { onClick: () => setShowBackupModal(false), className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
+            e(X, { className: "w-5 h-5" })
+          ),
+          e("h3", { className: "text-lg font-bold text-amber-300" }, "存檔備份與密鑰匯入"),
+          e("div", null,
+            e("label", { className: "text-xs text-slate-400 block mb-1" }, "匯出加密密鑰 (複製儲存至記事本)"),
+            e("textarea", {
+              readOnly: true,
+              value: exportedCode,
+              className: "w-full h-24 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs font-mono text-amber-200 select-all"
+            }),
+            e("button", {
+              onClick: () => {
+                try {
+                  const textArea = document.createElement("textarea");
+                  textArea.value = exportedCode;
+                  document.body.appendChild(textArea);
+                  textArea.select();
+                  document.execCommand('copy');
+                  document.body.removeChild(textArea);
+                  addLog("已複製密鑰至剪貼簿！", "success");
+                } catch (err) {
+                  addLog("複製失敗，請手動選取密鑰複製。", "danger");
+                }
+              },
+              className: "mt-1 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 rounded"
+            }, "複製密鑰")
+          ),
+          e("div", { className: "border-t border-slate-800 pt-3" },
+            e("label", { className: "text-xs text-slate-400 block mb-1" }, "貼上密鑰進行匯入還原"),
+            e("textarea", {
+              value: importJsonText,
+              onChange: (ev) => setImportJsonText(ev.target.value),
+              placeholder: "貼上一長串加密密鑰...",
+              className: "w-full h-20 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs font-mono text-slate-200"
+            }),
+            e("button", { onClick: handleImportData, className: "mt-2 w-full py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded" }, "匯入還原存檔")
+          )
+        )
+      )
+    );
+  }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const root = ReactDOM.createRoot(document.getElementById('root'));
-                root.render(React.createElement(App.default, null));
-            });
+  return __toCommonJS(stdin_exports);
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(App.default, null));
+});
         </script>
     </body>
 </html>
