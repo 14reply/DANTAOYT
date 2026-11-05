@@ -21,6 +21,37 @@
                 mix-blend-mode: screen;
             }
 
+            /* 右下角 Discord Widget 可收合懸浮框樣式 */
+            #discord-floating-wrapper {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 9990;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            #discord-widget-container {
+                box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7), 0 10px 15px -5px rgba(0, 0, 0, 0.5);
+                border-radius: 16px;
+                overflow: hidden;
+                border: 1px solid rgba(99, 102, 241, 0.4);
+                background: #0f172a;
+                margin-bottom: 10px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-origin: bottom right;
+            }
+
+            .discord-widget-hidden {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+                pointer-events: none;
+                height: 0 !important;
+                margin-bottom: 0 !important;
+                border: none !important;
+            }
+
             .error-boundary {
                 border: 2px dashed rgba(255, 0, 0, 0.3);
                 position: relative;
@@ -739,6 +770,9 @@
     const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
     const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
     
+    // Discord 小工具開關狀態 (預設關閉以防遮擋)
+    const [isDiscordWidgetOpen, setIsDiscordWidgetOpen] = (0, import_react3.useState)(false);
+
     // 篩選與搜尋狀態
     const [inventorySearchQuery, setInventorySearchQuery] = (0, import_react3.useState)("");
     const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
@@ -1375,7 +1409,32 @@
 
     const learnedCount = skills.filter((s) => s.learned).length;
 
-    return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-600 selection:text-white" },
+    return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-600 selection:text-white pb-6" },
+      /* 登入後才顯示的右下角 Discord 可收合浮動框 */
+      e("div", { id: "discord-floating-wrapper" },
+        e("div", {
+          id: "discord-widget-container",
+          className: isDiscordWidgetOpen ? "" : "discord-widget-hidden"
+        },
+          e("iframe", {
+            src: "https://discord.com/widget?id=1093676338566664264&theme=dark",
+            width: 350,
+            height: 480,
+            allowTransparency: "true",
+            frameBorder: "0",
+            sandbox: "allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
+          })
+        ),
+        e("button", {
+          onClick: () => setIsDiscordWidgetOpen(!isDiscordWidgetOpen),
+          className: "px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-400/50 rounded-full text-xs font-bold shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95"
+        },
+          e(MessageSquare, { className: "w-4 h-4" }),
+          e("span", null, isDiscordWidgetOpen ? "收起 Discord 社群" : "Discord 社群"),
+          isDiscordWidgetOpen ? e(ChevronDown, { className: "w-3.5 h-3.5" }) : e(ChevronUp, { className: "w-3.5 h-3.5" })
+        )
+      ),
+
       e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-lg" },
         e("div", { className: "flex items-center gap-3" },
           e("div", { className: "w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-red-700 flex items-center justify-center font-bold text-amber-100 border border-amber-400 shadow" }, "道"),
@@ -1405,7 +1464,6 @@
           )
         ),
         e("div", { className: "flex items-center gap-2 sm:gap-4" },
-          /* 新增的 Discord 按鈕 */
           e("a", {
             href: "https://discord.com/channels/1093676338566664264/1112651180963803146",
             target: "_blank",
@@ -1413,7 +1471,7 @@
             className: "px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 border border-indigo-500/60 rounded-lg text-xs text-white flex items-center gap-1.5 transition-all shadow"
           },
             e(MessageSquare, { className: "w-3.5 h-3.5 text-white" }),
-            e("span", { className: "hidden sm:inline" }, "Discord")
+            e("span", { className: "hidden sm:inline" }, "Discord 頻道")
           ),
           e("button", {
             onClick: () => {
