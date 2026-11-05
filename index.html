@@ -52,6 +52,37 @@
                 border: none !important;
             }
 
+            /* 地圖武俠對話框動畫與樣式 */
+            @keyframes dialogFadeIn {
+                from { opacity: 0; transform: scale(0.92) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+
+            .wuxia-dialog-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 9995;
+                background-color: rgba(0, 0, 0, 0.75);
+                backdrop-filter: blur(4px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+                animation: dialogFadeIn 0.25s ease-out forwards;
+            }
+
+            .wuxia-dialog-box {
+                background: rgba(15, 23, 42, 0.92);
+                border: 2px solid rgba(217, 119, 6, 0.6);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(217, 119, 6, 0.25);
+                border-radius: 20px;
+                max-width: 480px;
+                width: 100%;
+                padding: 24px;
+                color: #fde68a;
+                position: relative;
+            }
+
             .error-boundary {
                 border: 2px dashed rgba(255, 0, 0, 0.3);
                 position: relative;
@@ -664,31 +695,71 @@
   ];
 
   var MAPS_DATABASE = [
-    { id: "map_1", name: "新手村明堂", reqLevel: 1, desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】\n\n⮳聚靈: 極端環境下產生的妖物，會寄生在動物身上。\n⮳通智: 低級妖物模仿人類情緒，讓宿主更加情緒化。", bg: "from-emerald-950/80 to-slate-900", monsters: [
-      { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
-      { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
-      { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
-    ] },
-    { id: "map_2", name: "紅塵地界", reqLevel: 5, desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】\n\n⮳鍛造:通過練習高效模仿行為動作，使宿主疲於奔命。\n⮳煉骨:透過藥物強化自己或用奇巧工具改造外形和面貌。", bg: "from-red-950/80 to-slate-900", monsters: [
-      { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
-      { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
-      { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
-    ] },
-    { id: "map_3", name: "五蘊仙田", reqLevel: 12, desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田，\n考驗辨識真假以增進大道修為。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n\n⮳妖丹:受外物(藥物、工具)汙染後的丹田識海，凝聚成妖丹。\n⮳化形:妖丹氣味外放化成獸類氣團形狀。", bg: "from-cyan-950/80 to-slate-900", monsters: [
-      { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
-      { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
-      { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
-    ] },
-    { id: "map_4", name: "三清洞府", reqLevel: 20, desc: "道門重地，藏有至高神功的修魔傀儡，\n爭搶攻擊修為弱的對手。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。", bg: "from-amber-950/80 to-slate-900", monsters: [
-      { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000 },
-      { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000 },
-      { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true }
-    ] },
-    { id: "map_5", name: "輪迴境考", reqLevel: 30, desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n\n⮳淬體:運用人類練體修士的功法開通經脈。\n⮳練虛:運用人類法修修士的功法提高境界。", bg: "from-purple-950/80 to-indigo-950", monsters: [
-      { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
-      { name: "冷空間的撕裂之氣", hp: 90000, atk: 2400, def: 1100, exp: 50000, coins: 65000 },
-      { name: "前排境界的心魔", hp: 150000, atk: 3500, def: 1600, exp: 100000, coins: 120000, isBoss: true }
-    ] }
+    { 
+      id: "map_1", 
+      name: "新手村明堂", 
+      reqLevel: 1, 
+      wuxiaStory: "【初入MT・聚靈啟智】\n\n此處是剛踏仙途的出生地。村口古槐樹下，靈氣如微絲般流轉。然近期地下層三陰氣滲透，七十二地煞與三十六天罡受妖氣感染，心緒狂亂。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】\n\n⮳聚靈: 極端環境下產生的妖物，會寄生在動物身上。\n⮳通智: 低級妖物模仿人類情緒，讓宿主更加情緒化。\n\n『若想要內化百脈通智』\n須先用明堂陽氣轉化陰氣，才能有機會窺得修真門檻！",
+      desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。", 
+      bg: "from-emerald-950/80 to-slate-900", 
+      monsters: [
+        { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
+        { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
+        { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
+      ] 
+    },
+    { 
+      id: "map_2", 
+      name: "紅塵地界", 
+      reqLevel: 5, 
+      wuxiaStory: "【百煉成鋼・鍛造煉骨】\n\n人道氣息與妖邪錯綜交織之界紅塵滾滾。山寨版腦霧妖物四處橫行靈界，以奇巧工具與藥丸迷惑宿主。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】\n\n⮳鍛造:通過練習高效模仿行為動作，使宿主疲於奔命。\n⮳煉骨:透過藥物強化自己或用奇巧工具改造外形和面貌。\n\n『此關考驗先天筋骨，不破不立』\n唯有透過鍛造後天肉身與根骨之法，抵禦外界千般誘惑與疲勞，方能挺直脊樑，傲視紅塵！",
+      desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。", 
+      bg: "from-red-950/80 to-slate-900", 
+      monsters: [
+        { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
+        { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
+        { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
+      ] 
+    },
+    { 
+      id: "map_3", 
+      name: "五蘊仙田", 
+      reqLevel: 12, 
+      wuxiaStory: "【醒悟仙田・妖丹化形】\n\n靈山雲霧縹緲是個無爭之清修的聖地。仙田常會遭妖物汙染，假神與偽裝喜用神到處亂竄，讓宿主陷入喜怒無常之境。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n\n⮳妖丹:受外物(藥物、工具)汙染後的丹田識海，凝聚成妖丹。\n⮳化形:妖丹氣味外放化成獸類氣團形狀。\n\n『明辨真假，乃修道之核心』\n須凝聚清明觀自心，識破妖丹化形之虛假，方能守護中丹田，不為外物所干擾！",
+      desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田，\n考驗辨識真假以增進大道修為。", 
+      bg: "from-cyan-950/80 to-slate-900", 
+      monsters: [
+        { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
+        { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
+        { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
+      ] 
+    },
+    { 
+      id: "map_4", 
+      name: "三清洞府", 
+      reqLevel: 20, 
+      wuxiaStory: "【一氣化三清・凝魄神遊】\n\n此乃三清至高洞府，藏有上古神功與修魔傀儡。此府氣場神祕莫測，稍有不慎便會被因果線牽引，墮入幻夢困陣。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。\n\n『心若清淨，遇事不驚』入凝魄與通神遊之境，唯有元神強大，以太上神功破除萬陰諸邪，方能窺見道法自然之真諦！",
+      desc: "道門重地，藏有至高神功的修魔傀儡，\n爭搶攻擊修為弱的對手。", 
+      bg: "from-amber-950/80 to-slate-900", 
+      monsters: [
+        { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000 },
+        { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000 },
+        { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true }
+      ] 
+    },
+    { 
+      id: "map_5", 
+      name: "輪迴境考", 
+      reqLevel: 30, 
+      wuxiaStory: "【太古問心・練虛合道】\n\n真氣纏繞之太古靈山，為凡人登仙之最終試煉。此處隱匿著鏡像問心與上古大能留下的浩瀚之氣。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n\n⮳淬體:運用人類練體修士的功法開通經脈。\n⮳練虛:運用人類法修修士的功法提高境界。\n\n『問天問地，不如問心』歷經千劫萬難至此，唯有將洗煉心識之法融會貫通，淨化累世心願因果，方能成就無上尊者之位！",
+      desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。", 
+      bg: "from-purple-950/80 to-indigo-950", 
+      monsters: [
+        { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
+        { name: "冷空間的撕裂之氣", hp: 90000, atk: 2400, def: 1100, exp: 50000, coins: 65000 },
+        { name: "前排境界的心魔", hp: 150000, atk: 3500, def: 1600, exp: 100000, coins: 120000, isBoss: true }
+      ] 
+    }
   ];
 
   var TITLE_LIST = ["凡人一枚", "無瘋不起浪", "九天尊者", "求勝率大師", "太極宗師", "逍遙散人", "損壽魔尊"];
@@ -755,6 +826,10 @@
     const [activeTab, setActiveTab] = (0, import_react3.useState)("explore");
     const [currentMapIndex, setCurrentMapIndex] = (0, import_react3.useState)(0);
     const [isMapListOpen, setIsMapListOpen] = (0, import_react3.useState)(true);
+    
+    // 地圖武俠對話框狀態
+    const [selectedMapForDialog, setSelectedMapForDialog] = (0, import_react3.useState)(null);
+
     const [inBattle, setInBattle] = (0, import_react3.useState)(false);
     const [currentMonster, setCurrentMonster] = (0, import_react3.useState)(null);
     const [monsterHp, setMonsterHp] = (0, import_react3.useState)(0);
@@ -770,7 +845,7 @@
     const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
     const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
     
-    // Discord 小工具開關狀態 (預設關閉以防遮擋)
+    // Discord 小工具開關狀態
     const [isDiscordWidgetOpen, setIsDiscordWidgetOpen] = (0, import_react3.useState)(false);
 
     // 篩選與搜尋狀態
@@ -778,6 +853,29 @@
     const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
 
     const logContainerRef = (0, import_react3.useRef)(null);
+    const dialogCloseBtnRef = (0, import_react3.useRef)(null);
+
+    // 全域 Esc 鍵關閉對話框焦點管理
+    (0, import_react3.useEffect)(() => {
+      const handleKeyDown = (event) => {
+        if (event.key === "Escape") {
+          if (selectedMapForDialog) setSelectedMapForDialog(null);
+          if (showAccountModal && isGameStarted) setShowAccountModal(false);
+          if (showEditNameModal) setShowEditNameModal(false);
+          if (showStatHelpModal) setShowStatHelpModal(false);
+          if (showBackupModal) setShowBackupModal(false);
+        }
+      };
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [selectedMapForDialog, showAccountModal, isGameStarted, showEditNameModal, showStatHelpModal, showBackupModal]);
+
+    // 對話框彈出時自動聚焦關閉按鈕
+    (0, import_react3.useEffect)(() => {
+      if (selectedMapForDialog && dialogCloseBtnRef.current) {
+        dialogCloseBtnRef.current.focus();
+      }
+    }, [selectedMapForDialog]);
 
     (0, import_react3.useEffect)(() => {
       const textTimer = setInterval(() => {
@@ -1435,6 +1533,54 @@
         )
       ),
 
+      /* 點擊地圖彈出的武俠風格對話框 (支援背景遮罩、焦點管理、Esc關閉與金黃字體) */
+      selectedMapForDialog && e("div", {
+        className: "wuxia-dialog-overlay",
+        onClick: () => setSelectedMapForDialog(null)
+      },
+        e("div", {
+          className: "wuxia-dialog-box",
+          onClick: (ev) => ev.stopPropagation()
+        },
+          e("div", { className: "flex items-center justify-between border-b border-amber-600/40 pb-3 mb-3" },
+            e("div", { className: "flex items-center gap-2" },
+              e(MapIcon, { className: "w-5 h-5 text-amber-400" }),
+              e("h3", { className: "text-lg font-bold text-amber-300 tracking-wider" }, selectedMapForDialog.name)
+            ),
+            e("button", {
+              ref: dialogCloseBtnRef,
+              onClick: () => setSelectedMapForDialog(null),
+              className: "text-amber-400/70 hover:text-amber-200 p-1 rounded-lg hover:bg-amber-950/50 transition-all"
+            }, e(X, { className: "w-5 h-5" }))
+          ),
+          e("div", { className: "space-y-3 mb-6" },
+            e("div", { className: "text-xs font-mono text-amber-400/90 border border-amber-600/30 bg-amber-950/20 px-3 py-1.5 rounded-lg" },
+              `歷練門檻：需達到 Lv.${selectedMapForDialog.reqLevel}`
+            ),
+            e("div", { className: "text-sm text-amber-100/90 whitespace-pre-line leading-relaxed font-sans" },
+              selectedMapForDialog.wuxiaStory
+            )
+          ),
+          e("div", { className: "flex gap-2" },
+            e("button", {
+              onClick: () => setSelectedMapForDialog(null),
+              className: "flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-xs border border-slate-700 transition-all"
+            }, "返回"),
+            e("button", {
+              onClick: () => {
+                const idx = MAPS_DATABASE.findIndex(m => m.id === selectedMapForDialog.id);
+                if (idx !== -1) {
+                  setCurrentMapIndex(idx);
+                  setInBattle(false);
+                }
+                setSelectedMapForDialog(null);
+              },
+              className: "flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-[0_0_15px_rgba(217,119,6,0.4)] transition-all"
+            }, "前往此地修行")
+          )
+        )
+      ),
+
       e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-lg" },
         e("div", { className: "flex items-center gap-3" },
           e("div", { className: "w-9 h-9 rounded-full bg-gradient-to-br from-amber-500 to-red-700 flex items-center justify-center font-bold text-amber-100 border border-amber-400 shadow" }, "道"),
@@ -1533,7 +1679,7 @@
             e("div", { className: "flex items-center justify-between mb-3" },
               e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
                 e(MapIcon, { className: "w-5 h-5" }),
-                e("span", null, "地圖歷練")
+                e("span", null, "地圖歷練 (點擊地圖開啟武俠見聞)")
               ),
               e("button", {
                 onClick: () => setIsMapListOpen(!isMapListOpen),
@@ -1549,18 +1695,20 @@
                 const selected = currentMapIndex === idx;
                 return e("button", {
                   key: map.id,
-                  disabled: locked,
                   onClick: () => {
-                    setCurrentMapIndex(idx);
-                    setInBattle(false);
+                    // 點擊地圖按鈕時彈出武俠對話框
+                    setSelectedMapForDialog(map);
                   },
                   className: `p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
-                    selected ? "bg-gradient-to-br from-amber-950/60 to-slate-900 border-amber-500 shadow-lg" : locked ? "bg-slate-950/40 border-slate-800 opacity-60 cursor-not-allowed" : "bg-slate-900 border-slate-700 hover:border-slate-500"
+                    selected ? "bg-gradient-to-br from-amber-950/60 to-slate-900 border-amber-500 shadow-lg" : locked ? "bg-slate-950/40 border-slate-800 opacity-75" : "bg-slate-900 border-slate-700 hover:border-amber-500/60"
                   }`
                 },
-                  e("div", { className: "font-bold text-amber-200 text-sm" }, map.name),
+                  e("div", { className: "flex items-center justify-between" },
+                    e("div", { className: "font-bold text-amber-200 text-sm" }, map.name),
+                    selected && e("span", { className: "text-[10px] bg-amber-600 text-slate-950 px-1.5 py-0.5 rounded font-bold" }, "當前")
+                  ),
                   e("div", { className: "text-xs text-slate-400 mt-1" }, "需 Lv." + map.reqLevel),
-                  locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "尚未解鎖")
+                  locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "境界尚未解鎖")
                 );
               })
             ),
