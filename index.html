@@ -1,9 +1,9 @@
-[cite: 1]<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>道家重地 - 紅塵內功 (Socket.IO 即時聊天版)</title>
+        <title>道家重地 - 紅塵內功 (WebSocket 優化版)</title>
         <style>
             .error-boundary {
                 border: 2px dashed rgba(255, 0, 0, 0.3);
@@ -21,14 +21,6 @@
                 border-radius: 0 0 0 4px;
                 pointer-events: none;
             }
-            .loading-spinner {
-                @apply flex items-center justify-center min-h-[200px] bg-gradient-to-br from-white/5 to-white/10 rounded-xl backdrop-blur-sm;
-            }
-            .loading-spinner::after {
-                content: '';
-                @apply w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-lg;
-            }
-
             @keyframes shine {
                 0% { transform: translateX(-100%); }
                 100% { transform: translateX(200%); }
@@ -37,147 +29,40 @@
                 0%, 100% { opacity: 0.2; transform: translateY(2px); }
                 50% { opacity: 1; transform: translateY(0); }
             }
-
             body {
-                @apply bg-background text-foreground;
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             }
-
-            input, textarea, select {
-                @apply bg-background text-foreground border-input placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring;
-            }
-
-            input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:not(:placeholder-shown) {
-                @apply bg-background;
-            }
-
-            .dark input, .dark textarea, .dark select {
-                @apply bg-background/95;
-            }
-
-            input, textarea, select {
-                @apply bg-background/95;
-            }
-
-            input:disabled, textarea:disabled, select:disabled {
-                @apply opacity-50 cursor-not-allowed;
-            }
-
-            button {
-                @apply bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
-            }
-
-            button.secondary {
-                @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
-            }
-
-            .card {
-                @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
-            }
-
-            .popover {
-                @apply bg-popover text-popover-foreground border border-border shadow-md rounded-md;
-            }
-
-            a {
-                @apply text-primary hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-ring;
-            }
-
-            .text-muted {
-                @apply text-muted-foreground;
-            }
-
-            .bg-accent {
-                @apply bg-accent text-accent-foreground;
-            }
-
-            .destructive {
-                @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
-            }
-
-            pre, code {
-                @apply bg-muted text-muted-foreground rounded px-[0.3em] py-[0.2em];
-            }
-
-            table {
-                @apply border-collapse w-full;
-            }
-
-            th, td {
-                @apply border border-border p-2 text-left;
-            }
-
-            th {
-                @apply bg-muted font-semibold;
-            }
-
-            .badge {
-                @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary-foreground;
-            }
-
-            :focus-visible {
-                @apply outline-none ring-2 ring-ring ring-offset-2;
-            }
-
             ::selection {
-                @apply bg-amber-600 text-white;
-            }
-        </style>
-
-        <style>
-            :root {
-                --background: 0 0% 100%;
-                --foreground: 222.2 84% 4.9%;
-                --card: 0 0% 100%;
-                --card-foreground: 222.2 84% 4.9%;
-                --popover: 0 0% 100%;
-                --popover-foreground: 222.2 84% 4.9%;
-                --primary: 222.2 47.4% 11.2%;
-                --primary-foreground: 210 40% 98%;
-                --secondary: 210 40% 96.1%;
-                --secondary-foreground: 222.2 47.4% 11.2%;
-                --muted: 210 40% 96.1%;
-                --muted-foreground: 215.4 16.3% 46.9%;
-                --accent: 210 40% 96.1%;
-                --accent-foreground: 222.2 47.4% 11.2%;
-                --destructive: 0 84.2% 60.2%;
-                --destructive-foreground: 210 40% 98%;
-                --border: 214.3 31.8% 91.4%;
-                --input: 214.3 31.8% 91.4%;
-                --ring: 222.2 84% 4.9%;
-                --radius: 0.5rem;
-            }
-            .dark {
-                --background: 222.2 84% 4.9%;
-                --foreground: 210 40% 98%;
-                --card: 222.2 84% 4.9%;
-                --card-foreground: 210 40% 98%;
-                --popover: 222.2 84% 4.9%;
-                --popover-foreground: 210 40% 98%;
-                --primary: 210 40% 98%;
-                --primary-foreground: 222.2 47.4% 11.2%;
-                --secondary: 217.2 32.6% 17.5%;
-                --secondary-foreground: 210 40% 98%;
-                --muted: 217.2 32.6% 17.5%;
-                --muted-foreground: 215 20.2% 65.1%;
-                --accent: 217.2 32.6% 17.5%;
-                --accent-foreground: 210 40% 98%;
-                --destructive: 0 62.8% 30.6%;
-                --destructive-foreground: 210 40% 98%;
-                --border: 217.2 32.6% 17.5%;
-                --input: 217.2 32.6% 17.5%;
-                --ring: 212.7 26.8% 83.9%;
+                background: #d97706;
+                color: white;
             }
         </style>
         <script src="https://cdn.tailwindcss.com"></script>
-
-        <!-- React / ReactDOM -->
+        <script>
+            tailwind.config = {
+                darkMode: ["class"],
+                theme: {
+                    extend: {
+                        colors: {
+                            border: "hsl(var(--border))",
+                            input: "hsl(var(--input))",
+                            ring: "hsl(var(--ring))",
+                            background: "hsl(var(--background))",
+                            foreground: "hsl(var(--foreground))",
+                            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+                            secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+                            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+                            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+                            accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+                            popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
+                            card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
+                        },
+                    },
+                },
+            }
+        </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
-
-        <!-- 引入 Socket.IO 客戶端 SDK -->
-        <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-
         <script>
             if (!window.React || !window.ReactDOM) {
                throw new Error('React or ReactDOM not loaded');
@@ -191,697 +76,583 @@
         <div id="root"></div>
         <script>
             var App = (() => {
-  var __create = Object.create;
-  var __defProp = Object.defineProperty;
-  var __defProps = Object.defineProperties;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-  var __getProtoOf = Object.getPrototypeOf;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a, b) => {
-    for (var prop in b || (b = {}))
-      if (__hasOwnProp.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b)) {
-        if (__propIsEnum.call(b, prop))
-          __defNormalProp(a, prop, b[prop]);
-      }
-    return a;
-  };
-  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-  var __objRest = (source, exclude) => {
-    var target = {};
-    for (var prop in source)
-      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-        target[prop] = source[prop];
-    if (source != null && __getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(source)) {
-        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-          target[prop] = source[prop];
-      }
-    return target;
-  };
-  var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-  };
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
-  };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-    }
-    return to;
-  };
-  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-    mod
-  ));
-  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-  var __async = (__this, __arguments, generator) => {
-    return new Promise((resolve, reject) => {
-      var fulfilled = (value) => {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var rejected = (value) => {
-        try {
-          step(generator.throw(value));
-        } catch (e) {
-          reject(e);
-        }
-      };
-      var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-      step((generator = generator.apply(__this, __arguments)).next());
-    });
-  };
+              var __create = Object.create;
+              var __defProp = Object.defineProperty;
+              var __defProps = Object.defineProperties;
+              var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+              var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+              var __getOwnPropNames = Object.getOwnPropertyNames;
+              var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+              var __getProtoOf = Object.getPrototypeOf;
+              var __hasOwnProp = Object.prototype.hasOwnProperty;
+              var __propIsEnum = Object.prototype.propertyIsEnumerable;
+              var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+              var __spreadValues = (a, b) => {
+                for (var prop in b || (b = {}))
+                  if (__hasOwnProp.call(b, prop))
+                    __defNormalProp(a, prop, b[prop]);
+                if (__getOwnPropSymbols)
+                  for (var prop of __getOwnPropSymbols(b)) {
+                    if (__propIsEnum.call(b, prop))
+                      __defNormalProp(a, prop, b[prop]);
+                  }
+                return a;
+              };
+              var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+              var __objRest = (source, exclude) => {
+                var target = {};
+                for (var prop in source)
+                  if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+                    target[prop] = source[prop];
+                if (source != null && __getOwnPropSymbols)
+                  for (var prop of __getOwnPropSymbols(source)) {
+                    if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+                      target[prop] = source[prop];
+                  }
+                return target;
+              };
+              var __commonJS = (cb, mod) => function __require() {
+                return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+              };
+              var __export = (target, all) => {
+                for (var name in all)
+                  __defProp(target, name, { get: all[name], enumerable: true });
+              };
+              var __copyProps = (to, from, except, desc) => {
+                if (from && typeof from === "object" || typeof from === "function") {
+                  for (let key of __getOwnPropNames(from))
+                    if (!__hasOwnProp.call(to, key) && key !== except)
+                      __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+                }
+                return to;
+              };
+              var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+                isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+                mod
+              ));
+              var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+              var __async = (__this, __arguments, generator) => {
+                return new Promise((resolve, reject) => {
+                  var fulfilled = (value) => {
+                    try { step(generator.next(value)); } catch (e) { reject(e); }
+                  };
+                  var rejected = (value) => {
+                    try { step(generator.throw(value)); } catch (e) { reject(e); }
+                  };
+                  var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+                  step((generator = generator.apply(__this, __arguments)).next());
+                });
+              };
 
-  var require_react = __commonJS({
-    "react-globals:react"(exports, module) {
-      module.exports = window.React;
-    }
-  });
+              var require_react = __commonJS({
+                "react-globals:react"(exports, module) {
+                  module.exports = window.React;
+                }
+              });
 
-  var stdin_exports = {};
-  __export(stdin_exports, {
-    default: () => App
-  });
-  var import_react3 = __toESM(require_react());
-  var import_react2 = __toESM(require_react());
+              var stdin_exports = {};
+              __export(stdin_exports, { default: () => App });
+              var import_react3 = __toESM(require_react());
+              var import_react2 = __toESM(require_react());
 
-  var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
-  var toCamelCase = (string) => string.replace(
-    /^([A-Z])|[\s-_]+(\w)/g,
-    (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase()
-  );
-  var toPascalCase = (string) => {
-    const camelCase = toCamelCase(string);
-    return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
-  };
-  var mergeClasses = (...classes) => classes.filter((className, index, array) => {
-    return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
-  }).join(" ").trim();
-  var hasA11yProp = (props) => {
-    for (const prop in props) {
-      if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
-        return true;
-      }
-    }
-  };
+              var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+              var toCamelCase = (string) => string.replace(/^([A-Z])|[\s-_]+(\w)/g, (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase());
+              var toPascalCase = (string) => {
+                const camelCase = toCamelCase(string);
+                return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+              };
+              var mergeClasses = (...classes) => classes.filter((className, index, array) => Boolean(className) && className.trim() !== "" && array.indexOf(className) === index).join(" ").trim();
+              var hasA11yProp = (props) => {
+                for (const prop in props) {
+                  if (prop.startsWith("aria-") || prop === "role" || prop === "title") return true;
+                }
+              };
 
-  var import_react = __toESM(require_react());
+              var import_react = __toESM(require_react());
+              var defaultAttributes = {
+                xmlns: "http://www.w3.org/2000/svg", width: 24, height: 24, viewBox: "0 0 24 24",
+                fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round"
+              };
 
-  var defaultAttributes = {
-    xmlns: "http://www.w3.org/2000/svg",
-    width: 24,
-    height: 24,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 2,
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  };
+              var Icon = (0, import_react.forwardRef)((_a, ref) => {
+                var _b = _a, { color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth, className = "", children, iconNode } = _b, rest = __objRest(_b, ["color", "size", "strokeWidth", "absoluteStrokeWidth", "className", "children", "iconNode"]);
+                return (0, import_react.createElement)("svg", __spreadValues(__spreadValues(__spreadProps(__spreadValues({ ref }, defaultAttributes), {
+                  width: size, height: size, stroke: color,
+                  strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+                  className: mergeClasses("lucide", className)
+                }), !children && !hasA11yProp(rest) && { "aria-hidden": "true" }), rest), [
+                  ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
+                  ...Array.isArray(children) ? children : [children]
+                ]);
+              });
 
-  var Icon = (0, import_react.forwardRef)(
-    (_a, ref) => {
-      var _b = _a, {
-        color = "currentColor",
-        size = 24,
-        strokeWidth = 2,
-        absoluteStrokeWidth,
-        className = "",
-        children,
-        iconNode
-      } = _b, rest = __objRest(_b, [
-        "color",
-        "size",
-        "strokeWidth",
-        "absoluteStrokeWidth",
-        "className",
-        "children",
-        "iconNode"
-      ]);
-      return (0, import_react.createElement)(
-        "svg",
-        __spreadValues(__spreadValues(__spreadProps(__spreadValues({
-          ref
-        }, defaultAttributes), {
-          width: size,
-          height: size,
-          stroke: color,
-          strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-          className: mergeClasses("lucide", className)
-        }), !children && !hasA11yProp(rest) && { "aria-hidden": "true" }), rest),
-        [
-          ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
-          ...Array.isArray(children) ? children : [children]
-        ]
-      );
-    }
-  );
+              var createLucideIcon = (iconName, iconNode) => {
+                const Component = (0, import_react2.forwardRef)((_a, ref) => {
+                  var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
+                  return (0, import_react2.createElement)(Icon, __spreadValues({ ref, iconNode, className: mergeClasses(`lucide-${toKebabCase(toPascalCase(iconName))}`, `lucide-${iconName}`, className) }, props));
+                });
+                Component.displayName = toPascalCase(iconName);
+                return Component;
+              };
 
-  var createLucideIcon = (iconName, iconNode) => {
-    const Component = (0, import_react2.forwardRef)(
-      (_a, ref) => {
-        var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
-        return (0, import_react2.createElement)(Icon, __spreadValues({
-          ref,
-          iconNode,
-          className: mergeClasses(
-            `lucide-${toKebabCase(toPascalCase(iconName))}`,
-            `lucide-${iconName}`,
-            className
-          )
-        }, props));
-      }
-    );
-    Component.displayName = toPascalCase(iconName);
-    return Component;
-  };
+              // 圖標定義
+              var Check = createLucideIcon("check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+              var ChevronRight = createLucideIcon("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
+              var ChevronDown = createLucideIcon("chevron-down", [["path", { d: "m6 9 6 6 6-6", key: "19w885" }]]);
+              var ChevronUp = createLucideIcon("chevron-up", [["path", { d: "m18 15-6-6-6 6", key: "153z95" }]]);
+              var Flame = createLucideIcon("flame", [["path", { d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z", key: "96xj49" }]]);
+              var LogOut = createLucideIcon("log-out", [["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }], ["path", { d: "M21 12H9", key: "dn1m92" }], ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]]);
+              var MapIcon = createLucideIcon("map", [["path", { d: "M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z", key: "169xi5" }], ["path", { d: "M15 5.764v15", key: "1pn4in" }], ["path", { d: "M9 3.236v15", key: "1uimfh" }]]);
+              var Mountain = createLucideIcon("mountain", [["path", { d: "m8 3 4 8 5-5 5 15H2L8 3z", key: "1b9pfs" }]]);
+              var Package = createLucideIcon("package", [["path", { d: "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z", key: "1a0edw" }], ["path", { d: "M12 22V12", key: "d0xqtd" }], ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }], ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]]);
+              var PenLine = createLucideIcon("pen-line", [["path", { d: "M12 20h9", key: "t2du7b" }], ["path", { d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z", key: "1ykcvy" }]]);
+              var RefreshCw = createLucideIcon("refresh-cw", [["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }], ["path", { d: "M21 3v5h-5", key: "1q7to0" }], ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }], ["path", { d: "M8 16H3v5", key: "1cv678" }]]);
+              var Scroll = createLucideIcon("scroll", [["path", { d: "M19 17V5a2 2 0 0 0-2-2H4", key: "zz82l3" }], ["path", { d: "M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3", key: "1ph1d7" }]]);
+              var Shield = createLucideIcon("shield", [["path", { d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z", key: "oel41y" }]]);
+              var Shuffle = createLucideIcon("shuffle", [["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }], ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }], ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }], ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }], ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]]);
+              var Sparkles = createLucideIcon("sparkles", [["path", { d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z", key: "4pj2yx" }], ["path", { d: "M20 3v4", key: "1olli1" }], ["path", { d: "M22 5h-4", key: "1gvqau" }], ["path", { d: "M4 17v2", key: "vumght" }], ["path", { d: "M5 18H3", key: "zchphs" }]]);
+              var Sun = createLucideIcon("sun", [["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }], ["path", { d: "M12 2v2", key: "tus03m" }], ["path", { d: "M12 20v2", key: "1lh1kg" }], ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }], ["path", { d: "m17.66 17.66 1.41 1.41", key: "ptbguv" }], ["path", { d: "M2 12h2", key: "1t8f8n" }], ["path", { d: "M20 12h2", key: "1q8mjw" }], ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }], ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]]);
+              var Sword = createLucideIcon("sword", [["polyline", { points: "14.5 17.5 3 6 3 3 6 3 17.5 14.5", key: "1hfsw2" }], ["line", { x1: "13", x2: "19", y1: "19", y2: "13", key: "1vrmhu" }], ["line", { x1: "16", x2: "20", y1: "16", y2: "20", key: "1bron3" }], ["line", { x1: "19", x2: "21", y1: "21", y2: "19", key: "13pww6" }]]);
+              var Trash2 = createLucideIcon("trash-2", [["path", { d: "M3 6h18", key: "d0wm0j" }], ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }], ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }], ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }], ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]]);
+              var UserCheck = createLucideIcon("user-check", [["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }], ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
+              var UserPlus = createLucideIcon("user-plus", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }], ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }], ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]]);
+              var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
+              var Droplets = createLucideIcon("droplets", [["path", { d: "M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.09 3 12.25c0 2.22 1.8 4.05 4 4.05z", key: "1k5878" }], ["path", { d: "M17.5 21c2.5 0 4.5-2.01 4.5-4.5 0-1.28-.63-2.5-1.89-3.52s-2.53-2.55-2.86-4.15c-.32 1.6-1.26 3.13-2.52 4.15S13 15.22 13 16.5c0 2.49 2 4.5 4.5 4.5z", key: "1vh5y5" }]]);
+              var X = createLucideIcon("x", [["path", { d: "M18 6 6 18", key: "1bl5f8" }], ["path", { d: "m6 6 12 12", key: "d8bk6v" }]]);
+              var Zap = createLucideIcon("zap", [["path", { d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z", key: "1xq2db" }]]);
+              var Search = createLucideIcon("search", [["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }], ["path", { d: "m21 21-4.3-4.3", key: "1qie3h" }]]);
+              var HelpCircle = createLucideIcon("help-circle", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u7bbk" }], ["line", { x1: "12", x2: "12.01", y1: "17", y2: "17", key: "1p73jh" }]]);
+              var Wifi = createLucideIcon("wifi", [["path", { d: "M12 20h.01", key: "1m8t8p" }], ["path", { d: "M2 8.82a15 15 0 0 1 20 0", key: "1k7j93" }], ["path", { d: "M5 12.859a10 10 0 0 1 14 0", key: "1h3q2u" }], ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1p026g" }]]);
+              var WifiOff = createLucideIcon("wifi-off", [["line", { x1: "2", x2: "22", y1: "2", y2: "22", key: "1v81qc" }], ["path", { d: "M8.5 16.429a5 5 0 0 1 7 0", key: "1p026g" }], ["path", { d: "M5 12.859a10 10 0 0 1 5.17-2.65", key: "1m8t8q" }], ["path", { d: "M19 12.859a10 10 0 0 1-2.17 1.35", key: "1m8t8r" }], ["path", { d: "M12 20h.01", key: "1m8t8p" }]] );
 
-  var Check = createLucideIcon("check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
-  var ChevronRight = createLucideIcon("chevron-right", [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]]);
-  var ChevronDown = createLucideIcon("chevron-down", [["path", { d: "m6 9 6 6 6-6", key: "19w885" }]]);
-  var ChevronUp = createLucideIcon("chevron-up", [["path", { d: "m18 15-6-6-6 6", key: "153z95" }]]);
-  var Flame = createLucideIcon("flame", [["path", { d: "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z", key: "96xj49" }]]);
-  var LogOut = createLucideIcon("log-out", [["path", { d: "m16 17 5-5-5-5", key: "1bji2h" }], ["path", { d: "M21 12H9", key: "dn1m92" }], ["path", { d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4", key: "1uf3rs" }]]);
-  var MapIcon = createLucideIcon("map", [["path", { d: "M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z", key: "169xi5" }], ["path", { d: "M15 5.764v15", key: "1pn4in" }], ["path", { d: "M9 3.236v15", key: "1uimfh" }]]);
-  var Mountain = createLucideIcon("mountain", [["path", { d: "m8 3 4 8 5-5 5 15H2L8 3z", key: "1b9pfs" }]]);
-  var Package = createLucideIcon("package", [["path", { d: "M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z", key: "1a0edw" }], ["path", { d: "M12 22V12", key: "d0xqtd" }], ["polyline", { points: "3.29 7 12 12 20.71 7", key: "ousv84" }], ["path", { d: "m7.5 4.27 9 5.15", key: "1c824w" }]]);
-  var PenLine = createLucideIcon("pen-line", [["path", { d: "M12 20h9", key: "t2du7b" }], ["path", { d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z", key: "1ykcvy" }]]);
-  var RefreshCw = createLucideIcon("refresh-cw", [["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }], ["path", { d: "M21 3v5h-5", key: "1q7to0" }], ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }], ["path", { d: "M8 16H3v5", key: "1cv678" }]]);
-  var Scroll = createLucideIcon("scroll", [["path", { d: "M19 17V5a2 2 0 0 0-2-2H4", key: "zz82l3" }], ["path", { d: "M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3", key: "1ph1d7" }]]);
-  var Shield = createLucideIcon("shield", [["path", { d: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z", key: "oel41y" }]]);
-  var Shuffle = createLucideIcon("shuffle", [["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }], ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }], ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }], ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }], ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]]);
-  var Sparkles = createLucideIcon("sparkles", [["path", { d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z", key: "4pj2yx" }], ["path", { d: "M20 3v4", key: "1olli1" }], ["path", { d: "M22 5h-4", key: "1gvqau" }], ["path", { d: "M4 17v2", key: "vumght" }], ["path", { d: "M5 18H3", key: "zchphs" }]]);
-  var Sun = createLucideIcon("sun", [["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }], ["path", { d: "M12 2v2", key: "tus03m" }], ["path", { d: "M12 20v2", key: "1lh1kg" }], ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }], ["path", { d: "m17.66 17.66 1.41 1.41", key: "ptbguv" }], ["path", { d: "M2 12h2", key: "1t8f8n" }], ["path", { d: "M20 12h2", key: "1q8mjw" }], ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }], ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]]);
-  var Sword = createLucideIcon("sword", [["polyline", { points: "14.5 17.5 3 6 3 3 6 3 17.5 14.5", key: "1hfsw2" }], ["line", { x1: "13", x2: "19", y1: "19", y2: "13", key: "1vrmhu" }], ["line", { x1: "16", x2: "20", y1: "16", y2: "20", key: "1bron3" }], ["line", { x1: "19", x2: "21", y1: "21", y2: "19", key: "13pww6" }]]);
-  var Trash2 = createLucideIcon("trash-2", [["path", { d: "M3 6h18", key: "d0wm0j" }], ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }], ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }], ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }], ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]]);
-  var UserCheck = createLucideIcon("user-check", [["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }], ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
-  var UserPlus = createLucideIcon("user-plus", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }], ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }], ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]]);
-  var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 1-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
-  var Droplets = createLucideIcon("droplets", [["path", { d: "M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.09 3 12.25c0 2.22 1.8 4.05 4 4.05z", key: "1k5878" }], ["path", { d: "M17.5 21c2.5 0 4.5-2.01 4.5-4.5 0-1.28-.63-2.5-1.89-3.52s-2.53-2.55-2.86-4.15c-.32 1.6-1.26 3.13-2.52 4.15S13 15.22 13 16.5c0 2.49 2 4.5 4.5 4.5z", key: "1vh5y5" }]]);
-  var MessageSquare = createLucideIcon("message-square", [["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1bne28" }]]);
-  var Send = createLucideIcon("send", [["line", { x1: "22", x2: "11", y1: "2", y2: "13", key: "1g45df" }], ["polygon", { points: "22 2 15 22 11 13 2 9 22 2", key: "18i0yr" }]]);
-  var Lock = createLucideIcon("lock", [["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1vldvy" }], ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "v0uh25" }]]);
-  var Globe = createLucideIcon("globe", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["line", { x1: "2", x2: "22", y1: "12", y2: "12", key: "1dn2im" }], ["path", { d: "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z", key: "1v56g6" }]]);
-  var Zap = createLucideIcon("zap", [["polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2", key: "123zap" }]]);
-  var HelpCircle = createLucideIcon("help-circle", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1v56g6" }], ["line", { x1: "12", x2: "12.01", y1: "17", y2: "17", key: "1dn2im" }]]);
-  var X = createLucideIcon("x", [["line", { x1: "18", x2: "6", y1: "6", y2: "18", key: "1v56g6" }], ["line", { x1: "6", x2: "18", y1: "6", y2: "18", key: "1dn2im" }]]);
+              var DB_NAME = "WuxiaDB";
+              var DB_VERSION = 1;
+              var STORE_SAVES = "saves";
+              var STORE_META = "meta";
+              var KEY_ACTIVE_ID = "active_id";
 
-  var DB_NAME = "WuxiaDB";
-  var DB_VERSION = 1;
-  var STORE_SAVES = "saves";
-  var STORE_META = "meta";
-  var KEY_ACTIVE_ID = "active_id";
+              var initDB = () => {
+                return new Promise((resolve, reject) => {
+                  const request = indexedDB.open(DB_NAME, DB_VERSION);
+                  request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_SAVES)) db.createObjectStore(STORE_SAVES, { keyPath: "id" });
+                    if (!db.objectStoreNames.contains(STORE_META)) db.createObjectStore(STORE_META, { keyPath: "key" });
+                  };
+                  request.onsuccess = () => resolve(request.result);
+                  request.onerror = () => reject(request.error);
+                });
+              };
 
-  var initDB = () => {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
-      request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains(STORE_SAVES)) {
-          db.createObjectStore(STORE_SAVES, { keyPath: "id" });
-        }
-        if (!db.objectStoreNames.contains(STORE_META)) {
-          db.createObjectStore(STORE_META, { keyPath: "key" });
-        }
-      };
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  };
-
-  var SaveManager = {
-    hasSaveData() {
-      return __async(this, null, function* () {
-        try {
-          const db = yield initDB();
-          const tx = db.transaction([STORE_SAVES], "readonly");
-          const store = tx.objectStore(STORE_SAVES);
-          const count = yield new Promise((res, rej) => {
-            const req = store.count();
-            req.onsuccess = () => res(req.result);
-            req.onerror = () => rej(req.error);
-          });
-          return count > 0;
-        } catch (err) {
-          console.error("SaveManager: 檢查存檔失敗", err);
-          return false;
-        }
-      });
-    },
-    loadSaves() {
-      return __async(this, null, function* () {
-        try {
-          const db = yield initDB();
-          const tx = db.transaction([STORE_SAVES, STORE_META], "readonly");
-          const savesStore = tx.objectStore(STORE_SAVES);
-          const metaStore = tx.objectStore(STORE_META);
-          const accounts = yield new Promise((res, rej) => {
-            const req = savesStore.getAll();
-            req.onsuccess = () => res(req.result);
-            req.onerror = () => rej(req.error);
-          });
-          const meta = yield new Promise((res, rej) => {
-            const req = metaStore.get(KEY_ACTIVE_ID);
-            req.onsuccess = () => res(req.result);
-            req.onerror = () => rej(req.error);
-          });
-          return { accounts, activeId: meta == null ? void 0 : meta.value };
-        } catch (err) {
-          console.error("SaveManager: 讀取失敗", err);
-          return null;
-        }
-      });
-    },
-    saveSaves(accounts, activeId) {
-      return __async(this, null, function* () {
-        try {
-          const db = yield initDB();
-          const tx = db.transaction([STORE_SAVES, STORE_META], "readwrite");
-          const savesStore = tx.objectStore(STORE_SAVES);
-          const metaStore = tx.objectStore(STORE_META);
-          savesStore.clear();
-          accounts.forEach((acc) => savesStore.put(acc));
-          metaStore.put({ key: KEY_ACTIVE_ID, value: activeId });
-          return true;
-        } catch (err) {
-          console.error("SaveManager: 儲存失敗", err);
-          return false;
-        }
-      });
-    }
-  };
-
-  var encodeSaveString = (dataObj) => {
-    try {
-      const jsonStr = JSON.stringify(dataObj);
-      const utf8Bytes = new TextEncoder().encode(jsonStr);
-      let binary = "";
-      utf8Bytes.forEach((b) => binary += String.fromCharCode(b));
-      return btoa(binary);
-    } catch (e) {
-      console.error("編碼失敗:", e);
-      return "";
-    }
-  };
-
-  var decodeSaveString = (encodedStr) => {
-    try {
-      const binary = atob(encodedStr.trim());
-      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-      const jsonStr = new TextDecoder().decode(bytes);
-      return JSON.parse(jsonStr);
-    } catch (e) {
-      console.error("解碼失敗:", e);
-      return null;
-    }
-  };
-
-  var ICON_MAP = {
-    Flame,
-    Mountain,
-    Sun,
-    Sparkles,
-    Droplets
-  };
-
-  var RARITY_MAP = {
-    common: { name: "魔改假貨", color: "text-gray-300", bg: "bg-gray-800/60", border: "border-gray-600", val: 1 },
-    uncommon: { name: "二手貨", color: "text-green-400", bg: "bg-green-950/40", border: "border-green-600", val: 2 },
-    rare: { name: "路邊攤", color: "text-blue-400", bg: "bg-blue-950/40", border: "border-blue-600", val: 3 },
-    epic: { name: "福利品", color: "text-purple-400", bg: "bg-purple-950/40", border: "border-purple-600", val: 4 },
-    legendary: { name: "全新", color: "text-amber-400", bg: "bg-amber-950/40", border: "border-amber-500", val: 5 }
-  };
-
-  var SLOT_MAP = {
-    weapon: "手持",
-    helmet: "頭部",
-    armor: "全身",
-    boots: "鞋子",
-    ring: "飾品",
-    relic: "秘寶"
-  };
-
-  var SKILLS_DATABASE = [
-    { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "少林入門拳法，造成 120% 攻擊力的傷害。", learned: true, level: 1 },
-    { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 傷害並回復少許內力。", learned: false, price: 500, level: 1 },
-    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一剛猛掌法，造成 280% 巨額傷害與必定暴擊。", learned: false, price: 2000, level: 1 },
-    { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄妙無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
-    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
-    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "逍遙派絕學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
-    { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "破盡天下招式！造成 220% 傷害並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
-    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "佛門最高心法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
-    { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "俠客島石壁絕學，全屬性提升 25%，暴擊傷害增加 35%！", learned: false, price: 6000, level: 1 },
-    { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "吸人內力為己用，造成 160% 傷害並吸取對手 25 點內力。", learned: false, price: 4500, level: 1 },
-    { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "刀槍不入，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
-    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "大理段氏無上劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
-  ];
-
-  var CARDS_DATABASE = [
-    { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
-    { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
-    { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
-    { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
-    { id: "card_water", name: "水天靈根·學習", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 活血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
-  ];
-
-  var MAPS_DATABASE = [
-    { id: "map_1", name: "新手村明堂", reqLevel: 1, desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】", bg: "from-emerald-950/80 to-slate-900", monsters: [
-      { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
-      { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
-      { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
-    ] },
-    { id: "map_2", name: "紅塵地界", reqLevel: 5, desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】", bg: "from-red-950/80 to-slate-900", monsters: [
-      { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
-      { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
-      { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
-    ] },
-    { id: "map_3", name: "五蘊仙田", reqLevel: 12, desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】", bg: "from-cyan-950/80 to-slate-900", monsters: [
-      { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
-      { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
-      { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
-    ] }
-  ];
-
-  var TITLE_LIST = ["凡人一枚", "無瘋不起浪", "九天尊者", "求勝率大師", "太極宗師", "逍遙散人", "損壽魔尊"];
-  var RANDOM_NAMES = ["雪別亭", "百無禁忌", "衝衝衝", "頭香", "山人自有妙計", "單身最好", "吹雪", "不想瑟瑟", "包租大大", "非誠勿擾"];
-
-  var WUXIA_SKILL_TEXTS = ["《輪拳》", "《降龍十八掌》", "《十靜法》", "《ABC體操》", "《太極吐納》", "《純陽劍訣》"];
-
-  var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
-    id: "acc_" + Date.now(),
-    createdAt: Date.now(),
-    player: {
-      name,
-      title,
-      level: 1,
-      exp: 0,
-      maxExp: 100,
-      hp: 200,
-      maxHp: 200,
-      mp: 100,
-      maxMp: 100,
-      baseAtk: 25,
-      baseDef: 8,
-      critChance: 0.05,
-      critDmg: 1.5,
-      dodgeChance: 0.05,
-      coins: 200,
-      enhanceStones: 5
-    },
-    equipment: { weapon: null, helmet: null, armor: null, boots: null, ring: null, relic: null },
-    inventory: [
-      { id: "pot_1", name: "緗蛋吐司", type: "potion", hpRestore: 250, count: 3, desc: "回復 250 點生命值" }
-    ],
-    skills: SKILLS_DATABASE.map((s) => __spreadProps(__spreadValues({}, s), { learned: s.id === "sk_1" })),
-    equippedCards: []
-  });
-
-  function App() {
-    const e = import_react3.default.createElement;
-    const [accounts, setAccounts] = (0, import_react3.useState)([]);
-    const [currentAccountId, setCurrentAccountId] = (0, import_react3.useState)("");
-    const [dbLoaded, setDbLoaded] = (0, import_react3.useState)(false);
-    const [isGameStarted, setIsGameStarted] = (0, import_react3.useState)(false);
-    const [activeTab, setActiveTab] = (0, import_react3.useState)("chat");
-    const [currentMapIndex, setCurrentMapIndex] = (0, import_react3.useState)(0);
-    const [inBattle, setInBattle] = (0, import_react3.useState)(false);
-    const [currentMonster, setCurrentMonster] = (0, import_react3.useState)(null);
-    const [monsterHp, setMonsterHp] = (0, import_react3.useState)(0);
-    const [battleLogs, setBattleLogs] = (0, import_react3.useState)([]);
-    const [saveNotify, setSaveNotify] = (0, import_react3.useState)(false);
-    const [showAccountModal, setShowAccountModal] = (0, import_react3.useState)(false);
-    const [inputName, setInputName] = (0, import_react3.useState)("");
-    const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
-    const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
-
-    // Socket.IO 與 即時聊天狀態
-    const [socket, setSocket] = (0, import_react3.useState)(null);
-    const [isConnected, setIsConnected] = (0, import_react3.useState)(false);
-    const [onlinePlayersList, setOnlinePlayersList] = (0, import_react3.useState)([]);
-    const [chatChannelTab, setChatChannelTab] = (0, import_react3.useState)("world"); // world | private
-    const [targetPrivateSocketId, setTargetPrivateSocketId] = (0, import_react3.useState)("");
-    const [enabledChannels, setEnabledChannels] = (0, import_react3.useState)({ world: true, private: true });
-    const [chatInput, setChatInput] = (0, import_react3.useState)("");
-    const [chatMessages, setChatMessages] = (0, import_react3.useState)([]);
-
-    const logContainerRef = (0, import_react3.useRef)(null);
-    const chatContainerRef = (0, import_react3.useRef)(null);
-
-    // 1. 初始化並連接 Socket.IO 伺服器
-    (0, import_react3.useEffect)(() => {
-      // 若為本機開發環境可連接至 http://localhost:3000
-      const newSocket = io(window.location.origin, {
-        reconnectionAttempts: 5,
-        timeout: 10000
-      });
-
-      newSocket.on("connect", () => {
-        setIsConnected(true);
-        console.log("Socket.IO 已成功連線！");
-      });
-
-      newSocket.on("disconnect", () => {
-        setIsConnected(false);
-      });
-
-      // 監聽來自伺服器的廣播訊息
-      newSocket.on("chat:message", (msg) => {
-        setChatMessages((prev) => [...prev, msg]);
-      });
-
-      // 監聽在線玩家名單同步
-      newSocket.on("online:update", (players) => {
-        setOnlinePlayersList(players);
-      });
-
-      setSocket(newSocket);
-
-      return () => {
-        newSocket.disconnect();
-      };
-    }, []);
-
-    (0, import_react3.useEffect)(() => {
-      const initSaveManager = () => __async(this, null, function* () {
-        try {
-          const hasData = yield SaveManager.hasSaveData();
-          if (hasData) {
-            const data = yield SaveManager.loadSaves();
-            if (data && data.accounts && data.accounts.length > 0) {
-              setAccounts(data.accounts);
-              setCurrentAccountId(data.activeId || data.accounts[0].id);
-            }
-          } else {
-            const defaultAcc = createInitialAccount("無名凡人", "凡人一枚");
-            setAccounts([defaultAcc]);
-            setCurrentAccountId(defaultAcc.id);
-            yield SaveManager.saveSaves([defaultAcc], defaultAcc.id);
-          }
-        } catch (err) {
-          console.error("SaveManager 初始化失敗:", err);
-        } finally {
-          setDbLoaded(true);
-        }
-      });
-      initSaveManager();
-    }, []);
-
-    const currentAccount = accounts.find((a) => a.id === currentAccountId) || accounts[0] || createInitialAccount();
-    const player = currentAccount.player;
-
-    // 當角色登入遊戲時，向 Socket 伺服器進行身分登記
-    (0, import_react3.useEffect)(() => {
-      if (socket && isConnected && isGameStarted && player) {
-        socket.emit("player:join", {
-          name: player.name,
-          title: player.title,
-          level: player.level
-        });
-      }
-    }, [socket, isConnected, isGameStarted, currentAccountId]);
-
-    (0, import_react3.useEffect)(() => {
-      if (chatContainerRef.current) {
-        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-      }
-    }, [chatMessages]);
-
-    // 發送聊天訊息至伺服器
-    const handleSendMessage = (e) => {
-      if (e) e.preventDefault();
-      if (!chatInput.trim() || !socket) return;
-
-      if (chatChannelTab === "private" && !targetPrivateSocketId) {
-        alert("請選擇發送私訊的對象俠客！");
-        return;
-      }
-
-      socket.emit("chat:send", {
-        channel: chatChannelTab,
-        content: chatInput.trim(),
-        targetSocketId: chatChannelTab === "private" ? targetPrivateSocketId : null
-      });
-
-      setChatInput("");
-    };
-
-    if (!dbLoaded) {
-      return e("div", { className: "min-h-screen bg-slate-950 flex flex-col items-center justify-center text-amber-200" },
-        e(RefreshCw, { className: "w-8 h-8 animate-spin mb-3 text-amber-500" }),
-        e("p", { className: "text-sm font-bold tracking-widest font-mono" }, "載入遊戲資料中...")
-      );
-    }
-
-    if (!isGameStarted) {
-      return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4" },
-        e("div", { className: "max-w-md w-full bg-slate-900 border border-amber-900/60 rounded-3xl p-8 text-center space-y-6" },
-          e("h1", { className: "text-3xl font-extrabold text-amber-400 tracking-widest" }, "道家重地 - 紅塵內功"),
-          e("div", { className: "text-xs font-mono text-slate-400" },
-            isConnected ? e("span", { className: "text-emerald-400 font-bold" }, "● Socket.IO 伺服器已連線") : e("span", { className: "text-red-400 font-bold" }, "○ Socket.IO 未連線")
-          ),
-          e("button", {
-            onClick: () => setIsGameStarted(true),
-            className: "w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-lg shadow-lg"
-          }, "進入紅塵傳音世界")
-        )
-      );
-    }
-
-    return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans" },
-      // 頂部 Header
-      e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between" },
-        e("div", { className: "flex items-center gap-3" },
-          e("div", { className: "w-9 h-9 rounded-full bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-lg" }, "道"),
-          e("div", null,
-            e("div", { className: "font-bold text-amber-100 text-sm flex items-center gap-2" },
-              e("span", { className: "text-xs text-amber-400 border border-amber-500/40 px-1 rounded" }, player.title),
-              e("span", null, player.name),
-              e("span", { className: "text-xs text-amber-300" }, "Lv." + player.level)
-            )
-          )
-        ),
-        e("div", { className: "flex items-center gap-3" },
-          e("div", { className: "text-xs flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700" },
-            e("span", { className: `w-2 h-2 rounded-full ${isConnected ? "bg-emerald-400 animate-pulse" : "bg-red-500"}` }),
-            e("span", { className: "text-slate-300 font-mono text-[11px]" }, isConnected ? `在線玩家: ${onlinePlayersList.length} 人` : "連線中斷")
-          )
-        )
-      ),
-
-      // 主內容區域：Socket.IO 即時聊天室
-      e("main", { className: "flex-1 max-w-5xl w-full mx-auto p-4 flex flex-col gap-4" },
-        e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[650px]" },
-          e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2" },
-            e("div", { className: "flex items-center gap-2" },
-              e(MessageSquare, { className: "w-5 h-5 text-amber-400" }),
-              e("h2", { className: "text-lg font-bold text-amber-300" }, "即時玩家傳音大廳 (Socket.IO)")
-            ),
-            e("div", { className: "flex items-center gap-3 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs" },
-              e("span", { className: "text-slate-400 font-bold" }, "發言頻道："),
-              e("button", {
-                onClick: () => setChatChannelTab("world"),
-                className: `px-3 py-1 rounded-lg font-bold transition-all ${chatChannelTab === "world" ? "bg-amber-600 text-slate-950" : "bg-slate-800 text-slate-400"}`
-              }, "世界頻道"),
-              e("button", {
-                onClick: () => setChatChannelTab("private"),
-                className: `px-3 py-1 rounded-lg font-bold transition-all ${chatChannelTab === "private" ? "bg-purple-600 text-white" : "bg-slate-800 text-slate-400"}`
-              }, "密語頻道")
-            )
-          ),
-
-          // 若為密語模式，提供選擇密語對象下拉選單
-          chatChannelTab === "private" && e("div", { className: "bg-purple-950/40 border border-purple-800/60 p-2.5 rounded-xl my-2 flex items-center gap-2 text-xs" },
-            e(Lock, { className: "w-4 h-4 text-purple-400" }),
-            e("span", { className: "text-purple-200 font-bold" }, "選擇密語傳音對象："),
-            e("select", {
-              value: targetPrivateSocketId,
-              onChange: (ev) => setTargetPrivateSocketId(ev.target.value),
-              className: "bg-slate-950 border border-purple-600 text-slate-100 rounded px-2 py-1 flex-1 focus:outline-none"
-            },
-              e("option", { value: "" }, "-- 請選擇線上俠客 --"),
-              onlinePlayersList.filter((p) => socket && p.socketId !== socket.id).map((p) => e("option", { key: p.socketId, value: p.socketId }, `[${p.title}] ${p.name} (Lv.${p.level})`))
-            )
-          ),
-
-          // 訊息展示視窗
-          e("div", {
-            ref: chatContainerRef,
-            className: "flex-1 bg-slate-950/90 rounded-xl p-4 overflow-y-auto space-y-3 border border-slate-800/80 font-mono text-xs my-2"
-          },
-            chatMessages.length === 0 ?
-              e("div", { className: "text-slate-600 text-center py-24" }, "暫無訊息，發送第一條傳音吧！") :
-              chatMessages.map((msg) => {
-                const isWorld = msg.channel === "world";
-                const isMe = socket && msg.senderSocketId === socket.id;
-                return e("div", {
-                  key: msg.id,
-                  className: `p-3 rounded-xl border flex flex-col gap-1.5 transition-all ${
-                    msg.type === "system" ? "bg-amber-950/20 border-amber-800/40 text-amber-300" :
-                    msg.channel === "private" ? "bg-purple-950/30 border-purple-800/50 text-purple-200" :
-                    isMe ? "bg-slate-800/80 border-amber-500/40 text-amber-100 self-end max-w-[85%]" :
-                    "bg-slate-900 border-slate-800 text-slate-200 max-w-[90%]"
-                  }`
+              var SaveManager = {
+                hasSaveData() {
+                  return __async(this, null, function* () {
+                    try {
+                      const db = yield initDB();
+                      const tx = db.transaction([STORE_SAVES], "readonly");
+                      const store = tx.objectStore(STORE_SAVES);
+                      const count = yield new Promise((res, rej) => {
+                        const req = store.count();
+                        req.onsuccess = () => res(req.result);
+                        req.onerror = () => rej(req.error);
+                      });
+                      return count > 0;
+                    } catch (err) { return false; }
+                  });
                 },
-                  e("div", { className: "flex items-center justify-between text-[10px] text-slate-400 border-b border-slate-800/50 pb-1 gap-4" },
-                    e("div", { className: "flex items-center gap-1.5" },
-                      e("span", { className: `px-1.5 py-0.2 rounded font-bold ${isWorld ? 'bg-blue-950 text-blue-400 border border-blue-800/50' : 'bg-purple-950 text-purple-400 border border-purple-800/50'}` }, isWorld ? "世界" : "密語"),
-                      msg.title && e("span", { className: "text-amber-400/90" }, `[${msg.title}]`),
-                      e("span", { className: "font-bold text-slate-200" }, msg.sender)
+                loadSaves() {
+                  return __async(this, null, function* () {
+                    try {
+                      const db = yield initDB();
+                      const tx = db.transaction([STORE_SAVES, STORE_META], "readonly");
+                      const accounts = yield new Promise((res, rej) => {
+                        const req = tx.objectStore(STORE_SAVES).getAll();
+                        req.onsuccess = () => res(req.result);
+                        req.onerror = () => rej(req.error);
+                      });
+                      const meta = yield new Promise((res, rej) => {
+                        const req = tx.objectStore(STORE_META).get(KEY_ACTIVE_ID);
+                        req.onsuccess = () => res(req.result);
+                        req.onerror = () => rej(req.error);
+                      });
+                      return { accounts, activeId: meta == null ? void 0 : meta.value };
+                    } catch (err) { return null; }
+                  });
+                },
+                saveSaves(accounts, activeId) {
+                  return __async(this, null, function* () {
+                    try {
+                      const db = yield initDB();
+                      const tx = db.transaction([STORE_SAVES, STORE_META], "readwrite");
+                      const savesStore = tx.objectStore(STORE_SAVES);
+                      const metaStore = tx.objectStore(STORE_META);
+                      savesStore.clear();
+                      accounts.forEach((acc) => savesStore.put(acc));
+                      metaStore.put({ key: KEY_ACTIVE_ID, value: activeId });
+                      return true;
+                    } catch (err) { return false; }
+                  });
+                }
+              };
+
+              var encodeSaveString = (dataObj) => {
+                try {
+                  const jsonStr = JSON.stringify(dataObj);
+                  const utf8Bytes = new TextEncoder().encode(jsonStr);
+                  let binary = "";
+                  utf8Bytes.forEach((b) => binary += String.fromCharCode(b));
+                  return btoa(binary);
+                } catch (e) { return ""; }
+              };
+
+              var decodeSaveString = (encodedStr) => {
+                try {
+                  const binary = atob(encodedStr.trim());
+                  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+                  return JSON.parse(new TextDecoder().decode(bytes));
+                } catch (e) { return null; }
+              };
+
+              var ICON_MAP = { Flame, Mountain, Sun, Sparkles, Droplets };
+              var RARITY_MAP = {
+                common: { name: "魔改假貨", color: "text-gray-300", bg: "bg-gray-800/60", border: "border-gray-600", val: 1 },
+                uncommon: { name: "二手貨", color: "text-green-400", bg: "bg-green-950/40", border: "border-green-600", val: 2 },
+                rare: { name: "路邊攤", color: "text-blue-400", bg: "bg-blue-950/40", border: "border-blue-600", val: 3 },
+                epic: { name: "福利品", color: "text-purple-400", bg: "bg-purple-950/40", border: "border-purple-600", val: 4 },
+                legendary: { name: "全新", color: "text-amber-400", bg: "bg-amber-950/40", border: "border-amber-500", val: 5 }
+              };
+              var SLOT_MAP = { weapon: "手持", helmet: "頭部", armor: "全身", boots: "鞋子", ring: "飾品", relic: "秘寶" };
+
+              var SKILLS_DATABASE = [
+                { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
+                { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
+                { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
+                { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
+                { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
+                { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
+                { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
+                { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
+                { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
+                { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
+                { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
+                { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
+              ];
+
+              var CARDS_DATABASE = [
+                { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
+                { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
+                { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
+                { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
+                { id: "card_water", name: "水天靈根·學習", element: "water", iconName: "Droplets", color: "from-blue-900 to-teal-700", effect: "內力上限 +150，攻擊時附帶 10% 活血效果", stats: { mpMaxAdd: 150, lifesteal: 0.1 } }
+              ];
+
+              var MAPS_DATABASE = [
+                { id: "map_1", name: "新手村明堂", reqLevel: 1, desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。", bg: "from-emerald-950/80 to-slate-900", monsters: [
+                  { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
+                  { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
+                  { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
+                ] },
+                { id: "map_2", name: "紅塵地界", reqLevel: 5, desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。", bg: "from-red-950/80 to-slate-900", monsters: [
+                  { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
+                  { name: "12神煞", hp: 800, atk: 85, def: 30, exp: 260, coins: 250 },
+                  { name: "下丹田的靈妖", hp: 1500, atk: 130, def: 45, exp: 500, coins: 600, isBoss: true }
+                ] },
+                { id: "map_3", name: "五蘊仙田", reqLevel: 12, desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田。", bg: "from-cyan-950/80 to-slate-900", monsters: [
+                  { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
+                  { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
+                  { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
+                ] }
+              ];
+
+              var TITLE_LIST = ["凡人一枚", "無瘋不起浪", "九天尊者", "求勝率大師", "太極宗師", "逍遙散人", "損壽魔尊"];
+              var RANDOM_NAMES = ["雪別亭", "百無禁忌", "衝衝衝", "頭香", "山人自有妙計", "單身最好", "吹雪", "不想瑟瑟", "包租大大", "非誠勿擾"];
+              var WUXIA_SKILL_TEXTS = ["《輪拳》", "《降龍十八掌》", "《十靜法》", "《ABC體操》", "《太極吐納》", "《親傳基本功》"];
+
+              var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
+                id: "acc_" + Date.now(), createdAt: Date.now(),
+                player: { name, title, level: 1, exp: 0, maxExp: 100, hp: 200, maxHp: 200, mp: 100, maxMp: 100, baseAtk: 25, baseDef: 8, critChance: 0.05, critDmg: 1.5, dodgeChance: 0.05, coins: 200, enhanceStones: 5 },
+                equipment: { weapon: { id: "eq_w1", name: "魔幻夢境地圖", slot: "weapon", rarity: "common", atk: 10, def: 0, enhance: 0 }, helmet: null, armor: { id: "eq_a1", name: "粗布麻衣", slot: "armor", rarity: "common", atk: 0, def: 5, enhance: 0 }, boots: null, ring: null, relic: null },
+                inventory: [
+                  { id: "pot_1", name: "緗蛋吐司", type: "potion", hpRestore: 250, count: 3, desc: "回復 250 點生命值" },
+                  { id: "pot_2", name: "真緗咖啡", type: "potion", mpRestore: 120, count: 2, desc: "回復 120 點內力值" }
+                ],
+                skills: SKILLS_DATABASE.map((s) => __spreadProps(__spreadValues({}, s), { learned: s.id === "sk_1" })),
+                equippedCards: []
+              });
+
+              function App() {
+                const e = import_react3.default.createElement;
+                const [accounts, setAccounts] = (0, import_react3.useState)([]);
+                const [currentAccountId, setCurrentAccountId] = (0, import_react3.useState)("");
+                const [dbLoaded, setDbLoaded] = (0, import_react3.useState)(false);
+                const [isGameStarted, setIsGameStarted] = (0, import_react3.useState)(false);
+                const [activeTab, setActiveTab] = (0, import_react3.useState)("explore");
+                const [currentMapIndex, setCurrentMapIndex] = (0, import_react3.useState)(0);
+                const [isMapListOpen, setIsMapListOpen] = (0, import_react3.useState)(true);
+                const [inBattle, setInBattle] = (0, import_react3.useState)(false);
+                const [currentMonster, setCurrentMonster] = (0, import_react3.useState)(null);
+                const [monsterHp, setMonsterHp] = (0, import_react3.useState)(0);
+                const [battleLogs, setBattleLogs] = (0, import_react3.useState)([]);
+                const [saveNotify, setSaveNotify] = (0, import_react3.useState)(false);
+                const [showBackupModal, setShowBackupModal] = (0, import_react3.useState)(false);
+                const [showAccountModal, setShowAccountModal] = (0, import_react3.useState)(false);
+                const [showEditNameModal, setShowEditNameModal] = (0, import_react3.useState)(false);
+                const [showStatHelpModal, setShowStatHelpModal] = (0, import_react3.useState)(false);
+                const [exportedCode, setExportedCode] = (0, import_react3.useState)("");
+                const [importJsonText, setImportJsonText] = (0, import_react3.useState)("");
+                const [inputName, setInputName] = (0, import_react3.useState)("");
+                const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
+                const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
+                
+                // WebSocket 狀態與位址配置
+                const [wsStatus, setWsStatus] = (0, import_react3.useState)("disconnected"); // disconnected, connecting, connected, error
+                const [wsUrl, setWsUrl] = (0, import_react3.useState)("wss://echo.websocket.org"); // 可替換為您的遊戲伺服器 WebSocket 位址
+                const wsRef = (0, import_react3.useRef)(null);
+
+                const [inventorySearchQuery, setInventorySearchQuery] = (0, import_react3.useState)("");
+                const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
+                const logContainerRef = (0, import_react3.useRef)(null);
+
+                // ==========================================
+                // WebSocket 雙向通訊機制初始化與生命週期管理
+                // ==========================================
+                const connectWebSocket = () => {
+                  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) return;
+                  
+                  setWsStatus("connecting");
+                  addLog(`正在透過 JavaScript 建立 WebSocket 雙向連線實例 (${wsUrl})...`, "info");
+
+                  try {
+                    const socket = new WebSocket(wsUrl);
+                    wsRef.current = socket;
+
+                    // 1. 連線開啟 (Open)
+                    socket.onopen = () => {
+                      setWsStatus("connected");
+                      addLog("【WebSocket】雙向通訊管道已成功建立！", "success");
+                      // 主動向伺服器發送註冊或同步訊息 (Send)
+                      socket.send(JSON.stringify({ type: "PLAYER_LOGIN", timestamp: Date.now() }));
+                    };
+
+                    // 2. 接收伺服器主動推送訊息 (Message / Send)
+                    socket.onmessage = (event) => {
+                      try {
+                        const data = JSON.parse(event.data);
+                        addLog(`【伺服器推送】收到即時更新: ${JSON.stringify(data)}`, "success");
+                        // 處理伺服器端主動推送的遊戲狀態更新
+                        if (data.serverBuff) {
+                          addLog(`伺服器下發全服靈氣加成：${data.serverBuff}`, "legend");
+                        }
+                      } catch (err) {
+                        addLog(`【伺服器推送】原始訊息: ${event.data}`, "info");
+                      }
+                    };
+
+                    // 3. 錯誤處理 (Error)
+                    socket.onerror = (error) => {
+                      setWsStatus("error");
+                      addLog("【WebSocket】連線發生錯誤，請檢查網路或伺服器位址。", "danger");
+                    };
+
+                    // 4. 斷開連線與清理工作 (Close / Error Cleanup)
+                    socket.onclose = (event) => {
+                      setWsStatus("disconnected");
+                      addLog(`【WebSocket】與伺服器連線已中斷 (代碼: ${event.code})，正在進行清理工作。`, "danger");
+                    };
+                  } catch (e) {
+                    setWsStatus("error");
+                    addLog("【WebSocket】初始化連線失敗：" + e.message, "danger");
+                  }
+                };
+
+                const disconnectWebSocket = () => {
+                  if (wsRef.current) {
+                    wsRef.current.close(1000, "玩家主動登出斷開");
+                    wsRef.current = null;
+                  }
+                  setWsStatus("disconnected");
+                  addLog("【WebSocket】已主動斷開雙向通訊管道。", "info");
+                };
+
+                // 當遊戲啟動時自動嘗試連線 WebSocket
+                (0, import_react3.useEffect)(() => {
+                  if (isGameStarted) {
+                    connectWebSocket();
+                  }
+                  return () => {
+                    if (wsRef.current) {
+                      wsRef.current.close();
+                    }
+                  };
+                }, [isGameStarted]);
+
+                // ==========================================
+                // 資料庫與其他遊戲邏輯
+                // ==========================================
+                (0, import_react3.useEffect)(() => {
+                  const initSaveManager = () => __async(this, null, function* () {
+                    try {
+                      const hasData = yield SaveManager.hasSaveData();
+                      if (hasData) {
+                        const data = yield SaveManager.loadSaves();
+                        if (data && data.accounts && data.accounts.length > 0) {
+                          setAccounts(data.accounts);
+                          setCurrentAccountId(data.accounts.some((a) => a.id === data.activeId) ? data.activeId : data.accounts[0].id);
+                        }
+                      } else {
+                        const defaultAcc = createInitialAccount("無名凡人", "凡人一枚");
+                        setAccounts([defaultAcc]);
+                        setCurrentAccountId(defaultAcc.id);
+                        yield SaveManager.saveSaves([defaultAcc], defaultAcc.id);
+                      }
+                    } catch (err) { console.error(err); }
+                    finally { setDbLoaded(true); setIsGameStarted(false); }
+                  });
+                  initSaveManager();
+                }, []);
+
+                const currentAccount = accounts.find((a) => a.id === currentAccountId) || accounts[0] || createInitialAccount();
+                const updateCurrentAccount = (updater) => {
+                  setAccounts((prev) => prev.map((acc) => acc.id === currentAccountId ? (typeof updater === "function" ? updater(acc) : __spreadValues(__spreadValues({}, acc), updater)) : acc));
+                };
+
+                const player = currentAccount.player;
+                const equipment = currentAccount.equipment;
+                const inventory = currentAccount.inventory;
+                const skills = currentAccount.skills;
+                const equippedCards = currentAccount.equippedCards;
+
+                const setPlayer = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { player: typeof val === "function" ? val(acc.player) : val }));
+                const setEquipment = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equipment: typeof val === "function" ? val(acc.equipment) : val }));
+                const setInventory = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { inventory: typeof val === "function" ? val(acc.inventory) : val }));
+                const setSkills = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { skills: typeof val === "function" ? val(acc.skills) : val }));
+                const setEquippedCards = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equippedCards: typeof val === "function" ? val(acc.equippedCards) : val }));
+
+                const addLog = (text, type = "info") => {
+                  setBattleLogs((prev) => [...prev.slice(-80), { id: Date.now() + Math.random(), text: String(text), type }]);
+                };
+
+                (0, import_react3.useEffect)(() => {
+                  if (logContainerRef.current) logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+                }, [battleLogs]);
+
+                const calculateStats = () => {
+                  let eqAtk = 0, eqDef = 0;
+                  Object.values(equipment).forEach((item) => {
+                    if (item) { eqAtk += (item.atk || 0) + (item.enhance || 0) * 3; eqDef += (item.def || 0) + (item.enhance || 0) * 2; }
+                  });
+                  return { finalAtk: player.baseAtk + eqAtk, finalDef: player.baseDef + eqDef, finalMaxHp: player.maxHp, finalMaxMp: player.maxMp, finalCrit: player.critChance, finalCritDmg: player.critDmg, finalDodge: player.dodgeChance };
+                };
+                const stats = calculateStats();
+
+                const startBattle = () => {
+                  const map = MAPS_DATABASE[currentMapIndex];
+                  if (player.level < map.reqLevel) { addLog(`等級不足！需到達 Lv.${map.reqLevel}。`, "danger"); return; }
+                  const randomMonster = map.monsters[Math.floor(Math.random() * map.monsters.length)];
+                  setCurrentMonster(__spreadProps(__spreadValues({}, randomMonster), { maxHp: randomMonster.hp }));
+                  setMonsterHp(randomMonster.hp);
+                  setInBattle(true);
+                  addLog(`於【${map.name}】遭遇了《${randomMonster.name}》！`, "info");
+
+                  // 透過 WebSocket 發送玩家進入戰鬥的請求 (Send)
+                  if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                    wsRef.current.send(JSON.stringify({ action: "START_BATTLE", monster: randomMonster.name }));
+                  }
+                };
+
+                const playerAttack = (usedSkill = null) => {
+                  if (!inBattle || !currentMonster) return;
+                  let dmgPower = usedSkill ? usedSkill.power : 1;
+                  let finalDmg = Math.max(1, Math.floor(stats.finalAtk * dmgPower));
+                  const newMonsterHp = Math.max(0, monsterHp - finalDmg);
+                  setMonsterHp(newMonsterHp);
+                  addLog(`你發動攻擊，造成 ${finalDmg} 點傷害！`, "player");
+
+                  if (newMonsterHp <= 0) {
+                    addLog(`擊敗《${currentMonster.name}》！`, "success");
+                    setPlayer((p) => __spreadProps(__spreadValues({}, p), { exp: p.exp + currentMonster.exp, coins: p.coins + currentMonster.coins }));
+                    setInBattle(false);
+                    setCurrentMonster(null);
+                  }
+                };
+
+                // 畫面渲染
+                if (!dbLoaded) {
+                  return e("div", { className: "min-h-screen bg-slate-950 flex items-center justify-center text-amber-200" },
+                    e(RefreshCw, { className: "w-8 h-8 animate-spin mr-2 text-amber-500" }),
+                    e("span", null, "正在載入道家重地本機資料...")
+                  );
+                }
+
+                if (!isGameStarted) {
+                  return e("div", { className: "min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 text-center" },
+                    e("h1", { className: "text-3xl font-extrabold text-amber-400 mb-2" }, "道家重地 - 紅塵內功"),
+                    e("p", { className: "text-xs text-slate-400 mb-6" }, "已整合 WebSocket 雙向即時通訊引擎"),
+                    e("button", {
+                      onClick: () => { setIsGameStarted(true); },
+                      className: "px-6 py-3 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl shadow-lg"
+                    }, "進入遊戲世界")
+                  );
+                }
+
+                return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans" },
+                  // 頂部導覽列與 WebSocket 狀態指示器
+                  e("header", { className: "bg-slate-900 border-b border-amber-900/40 px-4 py-2.5 flex items-center justify-between" },
+                    e("div", { className: "flex items-center gap-3" },
+                      e("span", { className: "font-bold text-amber-300" }, player.name),
+                      e("span", { className: "text-xs text-slate-400" }, `Lv.${player.level}`)
                     ),
-                    e("span", { className: "text-slate-500" }, msg.timestamp)
+                    // WebSocket 狀態小工具
+                    e("div", { className: "flex items-center gap-2 text-xs" },
+                      wsStatus === "connected" && e("span", { className: "text-emerald-400 flex items-center gap-1 bg-emerald-950/40 px-2 py-1 rounded border border-emerald-800" },
+                        e(Wifi, { className: "w-3.5 h-3.5" }), "雙向通訊正常"
+                      ),
+                      wsStatus === "connecting" && e("span", { className: "text-amber-400 flex items-center gap-1 animate-pulse" },
+                        e(RefreshCw, { className: "w-3.5 h-3.5 animate-spin" }), "連線中..."
+                      ),
+                      wsStatus === "disconnected" && e("span", { className: "text-red-400 flex items-center gap-1 bg-red-950/40 px-2 py-1 rounded border border-red-800" },
+                        e(WifiOff, { className: "w-3.5 h-3.5" }), "已斷線",
+                        e("button", { onClick: connectWebSocket, className: "ml-2 underline text-amber-300 hover:text-white" }, "重新連線")
+                      ),
+                      wsStatus === "error" && e("span", { className: "text-red-400 flex items-center gap-1" },
+                        e(WifiOff, { className: "w-3.5 h-3.5" }), "連線錯誤",
+                        e("button", { onClick: connectWebSocket, className: "ml-2 underline text-amber-300" }, "重試")
+                      )
+                    )
                   ),
-                  e("div", { className: "text-xs leading-relaxed break-words px-0.5 pt-0.5" }, msg.content)
+                  // 主要遊戲介面
+                  e("div", { className: "flex-1 max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4" },
+                    e("div", { className: "lg:col-span-2 space-y-4" },
+                      e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl" },
+                        e("h2", { className: "text-lg font-bold text-amber-300 mb-3" }, "地圖歷練"),
+                        !inBattle ? e("div", { className: "text-center py-6" },
+                          e("p", { className: "text-sm text-slate-300 mb-4" }, MAPS_DATABASE[currentMapIndex].desc),
+                          e("button", { onClick: startBattle, className: "px-6 py-2.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-full" }, "開始歷練對決")
+                        ) : e("div", { className: "text-center py-4 space-y-4" },
+                          e("div", { className: "font-bold text-red-400" }, `遭遇敵人：${currentMonster.name} (HP: ${monsterHp}/${currentMonster.maxHp})`),
+                          e("div", { className: "flex justify-center gap-2" },
+                            e("button", { onClick: () => playerAttack(), className: "px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded font-bold" }, "攻擊")
+                          )
+                        )
+                      )
+                    ),
+                    // 日誌面板
+                    e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col h-[520px]" },
+                      e("h3", { className: "font-bold text-amber-300 mb-2 border-b border-slate-800 pb-2" }, "遊戲即時通訊日誌"),
+                      e("div", { ref: logContainerRef, className: "flex-1 bg-slate-950/80 rounded-xl p-3 overflow-y-auto space-y-1 font-mono text-xs" },
+                        battleLogs.map((log) => e("div", { key: log.id, className: log.type === "danger" ? "text-red-400" : log.type === "success" ? "text-emerald-400" : "text-slate-300" }, log.text))
+                      )
+                    )
+                  )
                 );
-              })
-          ),
+              }
+              return __toCommonJS(stdin_exports);
+            })();
 
-          // 訊息輸入區域
-          e("form", { onSubmit: handleSendMessage, className: "flex gap-2" },
-            e("input", {
-              type: "text",
-              value: chatInput,
-              onChange: (ev) => setChatInput(ev.target.value),
-              placeholder: chatChannelTab === "world" ? "輸入訊息發送到全服世界頻道..." : "輸入私密訊息...",
-              className: "flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:border-amber-500"
-            }),
-            e("button", {
-              type: "submit",
-              disabled: !isConnected,
-              className: `px-6 py-2.5 font-bold rounded-xl text-xs flex items-center gap-2 shadow transition-all ${
-                chatChannelTab === "world" ? "bg-amber-500 hover:bg-amber-400 text-slate-950" : "bg-purple-600 hover:bg-purple-500 text-white"
-              } disabled:opacity-50`
-            },
-              e(Send, { className: "w-4 h-4" }),
-              e("span", null, "傳音")
-            )
-          )
-        )
-      )
-    );
-  }
-
-  return __toCommonJS(stdin_exports);
-})();
-
-document.addEventListener('DOMContentLoaded', function() {
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App.default, null));
-});
+            document.addEventListener('DOMContentLoaded', function() {
+                const root = ReactDOM.createRoot(document.getElementById('root'));
+                root.render(React.createElement(App.default, null));
+            });
         </script>
     </body>
 </html>
