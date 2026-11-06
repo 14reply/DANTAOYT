@@ -99,13 +99,6 @@
                 border-radius: 0 0 0 4px;
                 pointer-events: none;
             }
-            .loading-spinner {
-                @apply flex items-center justify-center min-h-[200px] bg-gradient-to-br from-white/5 to-white/10 rounded-xl backdrop-blur-sm;
-            }
-            .loading-spinner::after {
-                content: '';
-                @apply w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-lg;
-            }
 
             /* Custom Keyframe Animations */
             @keyframes shine {
@@ -126,76 +119,8 @@
                 @apply bg-background text-foreground border-input placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring;
             }
 
-            input:not(:placeholder-shown), textarea:not(:placeholder-shown), select:not(:placeholder-shown) {
-                @apply bg-background;
-            }
-
-            .dark input, .dark textarea, .dark select {
-                @apply bg-background/95;
-            }
-
-            input, textarea, select {
-                @apply bg-background/95;
-            }
-
-            input:disabled, textarea:disabled, select:disabled {
-                @apply opacity-50 cursor-not-allowed;
-            }
-
             button {
                 @apply bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
-            }
-
-            button.secondary {
-                @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
-            }
-
-            .card {
-                @apply bg-card text-card-foreground border border-border rounded-lg shadow-sm;
-            }
-
-            .popover {
-                @apply bg-popover text-popover-foreground border border-border shadow-md rounded-md;
-            }
-
-            a {
-                @apply text-primary hover:text-primary/80 focus:outline-none focus:ring-2 focus:ring-ring;
-            }
-
-            .text-muted {
-                @apply text-muted-foreground;
-            }
-
-            .bg-accent {
-                @apply bg-accent text-accent-foreground;
-            }
-
-            .destructive {
-                @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
-            }
-
-            pre, code {
-                @apply bg-muted text-muted-foreground rounded px-[0.3em] py-[0.2em];
-            }
-
-            table {
-                @apply border-collapse w-full;
-            }
-
-            th, td {
-                @apply border border-border p-2 text-left;
-            }
-
-            th {
-                @apply bg-muted font-semibold;
-            }
-
-            .badge {
-                @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary/10 text-primary-foreground;
-            }
-
-            :focus-visible {
-                @apply outline-none ring-2 ring-ring ring-offset-2;
             }
 
             ::selection {
@@ -253,13 +178,6 @@
             tailwind.config = {
                 darkMode: ["class"],
                 theme: {
-                    container: {
-                        center: true,
-                        padding: "2rem",
-                        screens: {
-                            "2xl": "1400px",
-                        },
-                    },
                     extend: {
                         colors: {
                             border: "hsl(var(--border))",
@@ -267,40 +185,15 @@
                             ring: "hsl(var(--ring))",
                             background: "hsl(var(--background))",
                             foreground: "hsl(var(--foreground))",
-                            primary: {
-                                DEFAULT: "hsl(var(--primary))",
-                                foreground: "hsl(var(--primary-foreground))",
-                            },
-                            secondary: {
-                                DEFAULT: "hsl(var(--secondary))",
-                                foreground: "hsl(var(--secondary-foreground))",
-                            },
-                            destructive: {
-                                DEFAULT: "hsl(var(--destructive))",
-                                foreground: "hsl(var(--destructive-foreground))",
-                            },
-                            muted: {
-                                DEFAULT: "hsl(var(--muted))",
-                                foreground: "hsl(var(--muted-foreground))",
-                            },
-                            accent: {
-                                DEFAULT: "hsl(var(--accent))",
-                                foreground: "hsl(var(--accent-foreground))",
-                            },
-                            popover: {
-                                DEFAULT: "hsl(var(--popover))",
-                                foreground: "hsl(var(--popover-foreground))",
-                            },
-                            card: {
-                                DEFAULT: "hsl(var(--card))",
-                                foreground: "hsl(var(--card-foreground))",
-                            },
+                            primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+                            secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+                            destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
+                            muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+                            accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+                            popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
+                            card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
                         },
-                        borderRadius: {
-                            lg: "var(--radius)",
-                            md: "calc(var(--radius) - 2px)",
-                            sm: "calc(var(--radius) - 4px)",
-                        },
+                        borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
                     },
                 },
             }
@@ -646,13 +539,7 @@
     }
   };
 
-  var ICON_MAP = {
-    Flame,
-    Mountain,
-    Sun,
-    Sparkles,
-    Droplets
-  };
+  var ICON_MAP = { Flame, Mountain, Sun, Sparkles, Droplets };
 
   var RARITY_MAP = {
     common: { name: "魔改假貨", color: "text-gray-300", bg: "bg-gray-800/60", border: "border-gray-600", val: 1 },
@@ -662,28 +549,21 @@
     legendary: { name: "全新", color: "text-amber-400", bg: "bg-amber-950/40", border: "border-amber-500", val: 5 }
   };
 
-  var SLOT_MAP = {
-    weapon: "手持",
-    helmet: "頭部",
-    armor: "全身",
-    boots: "鞋子",
-    ring: "飾品",
-    relic: "秘寶"
-  };
+  var SLOT_MAP = { weapon: "手持", helmet: "頭部", armor: "全身", boots: "鞋子", ring: "飾品", relic: "秘寶" };
 
   var SKILLS_DATABASE = [
-    { id: "sk_1", name: "輪拳", type: "active", typeText: "體修", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
-    { id: "sk_2", name: "太極吐納", type: "active", typeText: "體修", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
-    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "體修", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
-    { id: "sk_4", name: "十靜法", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
-    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨提升體適能，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
-    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "體法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
-    { id: "sk_7", name: "望氣法", type: "active", typeText: "體修", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式虛實！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
-    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
-    { id: "sk_9", name: "九星風水", type: "passive", typeText: "祕法", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
-    { id: "sk_10", name: "抱元守一", type: "active", typeText: "法修", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
-    { id: "sk_11", name: "太上神功", type: "passive", typeText: "祕法", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
-    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "神話", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
+    { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
+    { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
+    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
+    { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
+    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
+    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
+    { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
+    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
+    { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
+    { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
+    { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
+    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
   ];
 
   var CARDS_DATABASE = [
@@ -699,8 +579,8 @@
       id: "map_1", 
       name: "新手村明堂", 
       reqLevel: 1, 
-      wuxiaStory: "【初入MT・聚靈啟智】\n\n此處是剛踏仙途的出生地。村口古槐樹下，靈氣如微絲般流轉。然近期地下層三陰氣滲透，七十二地煞與三十六天罡受妖氣感染，心緒狂亂。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】\n\n⮳聚靈: 極端環境下產生的妖物，會寄生在動物身上。\n⮳通智: 低級妖物模仿人類情緒，讓宿主更加情緒化。\n\n『若想要內化百脈通智』\n須先用明堂陽氣轉化陰氣，才能有機會窺得修真門檻！",
-      desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。", 
+      wuxiaStory: "【初入MT・聚靈啟智】\n\n此處是剛踏仙途的出生地。村口古槐樹下，靈氣如微絲般流轉。然近期地下層三陰氣滲透，七十二地煞與三十六天罡受妖氣感染，心緒狂亂。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】\n⮳聚靈: 極端環境下產生的妖物，會寄生在動物身上。\n⮳通智: 低級妖物模仿人類情緒，讓宿主更加情緒化。\n\n『若想要內化百脈通智』\n須先用明堂陽氣轉化陰氣，才能有機會窺得修真門檻！",
+      desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】", 
       bg: "from-emerald-950/80 to-slate-900", 
       monsters: [
         { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
@@ -712,8 +592,8 @@
       id: "map_2", 
       name: "紅塵地界", 
       reqLevel: 5, 
-      wuxiaStory: "【百煉成鋼・鍛造煉骨】\n\n人道氣息與妖邪錯綜交織之界紅塵滾滾。山寨版腦霧妖物四處橫行靈界，以奇巧工具與藥丸迷惑宿主。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】\n\n⮳鍛造:通過練習高效模仿行為動作，使宿主疲於奔命。\n⮳煉骨:透過藥物強化自己或用奇巧工具改造外形和面貌。\n\n『此關考驗先天筋骨，不破不立』\n唯有透過鍛造後天肉身與根骨之法，抵禦外界千般誘惑與疲勞，方能挺直脊樑，傲視紅塵！",
-      desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。", 
+      wuxiaStory: "【百煉成鋼・鍛造煉骨】\n\n人道氣息與妖邪錯綜交織之界紅塵滾滾。山寨版腦霧妖物四處橫行靈界，以奇巧工具與藥丸迷惑宿主。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】\n⮳鍛造:通過練習高效模仿行為動作，使宿主疲於奔命。\n⮳煉骨:透過藥物強化自己或用奇巧工具改造外形和面貌。\n\n『此關考驗少俠之筋骨。不破不立』\n唯有透過鍛造肉身與煉骨之法，抵禦外界千般誘惑與疲勞，方能挺直脊樑，傲視紅塵！』",
+      desc: "本界聚集了山寨版的大批腦霧妖物，危機四伏。\n\n【 境界 ⟡ 鍛造、煉骨 ⟡ 】", 
       bg: "from-red-950/80 to-slate-900", 
       monsters: [
         { name: "半合", hp: 450, atk: 55, def: 18, exp: 140, coins: 120 },
@@ -725,8 +605,9 @@
       id: "map_3", 
       name: "五蘊仙田", 
       reqLevel: 12, 
-      wuxiaStory: "【醒悟仙田・妖丹化形】\n\n靈山雲霧縹緲是個無爭之清修的聖地。仙田常會遭妖物汙染，假神與偽裝喜用神到處亂竄，讓宿主陷入喜怒無常之境。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n\n⮳妖丹:受外物(藥物、工具)汙染後的丹田識海，凝聚成妖丹。\n⮳化形:妖丹氣味外放化成獸類氣團形狀。\n\n『明辨真假，乃修道之核心』\n須凝聚清明觀自心，識破妖丹化形之虛假，方能守護中丹田，不為外物所干擾！",
-      desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田，\n考驗辨識真假以增進大道修為。", 
+      mutexMapId: "map_4", // 不入洞府
+      wuxiaStory: "【迷幻仙田・妖丹化形】\n\n靈山雲霧縹緲，乃無爭之清修聖地。然而仙田遭妖邪汙染，假神與偽裝喜用神亂竄，使人陷入喜怒無常之境。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n⮳妖丹:受外物(藥物、工具)汙染後的丹田識海，凝聚成妖丹。\n⮳化形:妖丹氣味外放化成獸類氣團形狀。\n\n『明辨真假，乃修道之核心』\n須凝聚清明觀自心，識破妖丹化形之虛假，方能守護中丹田，不為外物所干擾！\n\n⚠️ 【宗門】\n請注意若選定「仙田」作為中階修煉地，將與「洞府」雪下別離，一生只選一路！",
+      desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n⚠️ 與【三清洞府】雪下別離！",
       bg: "from-cyan-950/80 to-slate-900", 
       monsters: [
         { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
@@ -737,9 +618,10 @@
     { 
       id: "map_4", 
       name: "三清洞府", 
-      reqLevel: 20, 
-      wuxiaStory: "【一氣化三清・凝魄神遊】\n\n此乃三清至高洞府，藏有上古神功與修魔傀儡。此府氣場神祕莫測，稍有不慎便會被因果線牽引，墮入幻夢困陣。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。\n\n『心若清淨，遇事不驚』入凝魄與通神遊之境，唯有元神強大，以太上神功破除萬陰諸邪，方能窺見道法自然之真諦！",
-      desc: "道門重地，藏有至高神功的修魔傀儡，\n爭搶攻擊修為弱的對手。", 
+      reqLevel: 12, 
+      mutexMapId: "map_3", // 不入仙田
+      wuxiaStory: "【道門禁地・凝魄神遊】\n\n此乃三清至高洞府，藏有上古神功與修魔傀儡。此處氣場神祕莫測，稍有不慎便會被因果線牽引，墮入幻夢迷陣。\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。\n『心若清淨，遇事不驚』入凝魄與通神遊之境，唯有元神強大，以太上神功破除萬陰諸邪，方能窺見道法自然之真諦！\n\n⚠️ 【宗門】\n請注意若選定「洞府」作為中階修煉地，將與「仙田」雪下別離，，一生只選一路！",
+      desc: "道門重地，藏有至高神功的修魔傀儡。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⚠️ 與【五蘊仙田】雪下別離！",
       bg: "from-amber-950/80 to-slate-900", 
       monsters: [
         { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000 },
@@ -750,9 +632,9 @@
     { 
       id: "map_5", 
       name: "輪迴境考", 
-      reqLevel: 30, 
-      wuxiaStory: "【太古問心・練虛合道】\n\n真氣纏繞之太古靈山，為凡人登仙之最終試煉。此處隱匿著鏡像問心與上古大能留下的浩瀚之氣。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n\n⮳淬體:運用人類練體修士的功法開通經脈。\n⮳練虛:運用人類法修修士的功法提高境界。\n\n『問天問地，不如問心』歷經千劫萬難至此，唯有將洗煉心識之法融會貫通，淨化累世心願因果，方能成就無上尊者之位！",
-      desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。", 
+      reqLevel: 25, 
+      wuxiaStory: "【太古問心・練虛合道】\n\n真氣纏繞之太古靈山，為凡人登仙之最終試煉。此處隱匿著鏡像問心與上古大能留下的撕裂之氣。\n\n『問天問地，不如問心。少俠歷經千難萬險至此，唯有將練體與練虛之法融會貫通，斬斷最後心魔，方能成就無上尊者之位！』",
+      desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】", 
       bg: "from-purple-950/80 to-indigo-950", 
       monsters: [
         { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
@@ -766,23 +648,14 @@
   var RANDOM_NAMES = ["雪別亭", "百無禁忌", "衝衝衝", "頭香", "山人自有妙計", "單身最好", "吹雪", "不想瑟瑟", "包租大大", "非誠勿擾"];
 
   var WUXIA_SKILL_TEXTS = [
-    "《輪拳》",
-    "《降龍十八掌》",
-    "《十靜法》",
-    "《ABC體操》",
-    "《太極吐納》",
-    "《親傳基本功》",
-    "《望氣法》",
-    "《易筋睡功》",
-    "《九星風水》",
-    "《純陽劍訣》",
-    "《抱元守一》",
-    "《太上神功》"
+    "《輪拳》", "《降龍十八掌》", "《十靜法》", "《ABC體操》", "《太極吐納》", "《親傳基本功》",
+    "《望氣法》", "《易筋睡功》", "《九星風水》", "《純陽劍訣》", "《抱元守一》", "《太上神功》"
   ];
 
   var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
     id: "acc_" + Date.now(),
     createdAt: Date.now(),
+    unlockedMaps: ["map_1", "map_2"], // 記錄該角色解鎖或選定的地圖 ID 列表
     player: {
       name,
       title,
@@ -845,17 +718,14 @@
     const [inputTitle, setInputTitle] = (0, import_react3.useState)(TITLE_LIST[0]);
     const [currentSkillTextIdx, setCurrentSkillTextIdx] = (0, import_react3.useState)(0);
     
-    // Discord 小工具開關狀態
     const [isDiscordWidgetOpen, setIsDiscordWidgetOpen] = (0, import_react3.useState)(false);
 
-    // 篩選與搜尋狀態
     const [inventorySearchQuery, setInventorySearchQuery] = (0, import_react3.useState)("");
     const [inventoryFilterType, setInventoryFilterType] = (0, import_react3.useState)("all");
 
     const logContainerRef = (0, import_react3.useRef)(null);
     const dialogCloseBtnRef = (0, import_react3.useRef)(null);
 
-    // 全域 Esc 鍵關閉對話框焦點管理
     (0, import_react3.useEffect)(() => {
       const handleKeyDown = (event) => {
         if (event.key === "Escape") {
@@ -870,7 +740,6 @@
       return () => window.removeEventListener("keydown", handleKeyDown);
     }, [selectedMapForDialog, showAccountModal, isGameStarted, showEditNameModal, showStatHelpModal, showBackupModal]);
 
-    // 對話框彈出時自動聚焦關閉按鈕
     (0, import_react3.useEffect)(() => {
       if (selectedMapForDialog && dialogCloseBtnRef.current) {
         dialogCloseBtnRef.current.focus();
@@ -892,6 +761,7 @@
             const data = yield SaveManager.loadSaves();
             if (data && data.accounts && data.accounts.length > 0) {
               const sanitizedAccounts = data.accounts.map((acc) => __spreadProps(__spreadValues({}, acc), {
+                unlockedMaps: acc.unlockedMaps || ["map_1", "map_2"],
                 skills: SKILLS_DATABASE.map((baseSk) => {
                   const found = (acc.skills || []).find((s) => s.id === baseSk.id);
                   return found ? __spreadProps(__spreadValues({}, baseSk), { learned: found.learned }) : baseSk;
@@ -933,12 +803,14 @@
     const inventory = currentAccount.inventory;
     const skills = currentAccount.skills;
     const equippedCards = currentAccount.equippedCards;
+    const unlockedMaps = currentAccount.unlockedMaps || ["map_1", "map_2"];
 
     const setPlayer = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { player: typeof val === "function" ? val(acc.player) : val }));
     const setEquipment = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equipment: typeof val === "function" ? val(acc.equipment) : val }));
     const setInventory = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { inventory: typeof val === "function" ? val(acc.inventory) : val }));
     const setSkills = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { skills: typeof val === "function" ? val(acc.skills) : val }));
     const setEquippedCards = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { equippedCards: typeof val === "function" ? val(acc.equippedCards) : val }));
+    const setUnlockedMaps = (val) => updateCurrentAccount((acc) => __spreadProps(__spreadValues({}, acc), { unlockedMaps: typeof val === "function" ? val(acc.unlockedMaps) : val }));
 
     const addLog = (text, type = "info") => {
       const safeText = String(text);
@@ -971,30 +843,12 @@
       let passiveCritDmg = 0;
 
       skills.filter((s) => s.learned).forEach((s) => {
-        if (s.id === "sk_4") {
-          passiveAtkMul += 0.2;
-          passiveMpBonus += 100;
-        }
-        if (s.id === "sk_5") {
-          passiveHpMul += 0.3;
-          passiveDefMul += 0.3;
-          passiveMpBonus += 200;
-        }
-        if (s.id === "sk_6") {
-          passiveDodge += 0.15;
-        }
-        if (s.id === "sk_8") {
-          passiveHpMul += 0.25;
-          passiveDefMul += 0.15;
-        }
-        if (s.id === "sk_9") {
-          passiveAtkMul += 0.25;
-          passiveDefMul += 0.25;
-          passiveCritDmg += 0.35;
-        }
-        if (s.id === "sk_11") {
-          passiveDefMul += 0.4;
-        }
+        if (s.id === "sk_4") { passiveAtkMul += 0.2; passiveMpBonus += 100; }
+        if (s.id === "sk_5") { passiveHpMul += 0.3; passiveDefMul += 0.3; passiveMpBonus += 200; }
+        if (s.id === "sk_6") { passiveDodge += 0.15; }
+        if (s.id === "sk_8") { passiveHpMul += 0.25; passiveDefMul += 0.15; }
+        if (s.id === "sk_9") { passiveAtkMul += 0.25; passiveDefMul += 0.25; passiveCritDmg += 0.35; }
+        if (s.id === "sk_11") { passiveDefMul += 0.4; }
       });
 
       let cardAtkMul = 0;
@@ -1060,12 +914,49 @@
       addLog("已手動將最新資料儲存至 IndexedDB！", "success");
     });
 
+    const isMapMutexLocked = (map) => {
+      if (map.mutexMapId && unlockedMaps.includes(map.mutexMapId)) {
+        return true;
+      }
+      return false;
+    };
+
+    const selectMapAndPlay = (targetMap) => {
+      if (player.level < targetMap.reqLevel) {
+        addLog(`等級不足！需到達 Lv.${targetMap.reqLevel} 方可進入此地圖。`, "danger");
+        return;
+      }
+      if (isMapMutexLocked(targetMap)) {
+        const mutexMap = MAPS_DATABASE.find(m => m.id === targetMap.mutexMapId);
+        addLog(`宗門禁忌：此角色已選定【${mutexMap ? mutexMap.name : '二宗一途'}】，兩者氣場不過界，無法選擇【${targetMap.name}】！`, "danger");
+        return;
+      }
+
+      // 將此地圖加入已解鎖/選定清單中
+      if (!unlockedMaps.includes(targetMap.id)) {
+        setUnlockedMaps((prev) => [...prev, targetMap.id]);
+      }
+
+      const idx = MAPS_DATABASE.findIndex(m => m.id === targetMap.id);
+      if (idx !== -1) {
+        setCurrentMapIndex(idx);
+        setInBattle(false);
+        addLog(`成功踏入【${targetMap.name}】開始歷練修行。`, "success");
+      }
+    };
+
     const startBattle = () => {
       const map = MAPS_DATABASE[currentMapIndex];
       if (player.level < map.reqLevel) {
         addLog(`等級不足！需到達 Lv.${map.reqLevel} 方可進入此地圖。`, "danger");
         return;
       }
+      if (isMapMutexLocked(map)) {
+        const mutexMap = MAPS_DATABASE.find(m => m.id === map.mutexMapId);
+        addLog(`宗門禁忌：因您已選定【${mutexMap ? mutexMap.name : '此生宗門'}】，此界已永久封印！`, "danger");
+        return;
+      }
+
       const randomMonster = map.monsters[Math.floor(Math.random() * map.monsters.length)];
       setCurrentMonster(__spreadProps(__spreadValues({}, randomMonster), { maxHp: randomMonster.hp }));
       setMonsterHp(randomMonster.hp);
@@ -1102,9 +993,9 @@
       setMonsterHp(newMonsterHp);
 
       if (usedSkill) {
-        addLog(`你施展【${usedSkill.name}】！ლ(･ ิω･ิლ)造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}${mpSteal > 0 ? ` 並獲得 ${mpSteal} 點內力來活血` : ""}`, isCrit ? "crit" : "player");
+        addLog(`你施展【${usedSkill.name}】！造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}${mpSteal > 0 ? ` 並獲得 ${mpSteal} 點內力來活血` : ""}`, isCrit ? "crit" : "player");
       } else {
-        addLog(`你發動恢復⮬ 吸氣吐氣 ⮯一次!造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}`, isCrit ? "crit" : "player");
+        addLog(`你發動恢復吸氣吐氣一次，造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}`, isCrit ? "crit" : "player");
       }
 
       if (equippedCards.includes("card_water")) {
@@ -1349,7 +1240,6 @@
       return Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
     };
 
-    // 篩選過濾後的背包道具
     const filteredInventory = inventory.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) || 
                             (item.desc && item.desc.toLowerCase().includes(inventorySearchQuery.toLowerCase()));
@@ -1508,7 +1398,7 @@
     const learnedCount = skills.filter((s) => s.learned).length;
 
     return e("div", { className: "min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-amber-600 selection:text-white pb-6" },
-      /* 登入後才顯示的右下角 Discord 可收合浮動框 */
+      /* 右下角 Discord 可收合浮動框 */
       e("div", { id: "discord-floating-wrapper" },
         e("div", {
           id: "discord-widget-container",
@@ -1533,7 +1423,7 @@
         )
       ),
 
-      /* 點擊地圖彈出的武俠風格對話框 (支援背景遮罩、焦點管理、Esc關閉與金黃字體) */
+      /* 點擊地圖彈出的對話框 (內含五蘊仙田與三清洞府二選一判定) */
       selectedMapForDialog && e("div", {
         className: "wuxia-dialog-overlay",
         onClick: () => setSelectedMapForDialog(null)
@@ -1554,11 +1444,15 @@
             }, e(X, { className: "w-5 h-5" }))
           ),
           e("div", { className: "space-y-3 mb-6" },
-            e("div", { className: "text-xs font-mono text-amber-400/90 border border-amber-600/30 bg-amber-950/20 px-3 py-1.5 rounded-lg" },
-              `歷練門檻：需達到 Lv.${selectedMapForDialog.reqLevel}`
+            e("div", { className: "text-xs font-mono text-amber-400/90 border border-amber-600/30 bg-amber-950/20 px-3 py-1.5 rounded-lg flex items-center justify-between" },
+              e("span", null, `歷練門檻：需達到 Lv.${selectedMapForDialog.reqLevel}`),
+              selectedMapForDialog.mutexMapId && e("span", { className: "text-red-400 font-bold" }, "🔒 二宗不同途")
             ),
             e("div", { className: "text-sm text-amber-100/90 whitespace-pre-line leading-relaxed font-sans" },
               selectedMapForDialog.wuxiaStory
+            ),
+            isMapMutexLocked(selectedMapForDialog) && e("div", { className: "p-2.5 bg-red-950/50 border border-red-600/60 rounded-xl text-xs text-red-300 font-bold text-center" },
+              "⚠️ 此角色已選定了宗門，無法進入此界！"
             )
           ),
           e("div", { className: "flex gap-2" },
@@ -1566,17 +1460,13 @@
               onClick: () => setSelectedMapForDialog(null),
               className: "flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-xs border border-slate-700 transition-all"
             }, "返回"),
-            e("button", {
+            !isMapMutexLocked(selectedMapForDialog) && e("button", {
               onClick: () => {
-                const idx = MAPS_DATABASE.findIndex(m => m.id === selectedMapForDialog.id);
-                if (idx !== -1) {
-                  setCurrentMapIndex(idx);
-                  setInBattle(false);
-                }
+                selectMapAndPlay(selectedMapForDialog);
                 setSelectedMapForDialog(null);
               },
               className: "flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-[0_0_15px_rgba(217,119,6,0.4)] transition-all"
-            }, "前往此地修行")
+            }, "定下誓約·前往修行")
           )
         )
       ),
@@ -1679,7 +1569,7 @@
             e("div", { className: "flex items-center justify-between mb-3" },
               e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
                 e(MapIcon, { className: "w-5 h-5" }),
-                e("span", null, "地圖歷練 ┌( ಠ‿ಠ)┘")
+                e("span", null, "地圖歷練┌( ಠ‿ಠ)┘ (仙田、洞府二選一)")
               ),
               e("button", {
                 onClick: () => setIsMapListOpen(!isMapListOpen),
@@ -1692,23 +1582,24 @@
             isMapListOpen && e("div", { className: "grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4 transition-all duration-300" },
               MAPS_DATABASE.map((map, idx) => {
                 const locked = player.level < map.reqLevel;
+                const mutexLocked = isMapMutexLocked(map);
                 const selected = currentMapIndex === idx;
                 return e("button", {
                   key: map.id,
                   onClick: () => {
-                    // 點擊地圖按鈕時彈出武俠對話框
                     setSelectedMapForDialog(map);
                   },
                   className: `p-3 rounded-xl border text-left transition-all relative overflow-hidden ${
-                    selected ? "bg-gradient-to-br from-amber-950/60 to-slate-900 border-amber-500 shadow-lg" : locked ? "bg-slate-950/40 border-slate-800 opacity-75" : "bg-slate-900 border-slate-700 hover:border-amber-500/60"
+                    selected ? "bg-gradient-to-br from-amber-950/60 to-slate-900 border-amber-500 shadow-lg" : mutexLocked ? "bg-red-950/20 border-red-900/50 opacity-65" : locked ? "bg-slate-950/40 border-slate-800 opacity-75" : "bg-slate-900 border-slate-700 hover:border-amber-500/60"
                   }`
                 },
                   e("div", { className: "flex items-center justify-between" },
-                    e("div", { className: "font-bold text-amber-200 text-sm" }, map.name),
+                    e("div", { className: "font-bold text-amber-200 text-sm truncate" }, map.name),
                     selected && e("span", { className: "text-[10px] bg-amber-600 text-slate-950 px-1.5 py-0.5 rounded font-bold" }, "當前")
                   ),
                   e("div", { className: "text-xs text-slate-400 mt-1" }, "需 Lv." + map.reqLevel),
-                  locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "境界尚未解鎖")
+                  mutexLocked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "🔒 已封印"),
+                  !mutexLocked && locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "境界尚未解鎖")
                 );
               })
             ),
@@ -1845,7 +1736,7 @@
           activeTab === "skills" && e("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3" },
             e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
               e(Scroll, { className: "w-5 h-5" }),
-              e("span", null, "武功修練與領悟 ( ︶︿︶)")
+              e("span", null, "武功修練與領悟")
             ),
             e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-1" },
               skills.map((skill) => e("div", { key: skill.id, className: "bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex flex-col justify-between space-y-2" },
@@ -2214,7 +2105,6 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 滑鼠跟隨金黃光圈控制
     const glow = document.getElementById('mouse-cursor-glow');
     document.addEventListener('mousemove', function(e) {
         if (glow) {
