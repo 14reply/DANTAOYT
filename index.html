@@ -109,6 +109,11 @@
                 0%, 100% { opacity: 0.2; transform: translateY(2px); }
                 50% { opacity: 1; transform: translateY(0); }
             }
+            /* 逆時針旋轉動畫 */
+            @keyframes counterClockwiseSpin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(-360deg); }
+            }
 
             body {
                 @apply bg-background text-foreground;
@@ -421,7 +426,7 @@
   var Trash2 = createLucideIcon("trash-2", [["path", { d: "M3 6h18", key: "d0wm0j" }], ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }], ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }], ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }], ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]]);
   var UserCheck = createLucideIcon("user-check", [["path", { d: "m16 11 2 2 4-4", key: "9rsbq5" }], ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
   var UserPlus = createLucideIcon("user-plus", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }], ["line", { x1: "19", x2: "19", y1: "8", y2: "14", key: "1bvyxn" }], ["line", { x1: "22", x2: "16", y1: "11", y2: "11", key: "1shjgl" }]]);
-  var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
+  var Users = createLucideIcon("users", [["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }], ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }], ["path", { d: "M22 21v-2a4 4 0 0 1-3-3.87", key: "kshegd" }], ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]]);
   var Droplets = createLucideIcon("droplets", [["path", { d: "M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.09 3 12.25c0 2.22 1.8 4.05 4 4.05z", key: "1k5878" }], ["path", { d: "M17.5 21c2.5 0 4.5-2.01 4.5-4.5 0-1.28-.63-2.5-1.89-3.52s-2.53-2.55-2.86-4.15c-.32 1.6-1.26 3.13-2.52 4.15S13 15.22 13 16.5c0 2.49 2 4.5 4.5 4.5z", key: "1vh5y5" }]]);
   var X = createLucideIcon("x", [["path", { d: "M18 6 6 18", key: "1bl5f8" }], ["path", { d: "m6 6 12 12", key: "d8bk6v" }]]);
   var Zap = createLucideIcon("zap", [["path", { d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z", key: "1xq2db" }]]);
@@ -690,6 +695,112 @@
     skills: SKILLS_DATABASE.map((s) => __spreadProps(__spreadValues({}, s), { learned: s.id === "sk_1" })),
     equippedCards: []
   });
+
+  /* 迷你小魚動態漫游組件：支援隨意移動與動態透明度變化 */
+  function WanderingFishGroup({ playerLevel }) {
+    const e = import_react3.default.createElement;
+    const fishCount = playerLevel < 10 ? 1 : Math.floor(playerLevel / 10) + 1;
+    const [fishes, setFishes] = (0, import_react3.useState)([]);
+
+    (0, import_react3.useEffect)(() => {
+      // 初始化小魚狀態（邊界內隨機位置、移動向量與透明度相位）
+      const initialFishes = Array.from({ length: fishCount }, (_, i) => {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 85; // 限制在圓形框半徑內
+        const speed = 0.4 + Math.random() * 0.5;
+        const moveAngle = Math.random() * Math.PI * 2;
+        return {
+          id: i,
+          x: 113 + Math.cos(angle) * radius,
+          y: 113 + Math.sin(angle) * radius,
+          vx: Math.cos(moveAngle) * speed,
+          vy: Math.sin(moveAngle) * speed,
+          angle: (moveAngle * 180) / Math.PI + 90,
+          opacity: 0.3 + Math.random() * 0.7,
+          opacityPhase: Math.random() * Math.PI * 2,
+          opacitySpeed: 0.02 + Math.random() * 0.03
+        };
+      });
+      setFishes(initialFishes);
+    }, [fishCount]);
+
+    (0, import_react3.useEffect)(() => {
+      let animationFrameId;
+      const center = 113;
+      const maxRadius = 95; // 邊界限制距離
+
+      const updatePosition = () => {
+        setFishes((prevFishes) =>
+          prevFishes.map((fish) => {
+            let nextX = fish.x + fish.vx;
+            let nextY = fish.y + fish.vy;
+            let nextVx = fish.vx;
+            let nextVy = fish.vy;
+
+            // 定期隨機偏轉方向，模擬自由漫游
+            if (Math.random() < 0.03) {
+              const deltaAngle = (Math.random() - 0.5) * 0.5;
+              const currentSpeed = Math.hypot(fish.vx, fish.vy);
+              const currentAngle = Math.atan2(fish.vy, fish.vx) + deltaAngle;
+              nextVx = Math.cos(currentAngle) * currentSpeed;
+              nextVy = Math.sin(currentAngle) * currentSpeed;
+            }
+
+            // 撞擊邊界檢測與反彈
+            const distFromCenter = Math.hypot(nextX - center, nextY - center);
+            if (distFromCenter > maxRadius) {
+              const nx = (nextX - center) / distFromCenter;
+              const ny = (nextY - center) / distFromCenter;
+              const dot = nextVx * nx + nextVy * ny;
+              nextVx = nextVx - 2 * dot * nx;
+              nextVy = nextVy - 2 * dot * ny;
+              nextX = center + nx * maxRadius;
+              nextY = center + ny * maxRadius;
+            }
+
+            const currentAngleDeg = (Math.atan2(nextVy, nextVx) * 180) / Math.PI + 90;
+            const nextPhase = fish.opacityPhase + fish.opacitySpeed;
+            // 透明度呈現平滑的正弦曲線起伏 (範圍 0.2 ~ 0.95)
+            const nextOpacity = 0.2 + (Math.sin(nextPhase) + 1) * 0.375;
+
+            return {
+              ...fish,
+              x: nextX,
+              y: nextY,
+              vx: nextVx,
+              vy: nextVy,
+              angle: currentAngleDeg,
+              opacity: nextOpacity,
+              opacityPhase: nextPhase
+            };
+          })
+        );
+        animationFrameId = requestAnimationFrame(updatePosition);
+      };
+
+      animationFrameId = requestAnimationFrame(updatePosition);
+      return () => cancelAnimationFrame(animationFrameId);
+    }, []);
+
+    return e("div", { className: "absolute inset-0 pointer-events-none z-30 overflow-hidden rounded-full" },
+      e("svg", { className: "w-full h-full", viewBox: "0 0 226 226", fill: "none" },
+        fishes.map((fish) =>
+          e("g", {
+            key: fish.id,
+            transform: `translate(${fish.x}, ${fish.y}) rotate(${fish.angle})`,
+            style: { opacity: fish.opacity, transition: "opacity 0.1s linear" }
+          },
+            /* 魚身主體 */
+            e("path", { d: "M 0,-3 C 2,-1 2,1 0,3 C -2,1 -2,-1 0,-3 Z", fill: "#ffffff", filter: "drop-shadow(0 0 4px rgba(255, 255, 255, 0.9))" }),
+            /* 魚尾鰭 */
+            e("path", { d: "M 0,3 L 1.5,5 L -1.5,5 Z", fill: "#ffffff", opacity: "0.85" }),
+            /* 魚眼點綴 */
+            e("circle", { cx: "0", cy: "-2", r: "0.5", fill: "#020617" })
+          )
+        )
+      )
+    );
+  }
 
   function App() {
     const e = import_react3.default.createElement;
@@ -1620,8 +1731,47 @@
                 );
               })
             ),
-            e("div", { className: "flex items-center justify-center p-2" },
-              e("div", { className: `relative w-full max-w-[420px] aspect-square rounded-full border-4 border-amber-600/60 p-6 bg-gradient-to-b ${MAPS_DATABASE[currentMapIndex].bg} shadow-[0_0_50px_rgba(217,119,6,0.25)] flex flex-col items-center justify-between text-center overflow-hidden transition-all duration-500` },
+            e("div", { className: "flex items-center justify-center p-2 relative" },
+              e("div", { className: `relative w-full max-w-[420px] aspect-square rounded-full border-4 border-amber-600/60 p-6 bg-gradient-to-b ${MAPS_DATABASE[currentMapIndex].bg} shadow-[0_0_50px_rgba(217,119,6,0.25)] flex flex-col items-center justify-between text-center overflow-visible transition-all duration-500` },
+                
+                /* 半透明炫光長條弧形與水滴氣泡尾跡點綴 */
+                e("div", { 
+                  className: "absolute -inset-3 pointer-events-none z-20 overflow-visible",
+                  style: { animation: "counterClockwiseSpin 9.33s linear infinite" }
+                },
+                  e("svg", { className: "w-full h-full", viewBox: "0 0 226 226", fill: "none" },
+                    e("defs", null,
+                      e("linearGradient", { id: "trailGlow", x1: "0%", y1: "0%", x2: "100%", y2: "100%" },
+                        e("stop", { offset: "0%", stopColor: "#ffffff", stopOpacity: "0.85" }),
+                        e("stop", { offset: "50%", stopColor: "#38bdf8", stopOpacity: "0.4" }),
+                        e("stop", { offset: "100%", stopColor: "#818cf8", stopOpacity: "0" })
+                      ),
+                      /* 弧條陰影濾鏡效果 */
+                      e("filter", { id: "arcShadow", x: "-20%", y: "-20%", width: "140%", height: "140%" },
+                        e("feDropShadow", { dx: "0", dy: "3", stdDeviation: "3", floodColor: "#000000", floodOpacity: "0.6" })
+                      )
+                    ),
+                    /* 4 個帶有陰影與半透明發光效果的弧形長條炫光軌跡 */
+                    e("path", { d: "M 113 5 A 108 108 0 0 0 34 34", stroke: "url(#trailGlow)", strokeWidth: "3.5", strokeLinecap: "round", opacity: "0.8", filter: "url(#arcShadow) drop-shadow(0 0 8px rgba(56, 189, 248, 0.75))" }),
+                    e("path", { d: "M 221 113 A 108 108 0 0 0 192 34", stroke: "url(#trailGlow)", strokeWidth: "3.5", strokeLinecap: "round", opacity: "0.8", filter: "url(#arcShadow) drop-shadow(0 0 8px rgba(56, 189, 248, 0.75))" }),
+                    e("path", { d: "M 113 221 A 108 108 0 0 0 192 192", stroke: "url(#trailGlow)", strokeWidth: "3.5", strokeLinecap: "round", opacity: "0.8", filter: "url(#arcShadow) drop-shadow(0 0 8px rgba(56, 189, 248, 0.75))" }),
+                    e("path", { d: "M 5 113 A 108 108 0 0 0 34 192", stroke: "url(#trailGlow)", strokeWidth: "3.5", strokeLinecap: "round", opacity: "0.8", filter: "url(#arcShadow) drop-shadow(0 0 8px rgba(56, 189, 248, 0.75))" }),
+                    
+                    /* 半透明水滴與氣泡尾跡點綴 */
+                    e("circle", { cx: "34", cy: "34", r: "0.7", fill: "#ffffff", opacity: "0.9", filter: "drop-shadow(0 0 4px #38bdf8) drop-shadow(0 2px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "70", cy: "15", r: "0.5", fill: "#38bdf8", opacity: "0.7", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "192", cy: "34", r: "0.7", fill: "#ffffff", opacity: "0.9", filter: "drop-shadow(0 0 4px #38bdf8) drop-shadow(0 2px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "211", cy: "75", r: "0.5", fill: "#38bdf8", opacity: "0.7", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "192", cy: "192", r: "0.7", fill: "#ffffff", opacity: "0.9", filter: "drop-shadow(0 0 4px #38bdf8) drop-shadow(0 2px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "150", cy: "211", r: "0.5", fill: "#38bdf8", opacity: "0.7", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "34", cy: "192", r: "0.7", fill: "#ffffff", opacity: "0.9", filter: "drop-shadow(0 0 4px #38bdf8) drop-shadow(0 2px 2px rgba(0,0,0,0.5))" }),
+                    e("circle", { cx: "15", cy: "140", r: "0.5", fill: "#38bdf8", opacity: "0.7", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" })
+                  )
+                ),
+
+                /* 動態迷你小魚群：可在戰鬥框內隨意移動與隨機透明度變化 */
+                e(WanderingFishGroup, { playerLevel: player.level }),
+
                 e("div", { className: "absolute inset-0 rounded-full border border-amber-300/20 animate-pulse pointer-events-none" }),
                 e("div", { className: "absolute -inset-1 rounded-full bg-gradient-to-r from-amber-500/10 via-red-500/10 to-amber-500/10 blur-xl pointer-events-none" }),
                 !inBattle ? e("div", { className: "flex flex-col items-center justify-center my-auto space-y-3 z-10 px-4" },
@@ -2133,6 +2283,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(React.createElement(App.default, null));
 });
-        </script>
+</script>
     </body>
 </html>
