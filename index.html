@@ -1102,9 +1102,9 @@
       setMonsterHp(newMonsterHp);
 
       if (usedSkill) {
-        addLog(`你施展【${usedSkill.name}】！造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}${mpSteal > 0 ? ` 並獲得 ${mpSteal} 點內力來活血` : ""}`, isCrit ? "crit" : "player");
+        addLog(`你施展【${usedSkill.name}】！ლ(･ ิω･ิლ)造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}${mpSteal > 0 ? ` 並獲得 ${mpSteal} 點內力來活血` : ""}`, isCrit ? "crit" : "player");
       } else {
-        addLog(`你發動恢復吸氣吐氣一次，造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}`, isCrit ? "crit" : "player");
+        addLog(`你發動恢復⮬ 吸氣吐氣 ⮯一次!造成 ${finalDmg} 點轉化${isCrit ? " (暴擊!)" : ""}`, isCrit ? "crit" : "player");
       }
 
       if (equippedCards.includes("card_water")) {
