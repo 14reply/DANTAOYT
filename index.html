@@ -620,7 +620,7 @@
       name: "三清洞府", 
       reqLevel: 12, 
       mutexMapId: "map_3", // 不入仙田
-      wuxiaStory: "【道門禁地・凝魄神遊】\n\n此乃三清至高洞府，藏有上古神功與修魔傀儡。此處氣場神祕莫測，稍有不慎便會被因果線牽引，墮入幻夢迷陣。\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。\n『心若清淨，遇事不驚』入凝魄與通神遊之境，唯有元神強大，以太上神功破除萬陰諸邪，方能窺見道法自然之真諦！\n\n⚠️ 【宗門】\n請注意若選定「洞府」作為中階修煉地，將與「仙田」雪下別離，，一生只選一路！",
+      wuxiaStory: "【道門禁地・凝魄神遊】\n\n此乃三清至高洞府，藏有上古神功與修魔傀儡。此處氣場神祕莫測，稍有不慎便會被因果線牽引，墮入幻夢迷陣。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⮳凝魄:妖丹化形後，又學人類修士產生過度喜、怒、哀、樂的情緒。\n⮳神遊:靠近一下化形大妖，讓修為金丹以下的人被氣味迷惑入夢，困在夢中徘徊。\n\n『心若清淨，遇事不驚』入凝魄與通神遊之境，唯有元神強大，以太上神功破除萬陰諸邪，方能窺見道法自然之真諦！\n\n⚠️ 【宗門】\n請注意若選定「洞府」作為中階修煉地，將與「仙田」雪下別離，一生只選一路！\n（💡 若三清洞府地圖已封印，輪迴境考地圖一併已封印）",
       desc: "道門重地，藏有至高神功的修魔傀儡。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⚠️ 與【五蘊仙田】雪下別離！",
       bg: "from-amber-950/80 to-slate-900", 
       monsters: [
@@ -633,8 +633,9 @@
       id: "map_5", 
       name: "輪迴境考", 
       reqLevel: 25, 
-      wuxiaStory: "【太古問心・練虛合道】\n\n真氣纏繞之太古靈山，為凡人登仙之最終試煉。此處隱匿著鏡像問心與上古大能留下的撕裂之氣。\n\n『問天問地，不如問心。少俠歷經千難萬險至此，唯有將練體與練虛之法融會貫通，斬斷最後心魔，方能成就無上尊者之位！』",
-      desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】", 
+      mutexMapId: "map_4", // 綁定：若三清洞府(map_4)已封印，輪迴境考亦一併封印
+      wuxiaStory: "【太古問心・練虛合道】\n\n真氣纏繞之太古靈山，為凡人登仙之最終試煉。此處隱匿著鏡像問心與上古大能留下的撕裂之氣。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n⮳淬體:運用人類練體修士的功法開通經脈。\n⮳練虛:運用人類法修修士的功法提高境界。\n\n『問天問地，不如問心』歷經千劫萬難至此，唯有將洗煉心識之法融會貫通，淨化累世心願因果，方能成就無上尊者之位！\n\n⚠️ 【宗門主線連動】\n因洞府與此地空間相連，洞府地圖已被封印時，「輪迴境考」一起封印！",
+      desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n⚠️ 聯動洞府封印狀態！",
       bg: "from-purple-950/80 to-indigo-950", 
       monsters: [
         { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
@@ -915,8 +916,16 @@
     });
 
     const isMapMutexLocked = (map) => {
+      // 1. 若該地圖有設定一般的互斥對立地圖已被解鎖/選定 (例如五蘊仙田與三清洞府互斥)
       if (map.mutexMapId && unlockedMaps.includes(map.mutexMapId)) {
         return true;
+      }
+      // 2. 若為「輪迴境考」(map_5)，當對立宗門/三清洞府(map_4)已遭互斥封鎖時，輪迴境考亦一併封印
+      if (map.id === "map_5") {
+        const sanQingMap = MAPS_DATABASE.find(m => m.id === "map_4");
+        if (sanQingMap && sanQingMap.mutexMapId && unlockedMaps.includes(sanQingMap.mutexMapId)) {
+          return true;
+        }
       }
       return false;
     };
@@ -927,8 +936,12 @@
         return;
       }
       if (isMapMutexLocked(targetMap)) {
-        const mutexMap = MAPS_DATABASE.find(m => m.id === targetMap.mutexMapId);
-        addLog(`宗門禁忌：此角色已選定【${mutexMap ? mutexMap.name : '二宗一途'}】，兩者氣場不過界，無法選擇【${targetMap.name}】！`, "danger");
+        if (targetMap.id === "map_5") {
+          addLog(`宗門連動封印：由於三清洞府已被互斥封鎖，【輪迴境考】亦一併封印無法進入！`, "danger");
+        } else {
+          const mutexMap = MAPS_DATABASE.find(m => m.id === targetMap.mutexMapId);
+          addLog(`宗門禁忌：此角色已選定【${mutexMap ? mutexMap.name : '對立宗門'}】，兩者氣場互斥，無法選擇【${targetMap.name}】！`, "danger");
+        }
         return;
       }
 
@@ -952,8 +965,12 @@
         return;
       }
       if (isMapMutexLocked(map)) {
-        const mutexMap = MAPS_DATABASE.find(m => m.id === map.mutexMapId);
-        addLog(`宗門禁忌：因您已選定【${mutexMap ? mutexMap.name : '此生宗門'}】，此界已永久封印！`, "danger");
+        if (map.id === "map_5") {
+          addLog(`宗門連動封印：三清洞府已封印，【輪迴境考】地圖已一併封鎖！`, "danger");
+        } else {
+          const mutexMap = MAPS_DATABASE.find(m => m.id === map.mutexMapId);
+          addLog(`宗門禁忌：因您已選定【${mutexMap ? mutexMap.name : '對立宗門'}】，此地已永久互斥封鎖！`, "danger");
+        }
         return;
       }
 
@@ -1423,7 +1440,7 @@
         )
       ),
 
-      /* 點擊地圖彈出的對話框 (內含五蘊仙田與三清洞府二選一判定) */
+      /* 點擊地圖彈出的武俠風格對話框 (內含五蘊仙田與三清洞府互斥二選一判定) */
       selectedMapForDialog && e("div", {
         className: "wuxia-dialog-overlay",
         onClick: () => setSelectedMapForDialog(null)
@@ -1446,13 +1463,13 @@
           e("div", { className: "space-y-3 mb-6" },
             e("div", { className: "text-xs font-mono text-amber-400/90 border border-amber-600/30 bg-amber-950/20 px-3 py-1.5 rounded-lg flex items-center justify-between" },
               e("span", null, `歷練門檻：需達到 Lv.${selectedMapForDialog.reqLevel}`),
-              selectedMapForDialog.mutexMapId && e("span", { className: "text-red-400 font-bold" }, "🔒 二宗不同途")
+              (selectedMapForDialog.mutexMapId || selectedMapForDialog.id === "map_5") && e("span", { className: "text-red-400 font-bold" }, "🔒 二宗一途")
             ),
             e("div", { className: "text-sm text-amber-100/90 whitespace-pre-line leading-relaxed font-sans" },
               selectedMapForDialog.wuxiaStory
             ),
             isMapMutexLocked(selectedMapForDialog) && e("div", { className: "p-2.5 bg-red-950/50 border border-red-600/60 rounded-xl text-xs text-red-300 font-bold text-center" },
-              "⚠️ 此角色已選定了宗門，無法進入此界！"
+              selectedMapForDialog.id === "map_5" ? "⚠️ 三清洞府已封印，【輪迴境考】連動封印！" : "⚠️ 此角色已選定道途，無法進入此宗門！"
             )
           ),
           e("div", { className: "flex gap-2" },
@@ -1598,7 +1615,7 @@
                     selected && e("span", { className: "text-[10px] bg-amber-600 text-slate-950 px-1.5 py-0.5 rounded font-bold" }, "當前")
                   ),
                   e("div", { className: "text-xs text-slate-400 mt-1" }, "需 Lv." + map.reqLevel),
-                  mutexLocked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "🔒 已封印"),
+                  mutexLocked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, map.id === "map_5" ? "🔒 連動已封印" : "🔒 互斥已封鎖"),
                   !mutexLocked && locked && e("div", { className: "text-[10px] text-red-400 font-bold mt-1" }, "境界尚未解鎖")
                 );
               })
