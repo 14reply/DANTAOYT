@@ -4,7 +4,17 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>道家重地 - 紅塵內功</title>
+        <!-- 引入 Google Fonts 的 Iansui 字型 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Iansui&display=swap" rel="stylesheet">
+        
         <style>
+            /* 設定 Iansui 字型類別與通用宣告 */
+            .font-iansui {
+                font-family: 'Iansui', sans-serif !important;
+            }
+
             /* 全局自訂背景圖片與半透明遮罩 */
             body {
                 background-image: url('https://lh3.googleusercontent.com/pw/AP1GczP45WrcNRFkfEdBtjF0406p6akCV2FaVoLge_T5X7oYUDbcyhioWbGvLZeIEa9JVy1OHdovPuRDuKdKYP3Rymzmhqxf8EW-ptvi-b_RCtvy_gXUL2ZpSLmyTPB-KvYX8LQ6WiptG7Le2AH40VvJCl2V=w1024-h585-s-no-gm?authuser=0');
@@ -216,6 +226,9 @@
                 darkMode: ["class"],
                 theme: {
                     extend: {
+                        fontFamily: {
+                            iansui: ['Iansui', 'sans-serif'],
+                        },
                         colors: {
                             border: "hsl(var(--border))",
                             input: "hsl(var(--input))",
@@ -465,6 +478,7 @@
   var Search = createLucideIcon("search", [["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }], ["path", { d: "m21 21-4.3-4.3", key: "1qie3h" }]]);
   var HelpCircle = createLucideIcon("help-circle", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u7bbk" }], ["line", { x1: "12", x2: "12.01", y1: "17", y2: "17", key: "1p73jh" }]]);
   var MessageSquare = createLucideIcon("message-square", [["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1rcbt9" }]]);
+  var Compass = createLucideIcon("compass", [["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }], ["polygon", { points: "16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76", key: "1k5878" }]]);
 
   var DB_NAME = "WuxiaDB";
   var DB_VERSION = 1;
@@ -690,6 +704,23 @@
     "《望氣法》", "《易筋睡功》", "《九星風水》", "《純陽劍訣》", "《抱元守一》", "《太上神功》"
   ];
 
+  // 百里三卷八字九星模擬器 - 天干與人體器官環境對應資料庫
+  var TIANGAN_HUMAN_BODY = {
+    "甲": { elem: "陽木", organ: "百里三卷◎頭部、膽囊、神經經絡", state: "氣脈在角色25歲後高聳如大樹，掌控全身氣機昇發與指揮神經。", normal: "目錄卷一◎角色頭腦清明、膽氣豪邁、神經傳導敏捷。", excess: "目錄卷2◎丹田內肝膽火旺、頭頭脹痛、易怒急躁。", defic: "目錄卷3◎角色膽小怯弱、精神萎靡、頭暈目眩。" },
+    "乙": { elem: "陰木", organ: "百里三卷◎肝臟、頸部、毛髮、四肢筋脈", state: "氣脈在角色25歲後如蔓藤曲折，流轉於四肢百骸與關節筋骨。", normal: "目錄卷一◎角色筋骨柔韌、肝血充足、關節靈活。", excess: "目錄卷2◎丹田內筋脈拘急、肝氣鬱結、頸項僵硬。", defic: "目錄卷3◎角色肢體麻木、筋骨酸軟、肝血不足。" },
+    "丙": { elem: "陽火", organ: "百里三卷◎小腸、心包、肩額、眼目", state: "氣脈在角色25歲後如太陽光明，燃燒血脈運送熱能至全身。", normal: "目錄卷一◎角色視力明亮、小腸吸收佳、體溫恆定。", excess: "目錄卷2◎丹田內心火亢盛、口舌生瘡、目赤腫痛。", defic: "目錄卷3◎角色心陽不振、手足冰冷、消化吸收差。" },
+    "丁": { elem: "陰火", organ: "百里三卷◎心臟、血液、舌頭、眼睛、微血管", state: "氣脈在角色25歲後如燭火心燈，驅動血液循環與脈搏跳動。", normal: "目錄卷一◎角色心血充沛、面色紅潤、心律齊整。", excess: "目錄卷2◎丹田內心悸失眠、心脈過速、血熱妄行。", defic: "目錄卷3◎角色心氣虛弱、心慌氣短、面色蒼白。" },
+    "戊": { elem: "陽土", organ: "百里三卷◎胃部、肋脇、肌肉軀幹", state: "氣脈在角色25歲後如厚實大地，受納水穀腐熟並轉化氣血。", normal: "目錄卷一◎角色胃口開懷、肌肉實健、氣血生化有源。", excess: "目錄卷2◎丹田內胃火熾盛、消谷善飢、腹脹便秘。", defic: "目錄卷3◎角色胃寒痛瀉、消化不良、肌肉消瘦。" },
+    "己": { elem: "陰土", organ: "百里三卷◎脾臟、腹部、胰臟、運化系統", state: "氣脈在角色25歲後如濕潤田園，統血運化輸布津液。", normal: "目錄卷一◎角色水濕運化正常、脾胃和諧、氣色甘潤。", excess: "目錄卷2◎丹田內脾胃濕熱、脘腹脹滿、身體重著。", defic: "目錄卷3◎角色脾虛濕盛、腹瀉便溏、四肢無力。" },
+    "庚": { elem: "陽金", organ: "百里三卷◎大腸、肺部、臍腹、骨骼", state: "氣脈在角色25歲後如刀斧庚金，主肅降傳導與氣體交換。", normal: "目錄卷一◎角色呼吸順暢、腸道通暢、骨質堅實。", excess: "目錄卷2◎丹田內大腸燥結、肺氣壅塞、咳嗽氣喘。", defic: "目錄卷3◎角色腸鳴腹瀉、肺氣虛弱、易感風寒。" },
+    "辛": { elem: "陰金", organ: "百里三卷◎肺經、呼吸道、喉嚨、牙齒", state: "氣脈在角色25歲後如珠寶精金，主氣道之宣發清肅。", normal: "目錄卷一◎角色發聲洪亮、呼吸道清爽、牙齒堅固。", excess: "目錄卷2◎丹田內咽喉腫痛、肺熱乾咳、牙齦發炎。", defic: "目錄卷3◎角色聲音嘶啞、氣短喘促、呼吸道過敏。" },
+    "壬": { elem: "陽水", organ: "百里三卷◎膀胱、三焦、血液循環、小腿", state: "氣脈在角色25歲後如江河奔流，調節人體津液代謝與排毒。", normal: "目錄卷一◎角色水道通調、小便正常、水液平衡。", excess: "目錄卷2◎丹田內水腫頻尿、膀胱濕熱、水氣凌心。", defic: "目錄卷3◎角色小便不利、下肢畏寒、津液虧虛。" },
+    "癸": { elem: "陰水", organ: "百里三卷◎腎臟、生殖系統、骨髓、耳朵", state: "氣脈在角色25歲後如雨露滋潤，主封藏精氣與髓海滋養。", normal: "目錄卷一◎角色腎精充沛、聽力敏銳、精力旺盛。", excess: "目錄卷2◎丹田內陰寒內盛、腰膝冷痛、水濕停滯。", defic: "目錄卷3◎角色腎陰不足、頭暈耳鳴、腰酸腿軟。" }
+  };
+
+  var DIZHI_LIST = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+  var TIANGAN_LIST = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+
   var createInitialAccount = (name = "無名凡人", title = "凡人一枚") => ({
     id: "acc_" + Date.now(),
     createdAt: Date.now(),
@@ -856,6 +887,15 @@
     const [showAccountModal, setShowAccountModal] = (0, import_react3.useState)(false);
     const [showEditNameModal, setShowEditNameModal] = (0, import_react3.useState)(false);
     const [showStatHelpModal, setShowStatHelpModal] = (0, import_react3.useState)(false);
+    
+    // 百里三卷八字九星模擬器對話框與狀態
+    const [showBailiSimulatorModal, setShowBailiSimulatorModal] = (0, import_react3.useState)(false);
+    const [simPillarPre1, setSimPillarPre1] = (0, import_react3.useState)({ gan: "甲", zhi: "子" });
+    const [simPillarPre2, setSimPillarPre2] = (0, import_react3.useState)({ gan: "丙", zhi: "寅" });
+    const [simPillarPost1, setSimPillarPost1] = (0, import_react3.useState)({ gan: "庚", zhi: "申" });
+    const [simPillarPost2, setSimPillarPost2] = (0, import_react3.useState)({ gan: "壬", zhi: "辰" });
+    const [simResult, setSimResult] = (0, import_react3.useState)(null);
+
     const [exportedCode, setExportedCode] = (0, import_react3.useState)("");
     const [importJsonText, setImportJsonText] = (0, import_react3.useState)("");
     const [inputName, setInputName] = (0, import_react3.useState)("");
@@ -878,11 +918,12 @@
           if (showEditNameModal) setShowEditNameModal(false);
           if (showStatHelpModal) setShowStatHelpModal(false);
           if (showBackupModal) setShowBackupModal(false);
+          if (showBailiSimulatorModal) setShowBailiSimulatorModal(false);
         }
       };
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [selectedMapForDialog, showAccountModal, isGameStarted, showEditNameModal, showStatHelpModal, showBackupModal]);
+    }, [selectedMapForDialog, showAccountModal, isGameStarted, showEditNameModal, showStatHelpModal, showBackupModal, showBailiSimulatorModal]);
 
     (0, import_react3.useEffect)(() => {
       if (selectedMapForDialog && dialogCloseBtnRef.current) {
@@ -894,7 +935,7 @@
       const textTimer = setInterval(() => {
         setCurrentSkillTextIdx((prev) => (prev + 1) % WUXIA_SKILL_TEXTS.length);
       }, 2800);
-      return () => clearInterval(textTimer);
+      return () => textTimer.clearInterval(textTimer);
     }, []);
 
     (0, import_react3.useEffect)(() => {
@@ -907,7 +948,7 @@
               const sanitizedAccounts = data.accounts.map((acc) => __spreadProps(__spreadValues({}, acc), {
                 unlockedMaps: acc.unlockedMaps || ["map_1", "map_2"],
                 skills: SKILLS_DATABASE.map((baseSk) => {
-                  const found = (acc.skills || []).find((s) => s.id === baseSk.id);
+                  const found = (acc.skills || []).filter ? (acc.skills || []).find((s) => s.id === baseSk.id) : null;
                   return found ? __spreadProps(__spreadValues({}, baseSk), { learned: found.learned }) : baseSk;
                 })
               }));
@@ -1059,6 +1100,57 @@
       triggerSaveNotification();
       addLog("已手動將最新資料儲存至 IndexedDB！", "success");
     });
+
+    // 執行百里三卷八字九星模擬測算
+    const runBailiSimulation = () => {
+      const selectedGans = [simPillarPre1.gan, simPillarPre2.gan, simPillarPost1.gan, simPillarPost2.gan];
+      
+      // 計算各天干出現頻率與氣場動態
+      const ganCounts = {};
+      selectedGans.forEach(g => {
+        ganCounts[g] = (ganCounts[g] || 0) + 1;
+      });
+
+      const uniqueGans = Array.from(new Set(selectedGans));
+      const reports = uniqueGans.map(gan => {
+        const info = TIANGAN_HUMAN_BODY[gan];
+        const cnt = ganCounts[gan];
+        let statusText = "";
+        let statusType = "normal";
+
+        if (cnt === 1) {
+          statusText = `【平和運轉】${info.normal}`;
+          statusType = "normal";
+        } else if (cnt >= 2) {
+          statusText = `【氣場過亢】${info.excess}`;
+          statusType = "excess";
+        }
+
+        return {
+          gan,
+          count: cnt,
+          info,
+          statusText,
+          statusType
+        };
+      });
+
+      // 尋找未出現的天干，提示氣場匱乏情況
+      const missingGans = TIANGAN_LIST.filter(g => !selectedGans.includes(g)).slice(0, 3);
+      const missingReports = missingGans.map(gan => ({
+        gan,
+        info: TIANGAN_HUMAN_BODY[gan],
+        statusText: `【氣機不足】${TIANGAN_HUMAN_BODY[gan].defic}`
+      }));
+
+      setSimResult({
+        reports,
+        missingReports,
+        summary: `前運【${simPillarPre1.gan}${simPillarPre1.zhi} / ${simPillarPre2.gan}${simPillarPre2.zhi}】 與 後運【${simPillarPost1.gan}${simPillarPost1.zhi} / ${simPillarPost2.gan}${simPillarPost2.zhi}】四柱交感運轉。`
+      });
+
+      addLog(`百里三卷八字九星模擬器測算完成：已分析前後運四柱天干在角色三力環境運行狀態！`, "legend");
+    };
 
     const isMapMutexLocked = (map) => {
       if (map.mutexMapId && unlockedMaps.includes(map.mutexMapId)) {
@@ -1433,7 +1525,7 @@
           )
         ),
         e("div", { className: "max-w-md w-full bg-slate-900/90 border border-amber-900/60 rounded-3xl pt-14 pb-8 px-8 shadow-2xl backdrop-blur relative z-10 flex flex-col items-center text-center" },
-          e("h1", { className: "text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-widest mb-1 filter drop-shadow" }, "道家重地 - 紅塵內功"),
+          e("h1", { className: "text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-100 tracking-widest mb-1 filter drop-shadow" }, "紅塵內功"),
           e("div", { className: "relative w-full py-2 my-2 flex items-center justify-center overflow-visible" },
             e("div", { className: "absolute w-44 h-12 bg-gradient-to-r from-black via-slate-950 to-transparent rounded-full blur-md opacity-80 animate-[pulse_3.5s_ease-in-out_infinite]" }),
             e("div", { className: "relative z-10 flex items-center gap-3 bg-slate-950/60 border border-slate-800/80 px-4 py-1.5 rounded-full shadow-inner" },
@@ -1567,7 +1659,7 @@
             src: "https://discord.com/widget?id=1093676338566664264&theme=dark",
             width: 350,
             height: 480,
-            allowTransparency: "true",
+            allowtransparency: "true",
             frameBorder: "0",
             sandbox: "allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"
           })
@@ -1626,6 +1718,87 @@
               },
               className: "flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-bold rounded-xl text-xs shadow-[0_0_15px_rgba(217,119,6,0.4)] transition-all"
             }, "定下誓約·前往修行")
+          )
+        )
+      ),
+
+      /* 百里三卷八字九星模擬器 Modal */
+      showBailiSimulatorModal && e("div", {
+        className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+      },
+        e("div", {
+          className: "bg-slate-900 border-2 border-amber-500/70 rounded-2xl p-5 max-w-xl w-full shadow-[0_0_40px_rgba(217,119,6,0.3)] relative text-slate-100 max-h-[90vh] overflow-y-auto"
+        },
+          e("button", {
+            onClick: () => setShowBailiSimulatorModal(false),
+            className: "absolute top-4 right-4 text-slate-400 hover:text-white"
+          }, e(X, { className: "w-5 h-5" })),
+          e("div", { className: "flex items-center gap-2 border-b border-amber-900/50 pb-3 mb-4" },
+            e(Compass, { className: "w-6 h-6 text-amber-400 animate-spin-slow" }),
+            e("h3", { className: "text-lg font-bold text-amber-300 tracking-wider font-iansui" }, "百里三卷八字九星模擬器")
+          ),
+          e("p", { className: "text-xs text-amber-400/80 mb-4 leading-relaxed font-iansui" }, "輸入前運2柱與後運2柱（十天干與十二地支），模擬運算不同天干氣場在人體五臟六腑與經絡環境中的盛衰運行狀態。"),
+          
+          /* 4柱選擇區域 */
+          e("div", { className: "grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4" },
+            [
+              { label: "前運 1 柱", state: simPillarPre1, setter: setSimPillarPre1 },
+              { label: "前運 2 柱", state: simPillarPre2, setter: setSimPillarPre2 },
+              { label: "後運 1 柱", state: simPillarPost1, setter: setSimPillarPost1 },
+              { label: "後運 2 柱", state: simPillarPost2, setter: setSimPillarPost2 }
+            ].map((p, pIdx) => e("div", { key: pIdx, className: "bg-slate-950/80 p-2.5 rounded-xl border border-amber-900/40 text-center" },
+              e("div", { className: "text-[11px] text-amber-400 font-bold mb-1.5" }, p.label),
+              e("div", { className: "flex gap-1" },
+                e("select", {
+                  value: p.state.gan,
+                  onChange: (ev) => p.setter({ ...p.state, gan: ev.target.value }),
+                  className: "w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-200 font-bold focus:border-amber-500"
+                }, TIANGAN_LIST.map(g => e("option", { key: g, value: g }, g))),
+                e("select", {
+                  value: p.state.zhi,
+                  onChange: (ev) => p.setter({ ...p.state, zhi: ev.target.value }),
+                  className: "w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-slate-300 font-bold focus:border-amber-500"
+                }, DIZHI_LIST.map(z => e("option", { key: z, value: z }, z)))
+              )
+            ))
+          ),
+
+          e("button", {
+            onClick: runBailiSimulation,
+            className: "w-full py-2.5 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-bold rounded-xl shadow-[0_0_20px_rgba(217,119,6,0.4)] border border-amber-300 text-sm flex items-center justify-center gap-2 mb-4 font-iansui"
+          },
+            e(Sparkles, { className: "w-4 h-4" }),
+            e("span", null, "測算人體天干環境運行")
+          ),
+
+          /* 測算結果評估顯示區 */
+          simResult && e("div", { className: "space-y-3 border-t border-slate-800 pt-3" },
+            e("div", { className: "text-xs font-mono text-amber-300/90 bg-amber-950/30 p-2 rounded-lg border border-amber-700/30" }, simResult.summary),
+            e("div", { className: "space-y-2 max-h-60 overflow-y-auto pr-1" },
+              simResult.reports.map((rep, idx) => e("div", {
+                key: idx,
+                className: `p-3 rounded-xl border text-xs space-y-1 ${
+                  rep.statusType === 'excess' ? 'bg-red-950/30 border-red-700/50' : 'bg-slate-950/80 border-slate-800'
+                }`
+              },
+                e("div", { className: "flex items-center justify-between font-bold" },
+                  e("span", { className: "text-amber-300 text-sm" }, `天干【${rep.gan}】(${rep.info.elem})`),
+                  e("span", { className: "text-slate-400" }, `對應器官：${rep.info.organ}`)
+                ),
+                e("div", { className: "text-slate-300 font-iansui" }, `✦ 人體運轉機理：${rep.info.state}`),
+                e("div", { className: `font-bold font-iansui ${rep.statusType === 'excess' ? 'text-red-300' : 'text-emerald-300'}` }, rep.statusText)
+              )),
+              simResult.missingReports.map((mRep, idx) => e("div", {
+                key: 'miss_' + idx,
+                className: "p-2.5 bg-blue-950/20 border border-blue-800/40 rounded-xl text-xs space-y-1 opacity-80"
+              },
+                e("div", { className: "flex items-center justify-between font-bold" },
+                  e("span", { className: "text-blue-300" }, `缺失天干【${mRep.gan}】(${mRep.info.elem})`),
+                  e("span", { className: "text-slate-400" }, `凡人剋應：${mRep.info.excess}`)
+                ),
+                e("div", { className: "text-blue-200/90 font-iansui" }, mRep.statusText)
+              ))
+            )
           )
         )
       ),
@@ -1962,11 +2135,21 @@
               ))
             )
           ),
+          /* 天靈根框區塊：已增加八字九星模擬器圖示按鈕 🔮 / 🔯 */
           activeTab === "cards" && e("div", { className: "bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3" },
-            e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" },
-              e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
-                e(Sparkles, { className: "w-5 h-5" }),
-                e("span", null, "五行天靈根")
+            e("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2 flex-wrap gap-2" },
+              e("div", { className: "flex items-center gap-2" },
+                e(Sparkles, { className: "w-5 h-5 text-amber-400" }),
+                e("h2", { className: "text-lg font-bold text-amber-300" }, "五行天靈根"),
+                /* 百里三卷八字九星模擬器圖示按鈕 */
+                e("button", {
+                  onClick: () => setShowBailiSimulatorModal(true),
+                  title: "開啟百里三卷八字九星模擬器",
+                  className: "px-2.5 py-1 bg-amber-950/70 hover:bg-amber-900 border border-amber-500/50 rounded-lg text-xs font-bold text-amber-300 flex items-center gap-1.5 shadow-[0_0_10px_rgba(245,158,11,0.3)] transition-all transform hover:scale-105 active:scale-95"
+                },
+                  e(Compass, { className: "w-4 h-4 text-amber-400" }),
+                  e("span", { className: "font-iansui" }, "🔮 八字九星模擬器")
+                )
               ),
               e("button", {
                 onClick: () => {
@@ -2063,10 +2246,10 @@
             )
           )
         ),
-        /* 全透明設計的戰鬥與事件日誌框 */
-        e("div", { className: "bg-transparent border border-slate-800/60 rounded-2xl p-4 shadow-xl flex flex-col h-[520px]" },
+        /* 全透明設計的戰鬥與事件日誌框，使用 Iansui 字體 */
+        e("div", { className: "bg-transparent border border-slate-800/60 rounded-2xl p-4 shadow-xl flex flex-col h-[520px] font-iansui" },
           e("div", { className: "flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2" },
-            e("h3", { className: "font-bold text-amber-300 flex items-center gap-2" },
+            e("h3", { className: "font-bold text-amber-300 flex items-center gap-2 font-iansui text-lg" },
               e(Scroll, { className: "w-4 h-4" }),
               e("span", null, "仙風道骨")
             ),
@@ -2084,104 +2267,15 @@
           ),
           e("div", {
             ref: logContainerRef,
-            className: "flex-1 bg-transparent rounded-xl p-3 overflow-y-auto space-y-2 border border-slate-800/40 font-mono text-base"
+            className: "flex-1 bg-transparent rounded-xl p-3 overflow-y-auto space-y-2 border border-slate-800/40 text-base font-iansui"
           },
-            battleLogs.length === 0 ? e("div", { className: "text-slate-500 text-center py-10" }, "尚無境界歷練記錄...") :
+            battleLogs.length === 0 ? e("div", { className: "text-slate-500 text-center py-10 font-iansui" }, "尚無境界歷練記錄...") :
               battleLogs.map((log) => e("div", {
                 key: log.id,
-                className: `p-1.5 rounded ${
-                  log.type === "danger" ? "text-red-400 bg-red-950/20" : log.type === "success" ? "text-emerald-400 bg-emerald-950/20" : log.type === "legend" ? "text-amber-300 bg-amber-950/30 border border-amber-600/30 font-bold" : log.type === "crit" ? "text-yellow-300 font-bold" : log.type === "heal" ? "text-cyan-300" : "text-slate-300"
+                className: `p-1.5 rounded font-iansui ${
+                  log.type === "danger" ? "text-red-400 bg-red-950/20" : log.type === "success" ? "text-emerald-400 bg-emerald-950/20" : log.type === "legend" ? "text-amber-300 bg-amber-950/30 border border-amber-600/30 font-bold" : log.type === "crit" ? "text-yellow-300 font-normal" : log.type === "heal" ? "text-cyan-300" : "text-slate-300"
                 }`
               }, log.text))
-          )
-        )
-      ),
-      showAccountModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
-        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative" },
-          isGameStarted && e("button", { onClick: () => setShowAccountModal(false), className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
-            e(X, { className: "w-5 h-5" })
-          ),
-          e("h3", { className: "text-xl font-bold text-amber-300 mb-4 flex items-center gap-2" },
-            e(Users, { className: "w-5 h-5" }),
-            e("span", null, "選擇紅塵過客登場 / 創建角色")
-          ),
-          e("div", { className: "space-y-3 mb-6 max-h-60 overflow-y-auto pr-1" },
-            accounts.map((acc) => {
-              const isCur = acc.id === currentAccountId;
-              const accLearnedCount = (acc.skills || []).filter((s) => s.learned).length;
-              const accPlayDays = getPlayDays(acc);
-              return e("div", {
-                key: acc.id,
-                onClick: () => {
-                  setCurrentAccountId(acc.id);
-                  SaveManager.saveSaves(accounts, acc.id);
-                },
-                className: `p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
-                  isCur ? "bg-amber-950/40 border-amber-500 shadow-[0_0_15px_rgba(217,119,6,0.3)]" : "bg-slate-800/40 border-slate-700 hover:border-slate-500"
-                }`
-              },
-                e("div", null,
-                  e("div", { className: "flex items-center gap-2" },
-                    e("span", { className: "text-xs text-amber-400 border border-amber-500/40 px-1.5 py-0.5 rounded" }, acc.player.title),
-                    e("span", { className: "font-bold text-slate-100" }, acc.player.name),
-                    e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
-                  ),
-                  e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
-                    e("span", null, "靈石: " + acc.player.coins),
-                    e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
-                    e("span", null, `歷練: 第${accPlayDays}天`)
-                  )
-                ),
-                e("div", { className: "flex items-center gap-2" },
-                  isCur && e(UserCheck, { className: "w-5 h-5 text-amber-400" }),
-                  accounts.length > 1 && e("button", {
-                    onClick: (ev) => {
-                      ev.stopPropagation();
-                      deleteAccount(acc.id);
-                    },
-                    className: "p-1 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded"
-                  }, e(Trash2, { className: "w-4 h-4" }))
-                )
-              );
-            })
-          ),
-          e("div", { className: "border-t border-slate-800 pt-4" },
-            e("h4", { className: "text-xs text-slate-400 mb-2" }, "創建新魔幻夢境角色帳號"),
-            e("div", { className: "flex gap-2 mb-3" },
-              e("input", {
-                type: "text",
-                value: inputName,
-                onChange: (ev) => setInputName(ev.target.value),
-                placeholder: "輸入暱稱",
-                className: "flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
-              }),
-              e("button", {
-                onClick: () => setInputName(RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)]),
-                className: "px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
-              },
-                e(Shuffle, { className: "w-3.5 h-3.5" }),
-                e("span", null, "隨機")
-              )
-            ),
-            e("div", { className: "flex gap-2" },
-              e("button", {
-                onClick: handleCreateAccount,
-                className: "flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-1"
-              },
-                e(UserPlus, { className: "w-4 h-4" }),
-                e("span", null, "創建新角色")
-              ),
-              e("button", {
-                onClick: () => {
-                  setShowAccountModal(false);
-                  setIsGameStarted(true);
-                },
-                className: "flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-sm flex items-center justify-center gap-1"
-              },
-                e(UserCheck, { className: "w-4 h-4" }),
-                e("span", null, "以當前角色登場")
-              )
-            )
           )
         )
       ),
