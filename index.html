@@ -958,12 +958,14 @@
 
     const addLog = (text, type = "info") => {
       const safeText = String(text);
-      setBattleLogs((prev) => [...prev.slice(-80), { id: Date.now() + Math.random(), text: safeText, type }]);
+      // 將新日誌加在最前方，並限制最多 80 條
+      setBattleLogs((prev) => [{ id: Date.now() + Math.random(), text: safeText, type }, ...prev.slice(0, 79)]);
     };
 
+    // 當日誌更新時，自動將卷軸滾動至最頂部
     (0, import_react3.useEffect)(() => {
       if (logContainerRef.current) {
-        logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+        logContainerRef.current.scrollTop = 0;
       }
     }, [battleLogs]);
 
