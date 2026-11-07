@@ -634,7 +634,7 @@
       desc: "寧靜的新手村，正面臨著地下層學會修妖的怪獸胡亂鬧事。\n\n【 境界 ⟡ 聚靈、通智 ⟡ 】", 
       bg: "from-emerald-950/80 to-slate-900", 
       monsters: [
-        { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15 },
+        { name: "72地煞", hp: 80, atk: 12, def: 2, exp: 25, coins: 15, image: "https://lh3.googleusercontent.com/pw/AP1GczM8mTIez-nQJjWMGJzUvHl04urAcjkW5sTLIOfMkIle7Wyn_ZKDptTtXGlkLVnllYxxZhXAcbdseTTlgx-Lwob1PE6_uMhwhVVoeRJoLQNJrBJTzGg=w2400?source=screenshot.guru" },
         { name: "36天罡", hp: 150, atk: 22, def: 5, exp: 45, coins: 35 },
         { name: "風水地理", hp: 260, atk: 35, def: 10, exp: 80, coins: 70 }
       ] 
@@ -1999,8 +1999,12 @@
                       )
                     )
                   ),
-                  e("div", { className: "my-auto flex items-center justify-center" },
-                    e("div", { className: "w-20 h-20 rounded-full border-2 border-amber-400/50 flex items-center justify-center bg-slate-950/90 shadow-[0_0_25px_rgba(217,119,6,0.4)] animate-[spin_30s_linear_infinite]" },
+                  e("div", { className: "my-auto flex flex-col items-center justify-center gap-1" },
+                    currentMonster.image ? e("img", {
+                      src: currentMonster.image,
+                      alt: currentMonster.name,
+                      className: "w-20 h-20 object-cover rounded-full border-2 border-amber-400 shadow-[0_0_25px_rgba(217,119,6,0.5)]"
+                    }) : e("div", { className: "w-20 h-20 rounded-full border-2 border-amber-400/50 flex items-center justify-center bg-slate-950/90 shadow-[0_0_25px_rgba(217,119,6,0.4)] animate-[spin_30s_linear_infinite]" },
                       e("svg", { className: "w-12 h-12 text-amber-500", viewBox: "0 0 200 200", fill: "currentColor" },
                         e("path", { d: "M 100,0 A 100,100 0 0,0 100,200 A 50,50 0 0,1 100,100 A 50,50 0 0,0 100,0 Z" }),
                         e("circle", { cx: "100", cy: "50", r: "12", fill: "#020617" }),
