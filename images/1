@@ -1,1 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暗黑幻域 - 怪物圖鑑資料庫</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font - Cinzel & Noto Sans TC -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        fantasy: {
+                            bg: '#0B0D12',
+                            card: '#141824',
+                            border: '#2A3146',
+                            gold: '#D4AF37',
+                            goldHover: '#F3E5AB',
+                            crimson: '#E63946',
+                            purple: '#8A2BE2',
+                            darkPurple: '#1A0B2E'
+                        }
+                    },
+                    fontFamily: {
+                        title: ['Cinzel', 'Noto Sans TC', 'serif'],
+                        sans: ['Noto Sans TC', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #080A0F;
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(138, 43, 226, 0.15) 0%, transparent 70%),
+                radial-gradient(circle at 80% 80%, rgba(230, 57, 70, 0.08) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: #E2E8F0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0D111A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A3146;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+
+        /* Glowing Effects */
+        .gold-glow {
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        .card-glow-legendary {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            border-color: rgba(212, 175, 55, 0.6);
+        }
+        .card-glow-mythic {
+            box-shadow: 0 0 25px rgba(230, 57, 70, 0.3);
+            border-color: rgba(230, 57, 70, 0.7);
+        }
+
+        /* Clip path for fantasy banner frame */
+        .fantasy-border {
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            position: relative;
+        }
+        .fantasy-border::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, #D4AF37, transparent, #8A2BE2, transparent, #E63946);
+            z-index: -1;
+            border-radius: inherit;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="border-b border-fantasy-border/50 bg-fantasy-bg/90 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Logo / Title -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-fantasy-purple via-fantasy-crimson to-fantasy-gold p-0.5 shadow-lg shadow-purple-900/40">
+                    <div class="w-full h-full bg-fantasy-bg rounded-full flex items-center justify-center">
+                        <i class="fa-solid font-bold fa-dragon text-fantasy-gold text-2xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-title text-2xl sm:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-fantasy-gold via-amber-200 to-amber-500 gold-glow">
+                        DARK BESTIARY
+                    </h1>
+                    <p class="text-xs text-slate-400 tracking-widest font-mono uppercase">暗黑界域 · 上古怪物典籍</p>
+                </div>
+            </div>
+
+            <!-- Stats Overview Bar -->
+            <div class="flex items-center gap-6 bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800 text-xs sm:text-sm">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-skull text-red-500"></i>
+                    <span class="text-slate-400">登錄怪物:</span>
+                    <span id="total-count" class="font-bold text-fantasy-gold">0</span>
+                </div>
+                <div class="h-4 w-px bg-slate-800"></div>
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-crown text-amber-400"></i>
+                    <span class="text-slate-400">神話級Boss:</span>
+                    <span id="mythic-count" class="font-bold text-amber-400">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Search & Filter Controls -->
+        <section class="bg-fantasy-card/90 rounded-2xl p-4 sm:p-6 border border-fantasy-border shadow-2xl mb-8">
+            <div class="flex flex-col lg:flex-row gap-4 items-center justify-between">
+                
+                <!-- Search Input -->
+                <div class="relative w-full lg:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" placeholder="搜尋怪物名稱、技能或特徵..." 
+                           class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-11 pr-10 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-fantasy-gold focus:ring-1 focus:ring-fantasy-gold transition-all">
+                    <button id="clear-search" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <!-- Element Filter -->
+                    <div class="relative flex-1 sm:flex-none">
+                        <select id="element-filter" class="w-full sm:w-auto appearance-none bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 pr-10 text-sm text-slate-300 focus:outline-none focus:border-fantasy-gold cursor-pointer">
+                            <option value="all">所有元素 (All Elements)</option>
+                            <option value="dark">暗 (Dark)</option>
+                            <option value="fire">火 (Fire)</option>
+                            <option value="ice">冰 (Ice)</option>
+                            <option value="lightning">雷 (Lightning)</option>
+                            <option value="earth">地 (Earth)</option>
+                            <option value="holy">光 (Holy)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Rarity Filter -->
+                    <div class="relative flex-1 sm:flex-none">
+                        <select id="rarity-filter" class="w-full sm:w-auto appearance-none bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 pr-10 text-sm text-slate-300 focus:outline-none focus:border-fantasy-gold cursor-pointer">
+                            <option value="all">所有稀有度 (All Rarities)</option>
+                            <option value="神話">神話 (Mythic)</option>
+                            <option value="傳說">傳說 (Legendary)</option>
+                            <option value="史詩">史詩 (Epic)</option>
+                            <option value="精英">精英 (Elite)</option>
+                            <option value="普通">普通 (Common)</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Sort Order -->
+                    <div class="relative flex-1 sm:flex-none">
+                        <select id="sort-order" class="w-full sm:w-auto appearance-none bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 pr-10 text-sm text-slate-300 focus:outline-none focus:border-fantasy-gold cursor-pointer">
+                            <option value="default">預設排序</option>
+                            <option value="hp-desc">生命值 (高 → 低)</option>
+                            <option value="atk-desc">攻擊力 (高 → 低)</option>
+                            <option value="def-desc">防禦力 (高 → 低)</option>
+                        </select>
+                        <i class="fa-solid fa-sort absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 pointer-events-none"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Monster Cards Grid Container -->
+        <section id="monster-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Dynamic Cards inserted by JavaScript -->
+        </section>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-20 bg-fantasy-card/40 rounded-2xl border border-dashed border-slate-800">
+            <i class="fa-solid fa-ghost text-6xl text-slate-600 mb-4 animate-bounce"></i>
+            <h3 class="text-xl font-bold text-slate-400 mb-2">未找到符合條件的魔物</h3>
+            <p class="text-sm text-slate-500 mb-6">嘗試調整篩選條件或搜尋關鍵字。</p>
+            <button onclick="resetFilters()" class="px-5 py-2.5 bg-fantasy-gold/10 hover:bg-fantasy-gold/20 text-fantasy-gold border border-fantasy-gold/40 rounded-xl transition-all text-sm font-semibold">
+                重置搜尋過濾
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal for Detailed Monster Info -->
+    <div id="monster-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-fantasy-card border border-fantasy-border w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 max-h-[90vh] flex flex-col relative" id="modal-content">
+            
+            <!-- Modal Close Button -->
+            <button id="close-modal" class="absolute top-4 right-4 z-20 w-10 h-10 bg-slate-950/80 border border-slate-700 hover:border-fantasy-gold text-slate-300 hover:text-white rounded-full flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Scrollable Content -->
+            <div class="overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    
+                    <!-- Left Column: Media & Quick Tags -->
+                    <div class="md:col-span-5 flex flex-col items-center">
+                        <div class="relative w-full aspect-[3/4] max-h-[380px] rounded-xl overflow-hidden border-2 border-slate-700/80 shadow-2xl group bg-slate-950 flex items-center justify-center">
+                            <img id="modal-image" src="" alt="Monster Visual" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                            <span id="modal-rarity-badge" class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold shadow-lg"></span>
+                        </div>
+                        
+                        <!-- Element & Type Badges -->
+                        <div class="flex items-center gap-3 mt-4 w-full justify-center">
+                            <span id="modal-element-badge" class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border"></span>
+                            <span id="modal-type-badge" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-2"></span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Stats, Lore, Skills -->
+                    <div class="md:col-span-7 flex flex-col justify-between">
+                        <div>
+                            <!-- Header -->
+                            <div class="mb-4">
+                                <span id="modal-title-en" class="text-xs font-mono text-fantasy-gold tracking-widest uppercase block mb-1"></span>
+                                <h2 id="modal-name" class="text-3xl font-black text-white font-title tracking-wide"></h2>
+                            </div>
+
+                            <!-- Description / Lore -->
+                            <div class="mb-6 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-scroll text-fantasy-gold"></i> 魔物誌記載 (Lore)
+                                </h4>
+                                <p id="modal-lore" class="text-sm text-slate-300 leading-relaxed font-sans"></p>
+                            </div>
+
+                            <!-- Attributes & Stat Bars -->
+                            <div class="space-y-3 mb-6">
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-simple text-fantasy-gold"></i> 戰鬥數值 (Combat Stats)
+                                </h4>
+
+                                <!-- HP Bar -->
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">生命值 (HP)</span>
+                                        <span id="modal-hp-val" class="text-red-400 font-bold"></span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                                        <div id="modal-hp-bar" class="h-full bg-gradient-to-r from-red-600 to-red-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- MP Bar -->
+                                <div>
+                                    <div class="flex justify-between text-xs mb-1">
+                                        <span class="text-slate-400">魔力值 (MP)</span>
+                                        <span id="modal-mp-val" class="text-blue-400 font-bold"></span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                                        <div id="modal-mp-bar" class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Attack & Defense Grid -->
+                                <div class="grid grid-cols-3 gap-3 pt-2">
+                                    <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 text-center">
+                                        <span class="text-[10px] text-slate-500 block uppercase">物理攻擊</span>
+                                        <span id="modal-atk" class="text-amber-400 font-bold text-sm"></span>
+                                    </div>
+                                    <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 text-center">
+                                        <span class="text-[10px] text-slate-500 block uppercase">護甲防禦</span>
+                                        <span id="modal-def" class="text-emerald-400 font-bold text-sm"></span>
+                                    </div>
+                                    <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 text-center">
+                                        <span class="text-[10px] text-slate-500 block uppercase">敏捷速度</span>
+                                        <span id="modal-spd" class="text-purple-400 font-bold text-sm"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Special Skills & Weakness -->
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-fantasy-gold"></i> 核心技能 (Abilities)
+                                </h4>
+                                <div id="modal-skills" class="flex flex-wrap gap-2">
+                                    <!-- Dynamic Skills Tag -->
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-gift text-fantasy-gold"></i> 戰利品掉落 (Loot Drop)
+                                </h4>
+                                <div id="modal-drops" class="flex flex-wrap gap-2">
+                                    <!-- Dynamic Drops -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-fantasy-border/40 bg-fantasy-bg/90 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-mono">© 2026 DARK BESTIARY DATABASE · 暗黑魔物典籍系統</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // 1. Monster Dataset
+        const monstersData = [
+            {
+                id: 'm-001',
+                name: '深淵滅世召喚者 · 亞巴頓',
+                titleEn: 'Abaddon, Void Summoner',
+                rarity: '神話',
+                element: 'dark',
+                elementName: '暗系',
+                type: '古老魔王',
+                // Special GIF image provided by user
+                image: 'https://lh3.googleusercontent.com/pw/AP1GczM8mTIez-nQJjWMGJzUvHl04urAcjkW5sTLIOfMkIle7Wyn_ZKDptTtXGlkLVnllYxxZhXAcbdseTTlgx-Lwob1PE6_uMhwhVVoeRJoLQNJrBJTzGg=w2400?source=screenshot.guru"> <img src="https://lh3.googleusercontent.com/pw/AP1GczM8mTIez-nQJjWMGJzUvHl04urAcjkW5sTLIOfMkIle7Wyn_ZKDptTtXGlkLVnllYxxZhXAcbdseTTlgx-Lwob1PE6_uMhwhVVoeRJoLQNJrBJTzGg=w600-h315-p-k',
+                fallbackImage: 'https://placehold.co/600x800/1a0b2e/d4af37?text=Void+Summoner+GIF',
+                hp: 158000,
+                maxHp: 200000,
+                mp: 95000,
+                maxMp: 100000,
+                attack: 8900,
+                defense: 6200,
+                speed: 450,
+                weakness: ['光', '神聖'],
+                lore: '從虛空裂隙中甦醒的上古魔王，能撕裂空間召喚無盡的黑暗軍團。其胸口燃燒著永不熄滅的冥火，僅僅是靠近他便會被無盡的恐懼所吞噬。',
+                skills: ['虛空星爆', '亡靈軍團召喚', '靈魂撕裂', '暗黑結界'],
+                drops: ['滅世者之核 (5%)', '暗影精粹 (45%)', '深淵龍鱗 (25%)', '傳說魔法書 (15%)']
+            },
+            {
+                id: 'm-002',
+                name: '燼火龍王 · 伊格尼斯',
+                titleEn: 'Ignis, Crimson Dragon',
+                rarity: '傳說',
+                element: 'fire',
+                elementName: '火系',
+                type: '巨龍',
+                image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/2b0a0a/e63946?text=Fire+Dragon',
+                hp: 92000,
+                maxHp: 200000,
+                mp: 40000,
+                maxMp: 100000,
+                attack: 7400,
+                defense: 5800,
+                speed: 380,
+                weakness: ['冰', '水'],
+                lore: '棲息於熔岩火山深處的古老巨龍，口吐可融化鋼鐵的熾熱吐息，其堅硬的龍鱗能抵禦絕大多數魔法與物理攻擊。',
+                skills: ['烈焰吐息', '熔岩地爆', '龍威震懾', '翼擊'],
+                drops: ['火龍的心臟 (10%)', '熾熱龍鱗 (60%)', '龍骨大劍 (8%)']
+            },
+            {
+                id: 'm-003',
+                name: '極地霜華靈狐',
+                titleEn: 'Frostheart Nine-Tails',
+                rarity: '史詩',
+                element: 'ice',
+                elementName: '冰系',
+                type: '幻獸',
+                image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/0a1a2b/38bdf8?text=Frost+Fox',
+                hp: 48000,
+                maxHp: 200000,
+                mp: 78000,
+                maxMp: 100000,
+                attack: 5200,
+                defense: 3100,
+                speed: 720,
+                weakness: ['火'],
+                lore: '雪原深處的守護神獸，姿態優雅卻極具危險。能在瞬間將方圓數里化為極寒凍土。',
+                skills: ['絕對零度', '冰晶幻影', '霜華風暴'],
+                drops: ['寒冰寶珠 (30%)', '九尾狐毛皮 (50%)']
+            },
+            {
+                id: 'm-004',
+                name: '狂暴雷霆巨人',
+                titleEn: 'Stormbringer Titan',
+                rarity: '傳說',
+                element: 'lightning',
+                elementName: '雷系',
+                type: '泰坦巨人',
+                image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/1e1b4b/a855f7?text=Thunder+Titan',
+                hp: 110000,
+                maxHp: 200000,
+                mp: 30000,
+                maxMp: 100000,
+                attack: 8100,
+                defense: 7000,
+                speed: 210,
+                weakness: ['地'],
+                lore: '誕生於暴風雨頂峰的元素巨人，全身籠罩在萬伏高壓雷電之中，舉手投足皆能召喚天雷。',
+                skills: ['雷霆萬鈞', '泰坦重擊', '靜電磁場'],
+                drops: ['雷神之錘碎片 (15%)', '充能精粹 (70%)']
+            },
+            {
+                id: 'm-005',
+                name: '聖光審判大天使',
+                titleEn: 'Archangel of Judgment',
+                rarity: '神話',
+                element: 'holy',
+                elementName: '光系',
+                type: '神魔',
+                image: 'https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/292524/eab308?text=Holy+Archangel',
+                hp: 135000,
+                maxHp: 200000,
+                mp: 90000,
+                maxMp: 100000,
+                attack: 8500,
+                defense: 6800,
+                speed: 610,
+                weakness: ['暗'],
+                lore: '手持聖劍的秩序守護者，奉神聖之名淨化世間一切黑暗與邪惡。',
+                skills: ['神聖風暴', '審判之光', '天堂之盾', '復活詠嘆'],
+                drops: ['天使之翼 (5%)', '聖光結晶 (40%)', '審判聖劍 (10%)']
+            },
+            {
+                id: 'm-006',
+                name: '樹海守護者 · 艾爾達',
+                titleEn: 'Eldar, Treant Guardian',
+                rarity: '精英',
+                element: 'earth',
+                elementName: '地系',
+                type: '植物妖獸',
+                image: 'https://images.unsplash.com/photo-1511497584788-8767611136f6?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/064e3b/22c55e?text=Earth+Treant',
+                hp: 65000,
+                maxHp: 200000,
+                mp: 20000,
+                maxMp: 100000,
+                attack: 3900,
+                defense: 6500,
+                speed: 150,
+                weakness: ['火', '砍伐'],
+                lore: '古老森林的守護長老，能操縱巨大樹根纏繞敵人，擁有極高的生命回復能力。',
+                skills: ['根鬚纏繞', '大地復甦', '落葉飛刃'],
+                drops: ['古樹核心 (35%)', '生命之露 (50%)']
+            },
+            {
+                id: 'm-007',
+                name: '骷髏劍豪 · 遺恨者',
+                titleEn: 'Skeleton Master Warden',
+                rarity: '普通',
+                element: 'dark',
+                elementName: '暗系',
+                type: '不死族',
+                image: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/18181b/a1a1aa?text=Skeleton+Warden',
+                hp: 18000,
+                maxHp: 200000,
+                mp: 5000,
+                maxMp: 100000,
+                attack: 2800,
+                defense: 1900,
+                speed: 340,
+                weakness: ['光', '打擊'],
+                lore: '戰死沙場的騎士遺骸，受黑魔法驅使復甦，依然執著於生前的劍術技巧。',
+                skills: ['三連斬', '格擋破防'],
+                drops: ['生鏽的大劍 (80%)', '亡靈骨粉 (90%)']
+            },
+            {
+                id: 'm-008',
+                name: '深海巨妖 · 克拉肯',
+                titleEn: 'Kraken, Abyss Leviathan',
+                rarity: '傳說',
+                element: 'ice',
+                elementName: '冰系',
+                type: '海怪',
+                image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
+                fallbackImage: 'https://placehold.co/600x800/0c4a6e/38bdf8?text=Sea+Kraken',
+                hp: 98000,
+                maxHp: 200000,
+                mp: 55000,
+                maxMp: 100000,
+                attack: 6900,
+                defense: 5200,
+                speed: 280,
+                weakness: ['雷'],
+                lore: '潛伏於無底深淵的龐然巨物，無數巨大的觸手能輕鬆拖沉整支遠航艦隊。',
+                skills: ['海嘯漩渦', '觸手重壓', '劇毒墨汁'],
+                drops: ['深海珍珠 (20%)', '巨妖觸手 (65%)']
+            }
+        ];
+
+        // 2. Rarity Styling Mapping
+        const rarityBadgeStyle = {
+            '神話': 'bg-gradient-to-r from-red-600 to-purple-600 text-white border border-red-400/50 shadow-red-900/50',
+            '傳說': 'bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 border border-amber-300 shadow-amber-900/50 font-black',
+            '史詩': 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border border-purple-400/50',
+            '精英': 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white border border-blue-400/50',
+            '普通': 'bg-slate-800 text-slate-300 border border-slate-600'
+        };
+
+        const elementStyle = {
+            dark: { name: '暗系', bg: 'bg-purple-950/80', text: 'text-purple-300', border: 'border-purple-800', icon: 'fa-moon' },
+            fire: { name: '火系', bg: 'bg-red-950/80', text: 'text-red-300', border: 'border-red-800', icon: 'fa-fire' },
+            ice: { name: '冰系', bg: 'bg-sky-950/80', text: 'text-sky-300', border: 'border-sky-800', icon: 'fa-snowflake' },
+            lightning: { name: '雷系', bg: 'bg-amber-950/80', text: 'text-amber-300', border: 'border-amber-800', icon: 'fa-bolt' },
+            earth: { name: '地系', bg: 'bg-emerald-950/80', text: 'text-emerald-300', border: 'border-emerald-800', icon: 'fa-mountain' },
+            holy: { name: '光系', bg: 'bg-yellow-950/80', text: 'text-yellow-200', border: 'border-yellow-700', icon: 'fa-sun' }
+        };
+
+        // DOM Elements
+        const monsterGrid = document.getElementById('monster-grid');
+        const searchInput = document.getElementById('search-input');
+        const clearSearchBtn = document.getElementById('clear-search');
+        const elementFilter = document.getElementById('element-filter');
+        const rarityFilter = document.getElementById('rarity-filter');
+        const sortOrder = document.getElementById('sort-order');
+        const emptyState = document.getElementById('empty-state');
+        const totalCountEl = document.getElementById('total-count');
+        const mythicCountEl = document.getElementById('mythic-count');
+
+        // Modal Elements
+        const modal = document.getElementById('monster-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        // Initialize App
+        function initApp() {
+            updateStatsCounters();
+            renderMonsters(monstersData);
+            setupEventListeners();
+        }
+
+        // Render Monster Cards
+        function renderMonsters(data) {
+            monsterGrid.innerHTML = '';
+
+            if (data.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            data.forEach(monster => {
+                const elem = elementStyle[monster.element] || elementStyle.dark;
+                const isSpecialGif = monster.id === 'm-001';
+                const cardGlowClass = monster.rarity === '神話' ? 'card-glow-mythic' : (monster.rarity === '傳說' ? 'card-glow-legendary' : '');
+
+                const cardHtml = `
+                    <div onclick="openModal('${monster.id}')" class="group bg-fantasy-card rounded-xl border border-slate-800 hover:border-fantasy-gold/60 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer overflow-hidden flex flex-col justify-between shadow-xl ${cardGlowClass}">
+                        
+                        <!-- Card Image Box -->
+                        <div class="relative w-full aspect-[4/3] bg-slate-950 overflow-hidden">
+                            <img src="${monster.image}" 
+                                 onerror="this.src='${monster.fallbackImage}'" 
+                                 alt="${monster.name}" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            
+                            <!-- Overlay Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-fantasy-card via-transparent to-transparent opacity-90"></div>
+
+                            <!-- Rarity Tag -->
+                            <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide shadow-md ${rarityBadgeStyle[monster.rarity]}">
+                                ${monster.rarity}
+                            </span>
+
+                            <!-- Element Tag -->
+                            <span class="absolute top-3 right-3 px-2 py-0.5 rounded-lg text-xs font-semibold ${elem.bg} ${elem.text} border ${elem.border} backdrop-blur-sm flex items-center gap-1">
+                                <i class="fa-solid ${elem.icon} text-[10px]"></i> ${elem.name}
+                            </span>
+
+                            ${isSpecialGif ? `
+                            <span class="absolute bottom-2 right-2 px-2 py-0.5 bg-red-600/90 text-white text-[10px] font-bold rounded uppercase tracking-wider animate-pulse">
+                                Dynamic GIF
+                            </span>` : ''}
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 flex-grow flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-mono text-slate-400 block uppercase tracking-wider">${monster.titleEn}</span>
+                                <h3 class="text-lg font-bold text-slate-100 group-hover:text-fantasy-gold transition-colors font-title truncate mb-2">
+                                    ${monster.name}
+                                </h3>
+                                <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed mb-4">
+                                    ${monster.lore}
+                                </p>
+                            </div>
+
+                            <!-- Quick Stats Bar -->
+                            <div class="grid grid-cols-3 gap-2 pt-3 border-t border-slate-800/80 text-center text-xs">
+                                <div class="bg-slate-950/50 py-1.5 rounded border border-slate-800">
+                                    <span class="text-[10px] text-slate-500 block">HP</span>
+                                    <span class="font-bold text-red-400">${(monster.hp / 1000).toFixed(1)}k</span>
+                                </div>
+                                <div class="bg-slate-950/50 py-1.5 rounded border border-slate-800">
+                                    <span class="text-[10px] text-slate-500 block">ATK</span>
+                                    <span class="font-bold text-amber-400">${monster.attack}</span>
+                                </div>
+                                <div class="bg-slate-950/50 py-1.5 rounded border border-slate-800">
+                                    <span class="text-[10px] text-slate-500 block">DEF</span>
+                                    <span class="font-bold text-emerald-400">${monster.defense}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Action -->
+                        <div class="px-4 py-2.5 bg-slate-950/60 border-t border-slate-800/50 flex items-center justify-between text-xs text-slate-400 group-hover:text-fantasy-gold transition-colors">
+                            <span>檢視詳細紀錄</span>
+                            <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                `;
+                monsterGrid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Update Counter Badges
+        function updateStatsCounters() {
+            totalCountEl.textContent = monstersData.length;
+            const mythicCount = monstersData.filter(m => m.rarity === '神話').length;
+            mythicCountEl.textContent = mythicCount;
+        }
+
+        // Filter and Search Logic
+        function filterMonsters() {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            const selectedElement = elementFilter.value;
+            const selectedRarity = rarityFilter.value;
+            const sortVal = sortOrder.value;
+
+            let filtered = monstersData.filter(monster => {
+                const matchesSearch = monster.name.toLowerCase().includes(searchTerm) ||
+                                      monster.titleEn.toLowerCase().includes(searchTerm) ||
+                                      monster.lore.toLowerCase().includes(searchTerm) ||
+                                      monster.skills.some(s => s.toLowerCase().includes(searchTerm));
+
+                const matchesElement = selectedElement === 'all' || monster.element === selectedElement;
+                const matchesRarity = selectedRarity === 'all' || monster.rarity === selectedRarity;
+
+                return matchesSearch && matchesElement && matchesRarity;
+            });
+
+            // Sorting
+            if (sortVal === 'hp-desc') {
+                filtered.sort((a, b) => b.hp - a.hp);
+            } else if (sortVal === 'atk-desc') {
+                filtered.sort((a, b) => b.attack - a.attack);
+            } else if (sortVal === 'def-desc') {
+                filtered.sort((a, b) => b.defense - a.defense);
+            }
+
+            renderMonsters(filtered);
+        }
+
+        // Event Listeners setup
+        function setupEventListeners() {
+            searchInput.addEventListener('input', () => {
+                if (searchInput.value.length > 0) {
+                    clearSearchBtn.classList.remove('hidden');
+                } else {
+                    clearSearchBtn.classList.add('hidden');
+                }
+                filterMonsters();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                filterMonsters();
+            });
+
+            elementFilter.addEventListener('change', filterMonsters);
+            rarityFilter.addEventListener('change', filterMonsters);
+            sortOrder.addEventListener('change', filterMonsters);
+
+            // Modal Close Events
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
+        }
+
+        // Open Modal Function
+        function openModal(id) {
+            const monster = monstersData.find(m => m.id === id);
+            if (!monster) return;
+
+            const elem = elementStyle[monster.element] || elementStyle.dark;
+
+            // Populate Modal Fields
+            const modalImg = document.getElementById('modal-image');
+            modalImg.src = monster.image;
+            modalImg.onerror = () => { modalImg.src = monster.fallbackImage; };
+
+            document.getElementById('modal-title-en').textContent = monster.titleEn;
+            document.getElementById('modal-name').textContent = monster.name;
+            document.getElementById('modal-lore').textContent = monster.lore;
+
+            // Rarity & Badges
+            const rarityBadge = document.getElementById('modal-rarity-badge');
+            rarityBadge.textContent = monster.rarity;
+            rarityBadge.className = `absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold shadow-lg ${rarityBadgeStyle[monster.rarity]}`;
+
+            const elemBadge = document.getElementById('modal-element-badge');
+            elemBadge.innerHTML = `<i class="fa-solid ${elem.icon}"></i> ${elem.name}`;
+            elemBadge.className = `px-3 py-1.5 rounded-lg text-xs font-bold border ${elem.bg} ${elem.text} ${elem.border}`;
+
+            document.getElementById('modal-type-badge').innerHTML = `<i class="fa-solid fa-paw"></i> ${monster.type}`;
+
+            // Stats
+            document.getElementById('modal-hp-val').textContent = `${monster.hp.toLocaleString()} / ${monster.maxHp.toLocaleString()}`;
+            document.getElementById('modal-hp-bar').style.width = `${(monster.hp / monster.maxHp) * 100}%`;
+
+            document.getElementById('modal-mp-val').textContent = `${monster.mp.toLocaleString()} / ${monster.maxMp.toLocaleString()}`;
+            document.getElementById('modal-mp-bar').style.width = `${(monster.mp / monster.maxMp) * 100}%`;
+
+            document.getElementById('modal-atk').textContent = monster.attack.toLocaleString();
+            document.getElementById('modal-def').textContent = monster.defense.toLocaleString();
+            document.getElementById('modal-spd').textContent = monster.speed;
+
+            // Skills
+            const skillsContainer = document.getElementById('modal-skills');
+            skillsContainer.innerHTML = monster.skills.map(skill => `
+                <span class="px-3 py-1 bg-slate-950 border border-slate-800 hover:border-fantasy-gold/50 rounded-lg text-xs text-slate-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-fantasy-gold text-[10px]"></i> ${skill}
+                </span>
+            `).join('');
+
+            // Drops
+            const dropsContainer = document.getElementById('modal-drops');
+            dropsContainer.innerHTML = monster.drops.map(drop => `
+                <span class="px-3 py-1 bg-amber-950/20 border border-amber-900/40 rounded-lg text-xs text-amber-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-gem text-amber-400 text-[10px]"></i> ${drop}
+                </span>
+            `).join('');
+
+            // Show Modal with Animation
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close Modal Function
+        function closeModal() {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            document.body.style.overflow = '';
+        }
+
+        // Reset All Filters
+        function resetFilters() {
+            searchInput.value = '';
+            elementFilter.value = 'all';
+            rarityFilter.value = 'all';
+            sortOrder.value = 'default';
+            clearSearchBtn.classList.add('hidden');
+            filterMonsters();
+        }
+
+        // Run App
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
