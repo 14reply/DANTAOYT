@@ -19,7 +19,7 @@
                 content: "";
                 position: fixed;
                 inset: 0;
-                background: rgba(2, 6, 23, 0.75); /* 深色半透明暗化，確保UI清晰 */
+                background: rgba(2, 6, 23, 0.68); /* 深色半透明暗化，確保UI清晰 */
                 backdrop-filter: blur(2px);
                 z-index: -1;
                 pointer-events: none;
@@ -2084,7 +2084,7 @@
           ),
           e("div", {
             ref: logContainerRef,
-            className: "flex-1 bg-transparent rounded-xl p-3 overflow-y-auto space-y-2 border border-slate-800/40 font-mono text-xs"
+            className: "flex-1 bg-transparent rounded-xl p-3 overflow-y-auto space-y-2 border border-slate-800/40 font-mono text-base"
           },
             battleLogs.length === 0 ? e("div", { className: "text-slate-500 text-center py-10" }, "尚無境界歷練記錄...") :
               battleLogs.map((log) => e("div", {
