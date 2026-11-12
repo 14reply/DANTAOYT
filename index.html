@@ -816,18 +816,18 @@
   var SLOT_MAP = { weapon: "手持", helmet: "頭部", armor: "全身", boots: "鞋子", ring: "飾品", relic: "秘寶" };
 
   var SKILLS_DATABASE = [
-    { id: "sk_1", name: "輪拳", type: "active", typeText: "外功", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
-    { id: "sk_2", name: "太極吐納", type: "active", typeText: "外功", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
-    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "外功", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
-    { id: "sk_4", name: "十靜法", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
-    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
-    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "身法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
-    { id: "sk_7", name: "望氣法", type: "active", typeText: "外功", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
-    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "內功", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
-    { id: "sk_9", name: "九星風水", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
-    { id: "sk_10", name: "抱元守一", type: "active", typeText: "內功", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
-    { id: "sk_11", name: "太上神功", type: "passive", typeText: "絕學", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
-    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "外功", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
+    { id: "sk_1", name: "輪拳", type: "active", typeText: "體修", cost: 10, cd: 0, power: 1.2, desc: "民間入門招式，造成 120% 攻擊力的轉化。", learned: true, level: 1 },
+    { id: "sk_2", name: "太極吐納", type: "active", typeText: "體修", cost: 25, cd: 2, power: 1.8, desc: "以柔克剛，造成 180% 轉化並回復少許內力。", learned: false, price: 500, level: 1 },
+    { id: "sk_3", name: "降龍十八掌", type: "active", typeText: "體修", cost: 50, cd: 4, power: 2.8, desc: "天下第一迅速剛猛的掌法，造成 280% 巨額轉化與必定暴擊。", learned: false, price: 2000, level: 1 },
+    { id: "sk_4", name: "十靜法", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "玄功十靜妙用無比，永久增加 20% 攻擊力、10% 暴擊率與 +100 內力上限！", learned: false, price: 1500, level: 1 },
+    { id: "sk_5", name: "ABC體操", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "洗髓伐骨，永久增加 30% 最大生命值、防禦力與 +200 內力上限！", learned: false, price: 3000, level: 1 },
+    { id: "sk_6", name: "親傳基本功", type: "passive", typeText: "體法", cost: 0, cd: 0, power: 0, desc: "丹道風水運動秘不輕傳的基礎武學，永久增加 15% 閃避率與速度。", learned: false, price: 2500, level: 1 },
+    { id: "sk_7", name: "望氣法", type: "active", typeText: "體修", cost: 35, cd: 3, power: 2.2, desc: "放眼望去，破盡天下招式！造成 220% 轉化並無視敵方 30% 防禦力。", learned: false, price: 3500, level: 1 },
+    { id: "sk_8", name: "易筋睡功", type: "passive", typeText: "法修", cost: 0, cd: 0, power: 0, desc: "能淨化筋骨排毒的強大功法，永久提升 25% 生命值與 15% 全屬性防禦。", learned: false, price: 4000, level: 1 },
+    { id: "sk_9", name: "九星風水", type: "passive", typeText: "祕法", cost: 0, cd: 0, power: 0, desc: "古法風水秘術，功德力高者收益更多，全屬性提升 25%，暴擊轉化增加 35%！", learned: false, price: 6000, level: 1 },
+    { id: "sk_10", name: "抱元守一", type: "active", typeText: "法修", cost: 20, cd: 3, power: 1.6, desc: "收納天地靈氣為己用，造成 160% 轉化並獲得對手 25 點內力。", learned: false, price: 4500, level: 1 },
+    { id: "sk_11", name: "太上神功", type: "passive", typeText: "神功", cost: 0, cd: 0, power: 0, desc: "白氣白光護體，百萬妖氣不入身，永久增加 40% 防禦力與 20% 減傷效果。", learned: false, price: 5500, level: 1 },
+    { id: "sk_12", name: "純陽劍訣", type: "active", typeText: "傳承", cost: 60, cd: 4, power: 3.2, desc: "老祖親自傳承的純陽劍氣，貫穿天地造成 320% 的毀滅性打擊！", learned: false, price: 7500, level: 1 }
   ];
 
   var CARDS_DATABASE = [
@@ -874,9 +874,9 @@
       desc: "靈山雲霧繚繞的無爭之地，妖怪擾亂仙田。\n\n【 境界 ⟡ 妖丹、化形 ⟡ 】\n⚠️ 與【三清洞府】雪下別離！",
       bg: "from-cyan-950/80 to-slate-900", 
       monsters: [
-        { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800 },
-        { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500 },
-        { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true }
+        { name: "假的吉神", hp: 2200, atk: 190, def: 60, exp: 800, coins: 800, image: "https://lh3.googleusercontent.com/pw/AP1GczM5ikqjbuxcIKVamU3e8d1mKMkvdo2KF_WUKRSXsMXGYNuP3dPffFXrWZpV1M5olvy7rrANS13jj8Re5qia847SSFwln8GDKWFNP75RM8Xc9v2iuxA=w2400"},
+        { name: "偽裝的喜用神", hp: 4000, atk: 280, def: 95, exp: 1500, coins: 1500, image: "https://lh3.googleusercontent.com/pw/AP1GczOTiFNyx5p1cYsZBSmwyLt6WZvtMQ0dQM1vAb3_GxMy3WvUqtAANg9lgpBLFX80dh6Ll68KS0cUTKA8GBf15JGSnamEEGcklkvsj_vAFFkrOCEL-Ag=w2400"},
+        { name: "中丹田的血妖", hp: 7500, atk: 420, def: 140, exp: 3000, coins: 3500, isBoss: true, image: "https://lh3.googleusercontent.com/pw/AP1GczPHlGNiKOD_ndJ1OaOWyJATtt3q0QuxhK0WOoLtWT1FrAaMr3dPE-5PYku0nsROa_WvY4ZPj6XCOzUE4Q2x_xdVfI-SRxjOX1CJ022vUD3lZ7twYXA=w2400"}
       ] 
     },
     { 
@@ -888,9 +888,9 @@
       desc: "道門重地，藏有至高神功的修魔傀儡。\n\n【 境界 ⟡ 凝魄、神遊 ⟡ 】\n⚠️ 與【五蘊仙田】雪下別離！",
       bg: "from-amber-950/80 to-slate-900", 
       monsters: [
-        { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000 },
-        { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000 },
-        { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true }
+        { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000, image: "https://lh3.googleusercontent.com/pw/AP1GczPWkAfp0YoZSygCHk-Dgq7J90HOckrPnKwQjegrXVyqN7mhDPjf3Flxt5BeS0w9eESy75GrtH9URJmwBhccZKAKQ6JlTrG3O6F5ppxnto_fey9N7xc=w2400"},
+        { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000, image: "https://lh3.googleusercontent.com/pw/AP1GczMQ7weXCOcHT9Zr7EmNN4Klvk9C7spA7CCgLaA-20If8h6AAGetCOgrtzFaRjpQqAo0ut2fld7-_0dXaG_Y7ZRe0bWa6JXZVwwdATx-BdvbaWZ4lis=w2400"},
+        { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true, image: ""}
       ] 
     },
     { 
