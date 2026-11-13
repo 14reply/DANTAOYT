@@ -890,7 +890,7 @@
       monsters: [
         { name: "因果線", hp: 12000, atk: 600, def: 250, exp: 5500, coins: 5000, image: "https://lh3.googleusercontent.com/pw/AP1GczPWkAfp0YoZSygCHk-Dgq7J90HOckrPnKwQjegrXVyqN7mhDPjf3Flxt5BeS0w9eESy75GrtH9URJmwBhccZKAKQ6JlTrG3O6F5ppxnto_fey9N7xc=w2400"},
         { name: "大好大壞", hp: 22000, atk: 880, def: 400, exp: 10000, coins: 12000, image: "https://lh3.googleusercontent.com/pw/AP1GczMQ7weXCOcHT9Zr7EmNN4Klvk9C7spA7CCgLaA-20If8h6AAGetCOgrtzFaRjpQqAo0ut2fld7-_0dXaG_Y7ZRe0bWa6JXZVwwdATx-BdvbaWZ4lis=w2400"},
-        { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true, image: ""}
+        { name: "上丹田的妖魔", hp: 45000, atk: 1350, def: 650, exp: 25000, coins: 30000, isBoss: true, image: "https://lh3.googleusercontent.com/pw/AP1GczMK7bAl1TiX5_YFRUZKz2bZt8bJ-BqJaaGedRxfKUtX-j5LFsPvdqJXB6J7xErmKt-QgytOfTx_VAn-tmE8duul-6nB6SIcgs5DjclX88WuvdDurfs=w2400"}
       ] 
     },
     { 
@@ -2386,7 +2386,7 @@
           activeTab === "skills" && e("div", { className: "bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3" },
             e("h2", { className: "text-lg font-bold text-amber-300 flex items-center gap-2" },
               e(Scroll, { className: "w-5 h-5" }),
-              e("span", null, "武功修練與領悟")
+              e("span", null, "武功修練與領悟 ❋ 靈氣復甦 1折活動中 ❋")
             ),
             e("div", { className: "grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[600px] overflow-y-auto pr-1" },
               skills.map((skill) => e("div", { key: skill.id, className: "bg-slate-950/80 border border-slate-800 p-3 rounded-xl flex flex-col justify-between space-y-2" },
@@ -2562,6 +2562,103 @@
           )
         )
       ),
+      /* 【核心加入】多帳號選擇與創建角色的彈跳視窗 Modal */
+      showAccountModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
+        e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-md w-full shadow-2xl relative" },
+          isGameStarted && e("button", { onClick: () => { AudioManager.btnClick(); setShowAccountModal(false); }, className: "absolute top-4 right-4 text-slate-400 hover:text-white" },
+            e(X, { className: "w-5 h-5" })
+          ),
+          e("h3", { className: "text-xl font-bold text-amber-300 mb-4 flex items-center gap-2" },
+            e(Users, { className: "w-5 h-5" }),
+            e("span", null, "選擇紅塵過客登場 / 創建角色")
+          ),
+          e("div", { className: "space-y-3 mb-6 max-h-60 overflow-y-auto pr-1" },
+            accounts.map((acc) => {
+              const isCur = acc.id === currentAccountId;
+              const accLearnedCount = (acc.skills || []).filter((s) => s.learned).length;
+              const accPlayDays = getPlayDays(acc);
+              return e("div", {
+                key: acc.id,
+                onClick: () => {
+                  AudioManager.btnClick();
+                  setCurrentAccountId(acc.id);
+                  SaveManager.saveSaves(accounts, acc.id);
+                },
+                className: `p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  isCur ? "bg-amber-950/40 border-amber-500 shadow-[0_0_15px_rgba(217,119,6,0.3)]" : "bg-slate-800/40 border-slate-700 hover:border-slate-500"
+                }`
+              },
+                e("div", null,
+                  e("div", { className: "flex items-center gap-2" },
+                    e("span", { className: "text-xs text-amber-400 border border-amber-500/40 px-1.5 py-0.5 rounded" }, acc.player.title),
+                    e("span", { className: "font-bold text-slate-100" }, acc.player.name),
+                    e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
+                  ),
+                  e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
+                    e("span", null, "靈石: " + acc.player.coins),
+                    e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
+                    e("span", null, `歷練: 第${accPlayDays}天`)
+                  )
+                ),
+                e("div", { className: "flex items-center gap-2" },
+                  isCur && e(UserCheck, { className: "w-5 h-5 text-amber-400" }),
+                  accounts.length > 1 && e("button", {
+                    onClick: (ev) => {
+                      ev.stopPropagation();
+                      deleteAccount(acc.id);
+                    },
+                    className: "p-1 text-red-400 hover:text-red-300 hover:bg-red-950/50 rounded"
+                  }, e(Trash2, { className: "w-4 h-4" }))
+                )
+              );
+            })
+          ),
+          e("div", { className: "border-t border-slate-800 pt-4" },
+            e("h4", { className: "text-xs text-slate-400 mb-2" }, "創建新魔幻夢境角色帳號"),
+            e("div", { className: "flex gap-2 mb-3" },
+              e("input", {
+                type: "text",
+                value: inputName,
+                onChange: (ev) => setInputName(ev.target.value),
+                placeholder: "輸入暱稱",
+                className: "flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-amber-500"
+              }),
+              e("button", {
+                onClick: () => {
+                  AudioManager.btnClick();
+                  setInputName(RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)]);
+                },
+                className: "px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center gap-1"
+              },
+                e(Shuffle, { className: "w-3.5 h-3.5" }),
+                e("span", null, "隨機")
+              )
+            ),
+            e("div", { className: "flex gap-2" },
+              e("button", {
+                onClick: handleCreateAccount,
+                className: "flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+              },
+                e(UserPlus, { className: "w-4 h-4" }),
+                e("span", null, "創建新角色")
+              ),
+              e("button", {
+                onClick: () => {
+                  AudioManager.btnClick();
+                  setShowAccountModal(false);
+                  setIsGameStarted(true);
+                  AudioManager.playBGM();
+                },
+                className: "flex-1 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-lg text-sm flex items-center justify-center gap-1"
+              },
+                e(UserCheck, { className: "w-4 h-4" }),
+                e("span", null, "以當前角色登場")
+              )
+            )
+          )
+        )
+      ),
+
       showEditNameModal && e("div", { className: "fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" },
         e("div", { className: "bg-slate-900 border border-amber-600/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl relative" },
           e("h3", { className: "text-lg font-bold text-amber-300 mb-4" }, "修改名號與稱號"),
