@@ -831,7 +831,7 @@
   ];
 
   var CARDS_DATABASE = [
-    { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊傷害 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
+    { id: "card_fire", name: "火天靈根·輸出", element: "fire", iconName: "Flame", color: "from-red-900 to-orange-700", effect: "攻擊力 +15%，暴擊轉化 +25%", stats: { atkBonus: 0.15, critDmgBonus: 0.25 } },
     { id: "card_earth", name: "土天靈根·策略", element: "earth", iconName: "Mountain", color: "from-amber-950 to-stone-800", effect: "防禦力 +25%，最大生命 +20%", stats: { defBonus: 0.25, hpBonus: 0.2 } },
     { id: "card_gold", name: "金天靈根·物理傷害", element: "gold", iconName: "Sun", color: "from-yellow-700 to-amber-500", effect: "暴擊率 +15%，無視防禦 +12%", stats: { critBonus: 0.15, armorPen: 0.12 } },
     { id: "card_wood", name: "木天靈根·羈絆", element: "wood", iconName: "Sparkles", color: "from-emerald-900 to-green-600", effect: "回合結束回復 6% 最大生命值", stats: { regenHp: 0.06 } },
@@ -902,9 +902,9 @@
       desc: "真氣纏繞的太古靈山，潛伏著傳說中的大能與古獸。\n\n【 境界 ⟡ 淬體、練虛 ⟡ 】\n⚠️ 聯動洞府封印狀態！",
       bg: "from-purple-950/80 to-indigo-950", 
       monsters: [
-        { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000 },
-        { name: "冷空間的撕裂之氣", hp: 90000, atk: 2400, def: 1100, exp: 50000, coins: 65000 },
-        { name: "前排境界的心魔", hp: 150000, atk: 3500, def: 1600, exp: 100000, coins: 120000, isBoss: true }
+        { name: "鏡像問心", hp: 65000, atk: 1800, def: 850, exp: 35000, coins: 40000, image: "https://lh3.googleusercontent.com/pw/AP1GczPa3SYAZTFlV_NyEXLU5HF7y5amj0IhcI6j6WEhU4Kh7_9sgF6RrhXUxwHUnBdf-D5nZ5leKaLBES8kcuBw1RudBUtHPSZ1VN2SATjFVRNNq3eiQ6k=w2400"},
+        { name: "冷空間的撕裂之氣", element: "wind", hp: 90000, atk: 2400, def: 1100, exp: 50000, coins: 65000, image: "https://lh3.googleusercontent.com/pw/AP1GczNIAoEDHRlzcVMfCzSnhZ5r1Vu_xZxIg20bLQjP7BqPkq2LPN_eUqQfUGY5F2VUWpQPFy4YYgh7FLSTHIVC0Un0vknbxRuoNKcSE73NyjgAkqH7udA=w2400"},
+        { name: "前排境界的心魔", hp: 150000, atk: 3500, def: 1600, exp: 100000, coins: 120000, isBoss: true, image: "https://lh3.googleusercontent.com/pw/AP1GczNSx3Gn7a0TxIv6Qs-q_5t_oeC18K2wdpxJC2auCpsd9Ogqh0iVIxF9yzvvboRn_cVecAiwQVjuc5brOyApYhTHnOtcEp1o9b5HG0TqKSkfPvhrkfo=w2400"}
       ] 
     }
   ];
@@ -1542,7 +1542,7 @@
         });
       });
 
-      addLog(`獲得獎勵：${gainedExp} 經驗值，${gainedCoins} 靈石`, "heal");
+      addLog(`獲得獎勵：${gainedExp} 經驗值，${gainedCoins} 縷靈氣`, "heal");
 
       if (Math.random() < 0.4) {
         const dropEquip = generateRandomEquip(currentMonster.isBoss);
@@ -1623,7 +1623,7 @@
       const costStone = 1;
       const costCoins = (item.enhance + 1) * 100;
       if (player.enhanceStones < costStone || player.coins < costCoins) {
-        addLog(`強化資源不足！需要 ${costStone} 求進階書與 ${costCoins} 靈石。`, "danger");
+        addLog(`強化資源不足！需要 ${costStone} 進階書與 ${costCoins} 縷靈氣。`, "danger");
         return;
       }
       setPlayer((p) => __spreadProps(__spreadValues({}, p), { enhanceStones: p.enhanceStones - costStone, coins: p.coins - costCoins }));
@@ -1649,13 +1649,13 @@
       const price = item.type === "equip" ? RARITY_MAP[item.rarity].val * 50 : 20;
       setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins + price }));
       setInventory((prev) => prev.filter((i) => i.id !== item.id));
-      addLog(`賣出了【${item.name}】，獲得 ${price} 靈石`, "info");
+      addLog(`賣出了【${item.name}】，獲得 ${price} 縷靈氣`, "info");
     };
 
     const restAtInn = () => {
       AudioManager.btnClick();
       if (player.coins < 30) {
-        addLog("靈石不足，無法在靜室打坐休養！", "danger");
+        addLog("靈氣不足，無法在靜室打坐休養！", "danger");
         return;
       }
       setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins - 30, hp: stats.finalMaxHp, mp: stats.finalMaxMp }));
@@ -1829,7 +1829,7 @@
                       e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
                     ),
                     e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
-                      e("span", null, "靈石: " + acc.player.coins),
+                      e("span", null, "靈氣: " + acc.player.coins),
                       e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
                       e("span", null, `歷練: 第${accPlayDays}天`)
                     )
@@ -2404,7 +2404,7 @@
                   onClick: () => {
                     AudioManager.btnClick();
                     if (player.coins < skill.price) {
-                      addLog("靈石不足，無法購買此秘籍！", "danger");
+                      addLog("靈氣不足，無法購買此秘籍！", "danger");
                       return;
                     }
                     setPlayer((p) => __spreadProps(__spreadValues({}, p), { coins: p.coins - skill.price }));
@@ -2412,7 +2412,7 @@
                     addLog(`成功修練【${skill.name}】！`, "legend");
                   },
                   className: "w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs rounded transition-all"
-                }, `修練領悟 (${skill.price} 靈石)`)
+                }, `修練領悟 (${skill.price} 靈氣)`)
               ))
             )
           ),
@@ -2486,7 +2486,7 @@
               e("button", {
                 onClick: restAtInn,
                 className: "px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs"
-              }, "靜室打坐 (30靈石全復)")
+              }, "靜室打坐 (30縷靈氣全回復)")
             ),
             e("div", { className: "flex flex-col sm:flex-row gap-2 items-center" },
               e("div", { className: "relative flex-1 w-full" },
@@ -2503,7 +2503,7 @@
                 [
                   { id: "all", label: "全部" },
                   { id: "equip", label: "裝備" },
-                  { id: "potion", label: "丹藥" }
+                  { id: "potion", label: "輔品" }
                 ].map((ft) => e("button", {
                   key: ft.id,
                   onClick: () => { AudioManager.btnClick(); setInventoryFilterType(ft.id); },
@@ -2595,7 +2595,7 @@
                     e("span", { className: "text-xs text-slate-400" }, "Lv." + acc.player.level)
                   ),
                   e("div", { className: "text-[11px] text-slate-400 mt-1 flex items-center gap-3" },
-                    e("span", null, "靈石: " + acc.player.coins),
+                    e("span", null, "靈氣: " + acc.player.coins),
                     e("span", null, `武功: ${accLearnedCount}/${SKILLS_DATABASE.length}`),
                     e("span", null, `歷練: 第${accPlayDays}天`)
                   )
@@ -2699,11 +2699,11 @@
           e("div", { className: "space-y-2 text-xs text-slate-300 max-h-72 overflow-y-auto pr-1 font-mono" },
             e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
               e("strong", { className: "text-amber-300 block mb-0.5" }, "攻擊力 (ATK)"),
-              e("span", null, "決定對敵人造成的基礎傷害高低。數值越高，破敵越快。")
+              e("span", null, "決定對敵人造成的基礎轉化高低。數值越高，破敵越快。")
             ),
             e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
               e("strong", { className: "text-blue-300 block mb-0.5" }, "防禦力 (DEF)"),
-              e("span", null, "減少遭受怪物攻擊時所受到的傷害數值。")
+              e("span", null, "減少遭受怪物攻擊時所受到的轉化數值。")
             ),
             e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
               e("strong", { className: "text-red-300 block mb-0.5" }, "最大生命 (HP)"),
@@ -2714,12 +2714,12 @@
               e("span", null, "施展主動武功招式所需的能量消耗來源。")
             ),
             e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
-              e("strong", { className: "text-yellow-300 block mb-0.5" }, "暴擊率與暴擊傷害"),
-              e("span", null, "攻擊時有一定機率觸發暴擊，造成額外倍率的巨額傷害。")
+              e("strong", { className: "text-yellow-300 block mb-0.5" }, "暴擊率與暴擊轉化"),
+              e("span", null, "攻擊時有一定機率觸發暴擊，造成額外倍率的巨額轉化。")
             ),
             e("div", { className: "bg-slate-950 p-2.5 rounded border border-slate-800" },
               e("strong", { className: "text-emerald-300 block mb-0.5" }, "閃避率"),
-              e("span", null, "戰鬥中完全免疫敵人攻擊傷害的機率。")
+              e("span", null, "戰鬥中完全免疫敵人攻擊轉化的機率。")
             )
           ),
           e("button", {
